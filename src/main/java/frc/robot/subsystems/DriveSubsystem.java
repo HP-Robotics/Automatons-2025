@@ -22,6 +22,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -58,9 +59,9 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final Pigeon2 m_pGyro = new Pigeon2(IDConstants.PigeonID, "CANivore");
 
-  private StatusSignal<Double> m_pGyroPitch = m_pGyro.getPitch();
-  private StatusSignal<Double> m_pGyroYaw = m_pGyro.getYaw();
-  private StatusSignal<Double> m_pGyroRoll = m_pGyro.getRoll();
+  private StatusSignal<Angle> m_pGyroPitch = m_pGyro.getPitch();
+  private StatusSignal<Angle> m_pGyroYaw = m_pGyro.getYaw();
+  private StatusSignal<Angle> m_pGyroRoll = m_pGyro.getRoll();
 
   PIDController rotationController;
   PoseEstimatorSubsystem m_poseEstimator;
@@ -120,10 +121,10 @@ public class DriveSubsystem extends SubsystemBase {
     driveTrainTable.putValue("Robot theta",
         NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
     driveTrainTable.putValue("is Drive Abs Working", NetworkTableValue.makeBoolean(
-        m_backLeft.m_absEncoder.getAbsolutePosition() != 0 &&
-            m_backRight.m_absEncoder.getAbsolutePosition() != 0 &&
-            m_frontLeft.m_absEncoder.getAbsolutePosition() != 0 &&
-            m_frontRight.m_absEncoder.getAbsolutePosition() != 0));
+        m_backLeft.m_absEncoder.get() != 0 &&
+            m_backRight.m_absEncoder.get() != 0 &&
+            m_frontLeft.m_absEncoder.get() != 0 &&
+            m_frontRight.m_absEncoder.get() != 0));
     // TODO investigate why this takes so long
     m_frontLeft.updateShuffleboard();
     m_frontRight.updateShuffleboard();
@@ -202,9 +203,9 @@ public class DriveSubsystem extends SubsystemBase {
     driveTrainTable.putValue("Rotation Power Input", NetworkTableValue.makeDouble(rot));
 
     driveTrainTable.putValue("Rotation Controller P",
-        NetworkTableValue.makeDouble(rotationController.getP() * rotationController.getPositionError()));
+        NetworkTableValue.makeDouble(rotationController.getP() * rotationController.getError()));
     driveTrainTable.putValue("Rotation Controller Position Error",
-        NetworkTableValue.makeDouble(rotationController.getPositionError()));
+        NetworkTableValue.makeDouble(rotationController.getError()));
     driveTrainTable.putValue("Rotation Controller Setpoint",
         NetworkTableValue.makeDouble(rotationController.getSetpoint()));
   }
@@ -224,9 +225,9 @@ public class DriveSubsystem extends SubsystemBase {
     driveTrainTable.putValue("Rotation Power Input", NetworkTableValue.makeDouble(rot));
 
     driveTrainTable.putValue("Rotation Controller P",
-        NetworkTableValue.makeDouble(rotationController.getP() * rotationController.getPositionError()));
+        NetworkTableValue.makeDouble(rotationController.getP() * rotationController.getError()));
     driveTrainTable.putValue("Rotation Controller Position Error",
-        NetworkTableValue.makeDouble(rotationController.getPositionError()));
+        NetworkTableValue.makeDouble(rotationController.getError()));
     driveTrainTable.putValue("Rotation Controller Setpoint",
         NetworkTableValue.makeDouble(rotationController.getSetpoint()));
   }
@@ -318,14 +319,14 @@ public class DriveSubsystem extends SubsystemBase {
    * Resets robot's conception of field orientation
    */
   public void resetYaw(double angle) {
-    m_gyroOffset = m_pGyro.getYaw().getValue() - angle;
+    m_gyroOffset = m_pGyro.getYaw().getValueAsDouble() - angle;
     // m_pGyro.setYaw(angle);// TODO how do we want this to interact with pose
     // estimator?
     // add offset (and a wraparound to avoid the offset breaking things)
   }
 
   public double getYaw() {
-    return MathUtil.inputModulus(m_pGyro.getYaw().getValue() - m_gyroOffset, -180.0, 180.0);
+    return MathUtil.inputModulus(m_pGyro.getYaw().getValueAsDouble() - m_gyroOffset, -180.0, 180.0);
   }
 
   public void resetYaw() {
