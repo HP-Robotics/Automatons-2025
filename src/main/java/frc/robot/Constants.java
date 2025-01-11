@@ -8,6 +8,8 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 
@@ -24,27 +26,43 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
+  public static class DriveConstants {
+    public static final Translation2d kFrontLeftLocation = new Translation2d(0.308 - 0.038, 0.308);
+    public static final Translation2d kFrontRightLocation = new Translation2d(0.308 - 0.038, -0.308);
+    public static final Translation2d kBackLeftLocation = new Translation2d(-0.308, 0.308);
+    public static final Translation2d kBackRightLocation = new Translation2d(-0.308, -0.308);
+
+    public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
+        kFrontLeftLocation, kFrontRightLocation, kBackRightLocation, kBackLeftLocation);
+  }
+
   public static class LimelightConstants {
     public static final double inToM = 0.0254;
     public static final Pose2d aprilTagList[] = { // 0 is empty, april tag number is that number in list
         // TODO: These are values from last year so get the ones from this year
         new Pose2d(),
-        new Pose2d(593.68 * inToM, 9.68 * inToM, new Rotation2d(Math.PI * 2 / 3)), // 1
-        new Pose2d(637.21 * inToM, 34.79 * inToM, new Rotation2d(Math.PI * 2 / 3)), // 2
-        new Pose2d(652.73 * inToM, 196.17 * inToM, new Rotation2d(Math.PI)), // 3
-        new Pose2d(652.73 * inToM, 218.42 * inToM, new Rotation2d(Math.PI)), // 4
-        new Pose2d(578.77 * inToM, 323.00 * inToM, new Rotation2d(Math.PI * 3 / 2)), // 5
-        new Pose2d(72.5 * inToM, 323.00 * inToM, new Rotation2d(Math.PI * 3 / 2)), // 6
-        new Pose2d(-1.5 * inToM, 218.42 * inToM, new Rotation2d(0)), // 7
-        new Pose2d(-1.5 * inToM, 196.17 * inToM, new Rotation2d(0)), // 8
-        new Pose2d(14.02 * inToM, 34.79 * inToM, new Rotation2d(Math.PI / 3)), // 9
-        new Pose2d(57.54 * inToM, 9.68 * inToM, new Rotation2d(Math.PI / 3)), // 10
-        new Pose2d(468.69 * inToM, 146.19 * inToM, new Rotation2d(Math.PI * 5 / 3)), // 11
-        new Pose2d(468.69 * inToM, 177.10 * inToM, new Rotation2d(Math.PI / 3)), // 12
-        new Pose2d(441.74 * inToM, 161.62 * inToM, new Rotation2d(Math.PI)), // 13
-        new Pose2d(209.48 * inToM, 161.62 * inToM, new Rotation2d(0)), // 14
-        new Pose2d(182.73 * inToM, 177.10 * inToM, new Rotation2d(Math.PI * 2 / 3)), // 15
-        new Pose2d(182.73 * inToM, 146.19 * inToM, new Rotation2d(Math.PI * 4 / 3)) // 16
+        new Pose2d(7.923198, -3.37068, new Rotation2d(Math.PI * 2 / 3)), // 1
+        new Pose2d(7.923198, 3.37068, new Rotation2d(Math.PI * 2 / 3)), // 2
+        new Pose2d(2.78681, 4.02961, new Rotation2d(Math.PI)), // 3
+        new Pose2d(0.50208, 2.111656, new Rotation2d(Math.PI)), // 4
+        new Pose2d(0.50208, -2.111094, new Rotation2d(Math.PI * 3 / 2)), // 5
+        new Pose2d(4.700446, -0.719682, new Rotation2d(Math.PI * 3 / 2)), // 6
+        new Pose2d(5.116498, -0.0001, new Rotation2d(0)), // 7
+        new Pose2d(4.700446, 0.719482, new Rotation2d(0)), // 8
+        new Pose2d(3.869358, 0.719482, new Rotation2d(Math.PI / 3)), // 9
+        new Pose2d(3.453306, -0.0001, new Rotation2d(Math.PI / 3)), // 10
+        new Pose2d(3.869358, -0.719682, new Rotation2d(Math.PI * 5 / 3)), // 11
+        new Pose2d(-7.922846, -3.37068, new Rotation2d(Math.PI / 3)), // 12
+        new Pose2d(-7.922846, 3.37048, new Rotation2d(Math.PI)), // 13
+        new Pose2d(-0.501728, 2.111656, new Rotation2d(0)), // 14
+        new Pose2d(-0.501728, -2.111094, new Rotation2d(Math.PI * 2 / 3)), // 15
+        new Pose2d(-2.786458, -4.02981, new Rotation2d(Math.PI * 4 / 3)), // 16
+        new Pose2d(-4.700094, 0.719682, new Rotation2d(Math.PI * 4 / 3)), // 17
+        new Pose2d(-5.1164, -0.00001, new Rotation2d(Math.PI * 4 / 3)), // 18
+        new Pose2d(-4.700094, 0.719482, new Rotation2d(Math.PI * 4 / 3)), // 19
+        new Pose2d(-3.86926, 0.719482, new Rotation2d(Math.PI * 4 / 3)), // 20
+        new Pose2d(-3.452954, -0.0001, new Rotation2d(Math.PI * 4 / 3)), // 21
+        new Pose2d(-3.86926, -0.719682, new Rotation2d(Math.PI * 4 / 3)) // 22
     };
   }
 

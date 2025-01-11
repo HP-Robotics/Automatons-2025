@@ -55,10 +55,10 @@ public class LimelightSubsystem extends SubsystemBase {
         .add("Pose2d", m_field)
         .withWidget(BuiltInWidgets.kField);
     m_table = NetworkTableInstance.getDefault().getTable("limelight-delight");
-    botposeBlue = m_table.getEntry("botpose_orb_wpiblue");
+    botposeBlue = m_table.getEntry("botpose_wpiblue");
     m_poseEstimator = poseEstimatorSubsystem;
-    publisher = poseEstimatorTable.getStructTopic("AprilTagPose", Pose2d.struct).publish();
-    limeSub = m_table.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(defaultValues);
+    publisher = poseEstimatorTable.getStructTopic("AprilTag Pose", Pose2d.struct).publish();
+    limeSub = m_table.getDoubleArrayTopic("botpose_wpiblue").subscribe(defaultValues);
 
     m_aprilTagSeen = false;
   }
@@ -82,7 +82,7 @@ public class LimelightSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     double[] entries = new double[6];
-        entries[0] = m_poseEstimator.getPose().getRotation().getDegrees();
+        entries[0] = 0; //m_poseEstimator.getPose().getRotation().getDegrees();
         entries[1] = 0;
         entries[2] = 0;
         entries[3] = 0;
@@ -92,7 +92,7 @@ public class LimelightSubsystem extends SubsystemBase {
     double latency = 0;
     double timeStamp = 0;
     double botposeEmpty[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    m_sawAprilTag = m_table.getEntry("botpose_orb_wpiblue").getDoubleArray(botposeEmpty)[7] != 0;
+    m_sawAprilTag = m_table.getEntry("botpose_wpiblue").getDoubleArray(defaultValues)[7] != 0;
     botpose = botposeBlue.getDoubleArray(botposeEmpty);
     tx = m_table.getEntry("tx").getDouble(0);
     ty = m_table.getEntry("ty").getDouble(0);

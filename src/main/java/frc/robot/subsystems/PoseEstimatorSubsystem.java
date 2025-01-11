@@ -30,8 +30,6 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
 
   public PoseEstimatorSubsystem() {
     posePublisher = poseEstimatorTable.getStructTopic("Fused Pose", Pose2d.struct).publish();
-
-    // make fake intializaition run in Drive Subsystem
   }
 
   public void createPoseEstimator(SwerveDriveKinematics kinematics, Rotation2d angle,
