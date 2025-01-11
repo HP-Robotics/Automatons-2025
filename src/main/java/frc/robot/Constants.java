@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.Matrix;
@@ -29,6 +30,19 @@ import com.pathplanner.lib.config.PIDConstants;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+  }
+  public static class SubsystemConstants {
+    public static boolean useDataManager;
+  }
+  public static class ControllerConstants{
+    public static final double driveJoystickDeadband = 0;
+    public static final double driveJoystickExponent = 0;
+  }
+  public static class RobotConfigConstants {
+    public static final double massKG = 52.16; //TODO: Find out actual value
+    public static final double MOI = 0;
+    public static final ModuleConfig moduleConfig = new ModuleConfig(null, null, MOI, null, null, 0);
+    public static Translation2d moduleOffsets;
   }
 
   public static class IDConstants {

@@ -4,12 +4,16 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 
+import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
@@ -19,6 +23,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -26,6 +31,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -35,7 +41,10 @@ import frc.robot.SwerveModule;
 
 /** Represents a swerve drive style drivetrain. */
 public class DriveSubsystem extends SubsystemBase {
+  Odometry m_odometry;
   Supplier<Pose2d> getPose;
+  Consumer<Pose2d> resetPose;
+  Supplier<ChassisSpeeds> getRobotRelativeSpeeds;
   // BIG BONGO 7
   private final SwerveModule m_frontLeft = new SwerveModule(IDConstants.FLDriveMotorID,
       IDConstants.FLTurningMotorID, PortConstants.FLAbsEncoder, DriveConstants.absEncoderForwardFL, "FL");
@@ -134,6 +143,14 @@ public class DriveSubsystem extends SubsystemBase {
 
   }
 
+public void resetPose(Pose2d pose) {
+  resetEncoders();
+  m_odometry.resetPosition(pose, Rotation2d.fremDegrees(getHeading()));
+}
+public ChassisSpeeds getRobotRelativeSpeeds() {
+
+}
+
   public void updateOdometry() {
     var pigeonYaw = new Rotation2d(Math.toRadians(getYaw()));
     // Update the odometry in the periodic block
@@ -194,7 +211,7 @@ public class DriveSubsystem extends SubsystemBase {
     setModuleStates(swerveModuleStates);
   }
 
-  public void driveRobotRelative(ChassisSpeeds speeds) {
+  public void driveRobotRelative(ChassisSpeeds speeds, DriveFeedforwards feedForwards) {
     ChassisSpeeds discSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(discSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeed);
@@ -369,4 +386,3 @@ public class DriveSubsystem extends SubsystemBase {
     resetYaw(0);
   }
 }
->>>>>>> origin/matt
