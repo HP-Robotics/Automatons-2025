@@ -15,6 +15,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
 import com.pathplanner.lib.commands.PathfindThenFollowPath;
 
@@ -25,27 +26,32 @@ public class DriveToPoseCommand extends Command {
   String m_pathName;
   PathPlannerPath m_path;
   PathfindingCommand m_PathfindingCommand;
-  PathfindThenFollowPathHolonomic m_pathPlannerCommand;
+  PathfindThenFollowPath m_pathPlannerCommand;
 
   public DriveToPoseCommand(DriveSubsystem driveSubsystem, String pathName) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_driveSubsystem = driveSubsystem;
     m_pathName = pathName;
-    m_path = PathPlannerPath.fromPathFile(pathName);
+    try {
+      m_path = PathPlannerPath.fromPathFile(pathName);
+    }
+    catch(Exception e) {
+      System.out.println("Path Exception");
+    }
     m_pathPlannerCommand = PathCommand();
     addRequirements(driveSubsystem);
   }
-  public PathfindThenFollowPathHolonomic PathCommand() {
-    return new PathfindThenFollowPathHolonomic(
+  public PathfindThenFollowPath PathCommand() {
+    return new PathfindThenFollowPath(
         m_path,
-        new PathConstraints(AutoConstants.kMaxAutoVelocity,
-            AutoConstants.kMaxAccelerationMetersPerSecondSquared,
-            AutoConstants.kMaxAngularSpeedRadiansPerSecond,
-            AutoConstants.kMaxAngularAcceleration),
+        new PathConstraints(Constants.AutoConstants.kMaxAutoVelocity,
+            Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared,
+            Constants.AutoConstants.kMaxAngularSpeedRadiansPerSecond,
+            Constants.AutoConstants.kMaxAngularAcceleration),
         m_driveSubsystem::getPose,
         m_driveSubsystem::getCurrentspeeds,
         m_driveSubsystem::driveRobotRelative,
-        DriveConstants.holonomicConfig,
+        Constants.DriveConstants.holonomicConfig,
         () -> {
           // Boolean supplier that controls when the path will be mirrored for the red alliance
           // This will flip the path being followed to the red side of the field.

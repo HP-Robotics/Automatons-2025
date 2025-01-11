@@ -4,14 +4,21 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
+  PPHolonomicDriveController m_driveController;
+  Supplier<Pose2d> getPose;
+  
   public DriveSubsystem() {
     // All other subsystem initialization
     // ...

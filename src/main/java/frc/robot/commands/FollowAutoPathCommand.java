@@ -5,7 +5,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class FollowAutoPathCommand {
-    
+    DriveSubsystem m_driveSubsystem;
+    String m_pathName;
+    Boolean m_resetPosition;
 public FollowAutoPathCommand(DriveSubsystem driveSubsystem, String pathName, Boolean resetPosition) {
     m_driveSubsystem = driveSubsystem;
     m_pathName = pathName;
