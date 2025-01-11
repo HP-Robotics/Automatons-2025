@@ -100,7 +100,7 @@ public class SwerveModule {
 
     public void resetOffset() {
 
-        if (m_absEncoder.getAbsolutePosition() != 0) {
+        if (m_absEncoder.get() != 0) {
             double offset = m_absEncoderForward - m_absEncoder.getAbsolutePosition();
             m_turningOffset = m_turningMotor.getPosition().getValueAsDouble()
                     + offset * (DriveConstants.kEncoderResolution * DriveConstants.turningGearRatio);
@@ -125,6 +125,12 @@ public class SwerveModule {
         return (meters / (2 * Math.PI * DriveConstants.kWheelRadius)) * DriveConstants.kEncoderResolution
                 * DriveConstants.driveGearRatio;
 
+    }
+
+    public double getAbsolutePosition() {
+        m_absEncoder.get();
+
+        return mapSensorRange(m_absEncoder.m_dutyCycle.getOutput());
     }
 
     /**
