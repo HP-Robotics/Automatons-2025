@@ -14,6 +14,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import com.pathplanner.lib.config.PIDConstants;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -28,16 +29,23 @@ import com.pathplanner.lib.config.PIDConstants;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+  public static class SubsystemConstants {
+    public static final boolean useDrive = true;
+    public static final boolean useIntake = true;
+    public static final boolean useShooter = true;
+    public static final boolean useDataManager = true;
+    public static final boolean useLimelight = true;
+    public static final boolean usePivot = true;
+    public static final boolean useClimber = true;
+    public static final boolean useTrigger = true;
+  }
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
-  public static class SubsystemConstants {
-    public static boolean useDataManager;
-  }
-  public static class ControllerConstants{
-    public static final double driveJoystickDeadband = 0;
-    public static final double driveJoystickExponent = 0;
-  }
+
+  
   public static class RobotConfigConstants {
     public static final double massKG = 52.16; //TODO: Find out actual value
     public static final double MOI = 0;
@@ -73,6 +81,47 @@ public final class Constants {
     public static final int FRAbsEncoder = 0;
     public static final int BRAbsEncoder = 0;
     public static final int BLAbsEncoder = 0;
+  }
+
+  public static class ControllerConstants {
+    public static final boolean useXbox = true;
+
+    public static final int kOperatorControllerPort = 0;
+    public static final int kDriverControllerPort = 1;
+    public static final double driveJoystickDeadband = useXbox ? 0.15 : 0.15;
+    public static final double turnJoystickDeadband = useXbox ? 0.1 : 0.1;
+
+    public static final double driveJoystickExponent = useXbox ? 2 : 2;
+
+    public static final int resetHeadingButton = useXbox ? 8 : 0;
+    public static final int resetYawButton = useXbox ? 7 : 11;
+    public static final int fieldRelativeButton = useXbox ? 8 : 8;
+    public static final int robotRelativeButton = useXbox ? 2 : 8;
+    public static final int yuckButton = useXbox ? 4 : 2;
+    public static final int climberButton = useXbox ? 10 : 10;
+    public static final int intakeButton = useXbox ? 0 : 1;
+    public static final int drivePointedToSpeakerButton = useXbox ? 6 : 0;
+    public static final int drivePointedToNoteButton = useXbox ? 5 : 0;
+    public static final int driveToNoteAxis = useXbox ? 2 : 0;
+    public static final int driveToAmpButton = 1;
+    public static final int pointToCornerButton = 2;
+
+    // TODO: Add operator joystick constants
+
+    public static double getRotation(CommandJoystick stick) {
+      if (useXbox) {
+        return stick.getRawAxis(4);
+      } else {
+        return stick.getRawAxis(2);
+        // if (stick.povLeft().getAsBoolean()) {
+        // return -0.5;
+        // }
+        // else if (stick.povRight().getAsBoolean()) {
+        // return 0.5;
+        // }
+        // return 0;
+      }
+    }
   }
 
   public static class DriveConstants {

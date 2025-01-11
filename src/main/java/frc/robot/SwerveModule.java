@@ -21,6 +21,7 @@ import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants.DriveConstants;
@@ -53,6 +54,8 @@ public class SwerveModule {
             int turningMotorChannel, int absEncoder, double absEncoderForward, String name) {
         m_driveMotor = new TalonFX(driveMotorChannel, "CANivore");
         var slot0Configs = new Slot0Configs();
+        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         new ClosedLoopRampsConfigs().withTorqueClosedLoopRampPeriod(DriveConstants.rampTimeTo300s);
         var currentConfigs = new TorqueCurrentConfigs().withPeakForwardTorqueCurrent(DriveConstants.currentMax)
                 .withPeakReverseTorqueCurrent(DriveConstants.currentMin);
@@ -62,6 +65,7 @@ public class SwerveModule {
         slot0Configs.kI = DriveConstants.drivekI;
         slot0Configs.kD = DriveConstants.drivekD;
         m_driveMotor.getConfigurator().apply(new TalonFXConfiguration());
+        m_driveMotor.getConfigurator().apply(motorConfig);
         m_driveMotor.getConfigurator().apply(slot0Configs);
         // m_driveMotor.getConfigurator().apply(rampConfigs);
         m_driveMotor.getConfigurator().apply(currentConfigs);
@@ -78,8 +82,8 @@ public class SwerveModule {
         turningConfig.kD = DriveConstants.turningkD;
         m_turningMotor.getConfigurator().apply(new TalonFXConfiguration());
         m_turningMotor.getConfigurator().apply(turningConfig);
+        m_driveMotor.getConfigurator().apply(currentConfigs);
         m_turningMotor.setNeutralMode(NeutralModeValue.Brake);
-        m_turningMotor.setInverted(true);
 
         var rampConfigsTurning = new ClosedLoopRampsConfigs()
                 .withDutyCycleClosedLoopRampPeriod(DriveConstants.rampTimeTo300s);
@@ -100,8 +104,8 @@ public class SwerveModule {
 
     public void resetOffset() {
 
-        if (m_absEncoder.getAbsolutePosition() != 0) {
-            double offset = m_absEncoderForward - m_absEncoder.getAbsolutePosition();
+        if (m_absEncoder.get() != 0) {
+            double offset = m_absEncoderForward - m_absEncoder.get();
             m_turningOffset = m_turningMotor.getPosition().getValueAsDouble()
                     + offset * (DriveConstants.kEncoderResolution * DriveConstants.turningGearRatio);
         }
@@ -153,7 +157,7 @@ public class SwerveModule {
     }
 
     public double getModifiedAbsolute() {
-        double absValue = m_absEncoder.getAbsolutePosition() - m_absEncoderForward;
+        double absValue = m_absEncoder.get() - m_absEncoderForward;
         return absValue * 2 * Math.PI;
     }
 
@@ -170,7 +174,7 @@ public class SwerveModule {
         // NetworkTableValue.makeDouble(ticksToRadians(motorValueToTicks(m_turningMotor.getRotorPosition().getValue()))));
         // driveTrainTable.putValue(m_name + "testAngle",
         // NetworkTableValue.makeDouble(getModifiedAbsolute()));
-        if (m_absEncoder.getAbsolutePosition() != 0) {
+        if (m_absEncoder.get() != 0) {
             return new SwerveModulePosition(
                     ticksToMeters(m_driveMotor.getRotorPosition().getValueAsDouble()),
                     new Rotation2d(getModifiedAbsolute()));
@@ -207,7 +211,7 @@ public class SwerveModule {
         // driveTrainTable.putValue(m_name + " Turn Angle",
         // NetworkTableValue.makeDouble(getEncoderAngle()));
         driveTrainTable.putValue(m_name + " Abs Encoder",
-                NetworkTableValue.makeDouble(m_absEncoder.getAbsolutePosition()));
+                NetworkTableValue.makeDouble(m_absEncoder.get()));
         // driveTrainTable.putValue(m_name + " Turning kD Proportion",
         // NetworkTableValue.makeDouble(m_turningMotor.getClosedLoopDerivativeOutput().getValue()));
         // driveTrainTable.putValue(m_name + " Turning kP Proportion",
