@@ -25,6 +25,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
@@ -41,7 +42,7 @@ import frc.robot.SwerveModule;
 
 /** Represents a swerve drive style drivetrain. */
 public class DriveSubsystem extends SubsystemBase {
-  Odometry m_odometry;
+  SwerveDriveOdometry m_odometry;
   Supplier<Pose2d> getPose;
   Consumer<Pose2d> resetPose;
   Supplier<ChassisSpeeds> getRobotRelativeSpeeds;
@@ -99,7 +100,7 @@ public class DriveSubsystem extends SubsystemBase {
             this::getPose, // Robot pose supplier
             this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
             this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+            (speeds, feedforwards) -> driveRobotRelative(speeds, feedforwards), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
             new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
                     new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
                     new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
@@ -145,7 +146,7 @@ public class DriveSubsystem extends SubsystemBase {
 
 public void resetPose(Pose2d pose) {
   resetEncoders();
-  m_odometry.resetPosition(pose, Rotation2d.fremDegrees(getHeading()));
+  m_odometry.resetPosition(pose, Rotation2d.fromDegrees(getHeading()));
 }
 public ChassisSpeeds getRobotRelativeSpeeds() {
 
