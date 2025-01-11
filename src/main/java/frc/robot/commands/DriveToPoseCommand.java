@@ -11,21 +11,27 @@ import org.json.simple.parser.ParseException;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 import com.pathplanner.lib.util.FileVersionException;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.controllers.PathFollowingController;
 
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
+import frc.robot.Constants.PIDConstantsOurs;
 import frc.robot.Constants.RobotConfigConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import com.pathplanner.lib.commands.PathfindThenFollowPath;
@@ -38,8 +44,10 @@ public class DriveToPoseCommand extends Command {
   PathPlannerPath m_path;
   PathfindingCommand m_PathfindingCommand;
   PathfindThenFollowPath m_pathPlannerCommand;
-  HolonomicDriveController m_controller;
+  PathFollowingController m_driveController;
   RobotConfig m_config;
+  PathPlannerTrajectoryState targetState;
+  Pose2d currentPose;
 
   public DriveToPoseCommand(DriveSubsystem driveSubsystem, String pathName) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -71,10 +79,8 @@ public class DriveToPoseCommand extends Command {
         m_driveSubsystem::getPose,
         m_driveSubsystem::getCurrentspeeds,
         m_driveSubsystem::driveRobotRelative,
-        m_controller = new HolonomicDriveController(
-  new PIDController(1, 0, 0), new PIDController(1, 0, 0),
-  new ProfiledPIDController(1, 0, 0,
-    new TrapezoidProfile.Constraints(6.28, 3.14))),
+        m_driveController = new PPHolonomicDriveController(
+  PIDConstantsOurs.translationConstants, PIDConstantsOurs.rotationConstants),
         m_config,
         () -> {
           // Boolean supplier that controls when the path will be mirrored for the red alliance

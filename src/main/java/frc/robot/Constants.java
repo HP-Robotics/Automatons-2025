@@ -135,12 +135,6 @@ public final class Constants {
 
     public static final double driveToNoteSpeed = 0.5;
 
-    public static final HolonomicPathFollowerConfig holonomicConfig = new HolonomicPathFollowerConfig(
-      new PIDConstants(5.0, 0.0, 0.0),
-      new PIDConstants(5.0, 0.0, 0.0),
-      4.5,
-      0.4, // Distance from robot center to furthest module.
-      new ReplanningConfig());
 
   }
 
@@ -153,5 +147,11 @@ public final class Constants {
 
     public static final double maxAcceptableSkew = Math.PI / 3;
     public static final double maxAcceptableDistance = 5.0;
+  }
+
+  public static final class PIDConstantsOurs {
+    public static final PIDConstants translationConstants = new PIDConstants(0, 0, 0);
+    public static final PIDConstants rotationConstants = new PIDConstants(0, 0, 0);
+
   }
 }
