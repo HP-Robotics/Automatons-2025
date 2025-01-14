@@ -42,14 +42,15 @@ public final class Constants {
   }
 
   public static class IDConstants {
-    public static final int FLTurningMotorID = 0;
-    public static final int FRTurningMotorID = 0;
-    public static final int BRTurningMotorID = 0;
-    public static final int BLTurningMotorID = 0;
-    public static final int FLDriveMotorID = 0;
-    public static final int FRDriveMotorID = 0;
-    public static final int BRDriveMotorID = 0;
-    public static final int BLDriveMotorID = 0;
+    public static final int FLDriveMotorID = 26;
+    public static final int FRDriveMotorID = 22;
+    public static final int BRDriveMotorID = 20;
+    public static final int BLDriveMotorID = 24;
+
+    public static final int FLTurningMotorID = 27;
+    public static final int FRTurningMotorID = 23;
+    public static final int BRTurningMotorID = 21;
+    public static final int BLTurningMotorID = 25;
     public static final int PigeonID = 0;
   }
 

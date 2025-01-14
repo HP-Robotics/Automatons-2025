@@ -54,8 +54,6 @@ public class SwerveModule {
             int turningMotorChannel, int absEncoder, double absEncoderForward, String name) {
         m_driveMotor = new TalonFX(driveMotorChannel, "CANivore");
         var slot0Configs = new Slot0Configs();
-        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         new ClosedLoopRampsConfigs().withTorqueClosedLoopRampPeriod(DriveConstants.rampTimeTo300s);
         var currentConfigs = new TorqueCurrentConfigs().withPeakForwardTorqueCurrent(DriveConstants.currentMax)
                 .withPeakReverseTorqueCurrent(DriveConstants.currentMin);
@@ -65,7 +63,6 @@ public class SwerveModule {
         slot0Configs.kI = DriveConstants.drivekI;
         slot0Configs.kD = DriveConstants.drivekD;
         m_driveMotor.getConfigurator().apply(new TalonFXConfiguration());
-        m_driveMotor.getConfigurator().apply(motorConfig);
         m_driveMotor.getConfigurator().apply(slot0Configs);
         // m_driveMotor.getConfigurator().apply(rampConfigs);
         m_driveMotor.getConfigurator().apply(currentConfigs);
@@ -76,10 +73,10 @@ public class SwerveModule {
         // m_driveMotor.getClosedLoopDerivativeOutput(),m_driveMotor.getClosedLoopIntegratedOutput(),m_driveMotor.getClosedLoopProportionalOutput(),m_driveMotor.getClosedLoopFeedForward());
 
         m_turningMotor = new TalonFX(turningMotorChannel, "CANivore");
-        var turningConfig = new Slot0Configs();
-        turningConfig.kP = DriveConstants.turningkP;
-        turningConfig.kI = DriveConstants.turningkI;
-        turningConfig.kD = DriveConstants.turningkD;
+        TalonFXConfiguration turningConfig = new TalonFXConfiguration();
+        turningConfig.Slot0.kP = DriveConstants.turningkP;
+        turningConfig.Slot0.kI = DriveConstants.turningkI;
+        turningConfig.Slot0.kD = DriveConstants.turningkD;
         m_turningMotor.getConfigurator().apply(new TalonFXConfiguration());
         m_turningMotor.getConfigurator().apply(turningConfig);
         m_driveMotor.getConfigurator().apply(currentConfigs);
