@@ -8,6 +8,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
+import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.PIDConstantsOurs;
 import frc.robot.Constants.RobotConfigConstants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -51,8 +53,8 @@ public class DriveToPoseCommand extends Command {
     m_pathPlannerCommand = PathCommand();
     addRequirements(driveSubsystem);
   }
-  public PathfindThenFollowPathHolonomic PathCommand() {
-    return new PathfindThenFollowPathHolonomic(
+  public PathfindThenFollowPath PathCommand() {
+    return new PathfindThenFollowPath(
         m_path,
         new PathConstraints(AutoConstants.kMaxAutoVelocity,
             AutoConstants.kMaxAccelerationMetersPerSecondSquared,
