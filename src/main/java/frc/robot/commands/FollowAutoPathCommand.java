@@ -8,6 +8,7 @@ public class FollowAutoPathCommand {
     DriveSubsystem m_driveSubsystem;
     String m_pathName;
     Boolean m_resetPosition;
+    PathPlannerPath m_path;
 public FollowAutoPathCommand(DriveSubsystem driveSubsystem, String pathName, Boolean resetPosition) {
     m_driveSubsystem = driveSubsystem;
     m_pathName = pathName;

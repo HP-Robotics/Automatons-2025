@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems;
 
-import com.pathplanner.lib.util.GeometryUtil;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -79,7 +79,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     Pose2d currentPose = getPose();
     if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
         && currentPose != null) {
-      currentPose = GeometryUtil.flipFieldPose(currentPose);
+      currentPose = FlippingUtil.flipFieldPose(currentPose);
     }
     return currentPose;
   }

@@ -25,6 +25,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
@@ -32,6 +33,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -41,7 +43,7 @@ import frc.robot.SwerveModule;
 
 /** Represents a swerve drive style drivetrain. */
 public class DriveSubsystem extends SubsystemBase {
-  Odometry m_odometry;
+  SwerveDriveOdometry m_odometry;
   Supplier<Pose2d> getPose;
   Consumer<Pose2d> resetPose;
   Supplier<ChassisSpeeds> getRobotRelativeSpeeds;
@@ -72,9 +74,9 @@ public class DriveSubsystem extends SubsystemBase {
 
   private final Pigeon2 m_pGyro = new Pigeon2(IDConstants.PigeonID, "CANivore");
 
-  private StatusSignal<Double> m_pGyroPitch = m_pGyro.getPitch();
-  private StatusSignal<Double> m_pGyroYaw = m_pGyro.getYaw();
-  private StatusSignal<Double> m_pGyroRoll = m_pGyro.getRoll();
+  private StatusSignal<Angle> m_pGyroPitch = m_pGyro.getPitch();
+  private StatusSignal<Angle> m_pGyroYaw = m_pGyro.getYaw();
+  private StatusSignal<Angle> m_pGyroRoll = m_pGyro.getRoll();
 
   PIDController rotationController;
   PoseEstimatorSubsystem m_poseEstimator;
@@ -84,9 +86,9 @@ public class DriveSubsystem extends SubsystemBase {
   NetworkTable poseEstimatorTable = inst.getTable("pose-estimator-table");
   StructPublisher<Pose2d> drivePublisher;
   private double m_gyroOffset;
+  RobotConfig config;
 
   public DriveSubsystem(PoseEstimatorSubsystem poseEstimator) {
-    RobotConfig config;
     try{
       config = RobotConfig.fromGUISettings();
     } catch (Exception e) {
@@ -99,7 +101,7 @@ public class DriveSubsystem extends SubsystemBase {
             this::getPose, // Robot pose supplier
             this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
             this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+            (speeds, feedforwards) -> driveRobotRelative(speeds, feedforwards), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
             new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
                     new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
                     new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
@@ -145,7 +147,7 @@ public class DriveSubsystem extends SubsystemBase {
 
 public void resetPose(Pose2d pose) {
   resetEncoders();
-  m_odometry.resetPosition(pose, Rotation2d.fremDegrees(getHeading()));
+  m_odometry.resetPosition(pose, Rotation2d.fromDegrees(getHeading()));
 }
 public ChassisSpeeds getRobotRelativeSpeeds() {
 
@@ -174,10 +176,10 @@ public ChassisSpeeds getRobotRelativeSpeeds() {
     driveTrainTable.putValue("Robot theta",
         NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
     driveTrainTable.putValue("is Drive Abs Working", NetworkTableValue.makeBoolean(
-        m_backLeft.m_absEncoder.getAbsolutePosition() != 0 &&
-            m_backRight.m_absEncoder.getAbsolutePosition() != 0 &&
-            m_frontLeft.m_absEncoder.getAbsolutePosition() != 0 &&
-            m_frontRight.m_absEncoder.getAbsolutePosition() != 0));
+        m_backLeft.m_absEncoder.get() != 0 &&
+            m_backRight.m_absEncoder.get() != 0 &&
+            m_frontLeft.m_absEncoder.get() != 0 &&
+            m_frontRight.m_absEncoder.get() != 0));
     // TODO investigate why this takes so long
     m_frontLeft.updateShuffleboard();
     m_frontRight.updateShuffleboard();
@@ -229,7 +231,7 @@ public ChassisSpeeds getRobotRelativeSpeeds() {
             * Math.pow(MathUtil.applyDeadband(joystick.getRawAxis(0),
                 ControllerConstants.driveJoystickDeadband), ControllerConstants.driveJoystickExponent)
             * -1 * DriveConstants.kMaxSpeed,
-        MathUtil.applyDeadband(ControllerConstants.getRotation(joystick), ControllerConstants.driveJoystickDeadband)
+        MathUtil.applyDeadband(joystick.getRawAxis(0), ControllerConstants.driveJoystickDeadband)
             * -1
             * DriveConstants.kMaxAngularSpeed,
         m_fieldRelative);
@@ -256,9 +258,9 @@ public ChassisSpeeds getRobotRelativeSpeeds() {
     driveTrainTable.putValue("Rotation Power Input", NetworkTableValue.makeDouble(rot));
 
     driveTrainTable.putValue("Rotation Controller P",
-        NetworkTableValue.makeDouble(rotationController.getP() * rotationController.getPositionError()));
+        NetworkTableValue.makeDouble(rotationController.getP() * rotationController.getError()));
     driveTrainTable.putValue("Rotation Controller Position Error",
-        NetworkTableValue.makeDouble(rotationController.getPositionError()));
+        NetworkTableValue.makeDouble(rotationController.getError()));
     driveTrainTable.putValue("Rotation Controller Setpoint",
         NetworkTableValue.makeDouble(rotationController.getSetpoint()));
   }
@@ -278,9 +280,9 @@ public ChassisSpeeds getRobotRelativeSpeeds() {
     driveTrainTable.putValue("Rotation Power Input", NetworkTableValue.makeDouble(rot));
 
     driveTrainTable.putValue("Rotation Controller P",
-        NetworkTableValue.makeDouble(rotationController.getP() * rotationController.getPositionError()));
+        NetworkTableValue.makeDouble(rotationController.getP() * rotationController.getError()));
     driveTrainTable.putValue("Rotation Controller Position Error",
-        NetworkTableValue.makeDouble(rotationController.getPositionError()));
+        NetworkTableValue.makeDouble(rotationController.getError()));
     driveTrainTable.putValue("Rotation Controller Setpoint",
         NetworkTableValue.makeDouble(rotationController.getSetpoint()));
   }
@@ -372,14 +374,14 @@ public ChassisSpeeds getRobotRelativeSpeeds() {
    * Resets robot's conception of field orientation
    */
   public void resetYaw(double angle) {
-    m_gyroOffset = m_pGyro.getYaw().getValue() - angle;
+    m_gyroOffset = m_pGyro.getYaw().getValueAsDouble() - angle;
     // m_pGyro.setYaw(angle);// TODO how do we want this to interact with pose
     // estimator?
     // add offset (and a wraparound to avoid the offset breaking things)
   }
 
   public double getYaw() {
-    return MathUtil.inputModulus(m_pGyro.getYaw().getValue() - m_gyroOffset, -180.0, 180.0);
+    return MathUtil.inputModulus(m_pGyro.getYaw().getValueAsDouble() - m_gyroOffset, -180.0, 180.0);
   }
 
   public void resetYaw() {
