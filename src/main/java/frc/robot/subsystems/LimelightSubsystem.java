@@ -54,7 +54,7 @@ public class LimelightSubsystem extends SubsystemBase {
     Shuffleboard.getTab("shuffleboard")
         .add("Pose2d", m_field)
         .withWidget(BuiltInWidgets.kField);
-    m_table = NetworkTableInstance.getDefault().getTable("limelight-delight");
+    m_table = NetworkTableInstance.getDefault().getTable("limelight-bite");
     botposeBlue = m_table.getEntry("botpose_wpiblue");
     m_poseEstimator = poseEstimatorSubsystem;
     publisher = poseEstimatorTable.getStructTopic("AprilTag Pose", Pose2d.struct).publish();
@@ -92,7 +92,7 @@ public class LimelightSubsystem extends SubsystemBase {
     double latency = 0;
     double timeStamp = 0;
     double botposeEmpty[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    m_sawAprilTag = m_table.getEntry("botpose_wpiblue").getDoubleArray(defaultValues)[7] != 0;
+    m_sawAprilTag = m_table.getEntry("tv").getDouble(0) != 0;
     botpose = botposeBlue.getDoubleArray(botposeEmpty);
     tx = m_table.getEntry("tx").getDouble(0);
     ty = m_table.getEntry("ty").getDouble(0);
