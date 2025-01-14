@@ -4,6 +4,10 @@
 
 package frc.robot.commands;
 
+import java.io.IOException;
+
+import org.json.simple.parser.ParseException;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -13,6 +17,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
+import com.pathplanner.lib.util.FileVersionException;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.controllers.PathFollowingController;
 
@@ -26,7 +31,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.PIDConstantsOurs;
 import frc.robot.Constants.RobotConfigConstants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -48,18 +52,30 @@ public class DriveToPoseCommand extends Command {
   public DriveToPoseCommand(DriveSubsystem driveSubsystem, String pathName) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_driveSubsystem = driveSubsystem;
+    try{
+      //m_config = RobotConfig.fromGUISettings();
+    m_config = new RobotConfig(RobotConfigConstants.massKG,RobotConfigConstants.MOI,RobotConfigConstants.moduleConfig,RobotConfigConstants.moduleOffsets);
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
     m_pathName = pathName;
-    m_path = PathPlannerPath.fromPathFile(pathName);
+    try {
+      m_path = PathPlannerPath.fromPathFile(pathName);
+    }
+    catch(Exception e) {
+      System.out.println("Path Exception");
+    }
     m_pathPlannerCommand = PathCommand();
     addRequirements(driveSubsystem);
   }
   public PathfindThenFollowPath PathCommand() {
     return new PathfindThenFollowPath(
         m_path,
-        new PathConstraints(AutoConstants.kMaxAutoVelocity,
-            AutoConstants.kMaxAccelerationMetersPerSecondSquared,
-            AutoConstants.kMaxAngularSpeedRadiansPerSecond,
-            AutoConstants.kMaxAngularAcceleration),
+        new PathConstraints(Constants.AutoConstants.kMaxAutoVelocity,
+            Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared,
+            Constants.AutoConstants.kMaxAngularSpeedRadiansPerSecond,
+            Constants.AutoConstants.kMaxAngularAcceleration),
         m_driveSubsystem::getPose,
         m_driveSubsystem::getCurrentspeeds,
         m_driveSubsystem::driveRobotRelative,
@@ -91,14 +107,27 @@ public class DriveToPoseCommand extends Command {
   @Override
   public void execute() {
     m_pathPlannerCommand.execute();
-    PathPlannerPath path = PathPlannerPath.fromPathFile("UpperReef3Coral");
+    PathPlannerPath path;
+    try {
+      path = PathPlannerPath.fromPathFile("UpperReef3Coral");
+    } catch (FileVersionException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (ParseException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     PathConstraints constraints = new PathConstraints(
         3.0, 4.0,
         Units.degreesToRadians(540), Units.degreesToRadians(720));
     Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
-        path,
+        m_path,
         constraints);
     AutoBuilder.pathfindThenFollowPath(m_path, constraints).schedule();
+
   }
 
   // Called once the command ends or is interrupted.
