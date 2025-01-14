@@ -116,10 +116,12 @@ public class DriveSubsystem extends SubsystemBase {
     if (getPose() != null) {
       m_field.setRobotPose(getPose());
     }
-    driveTrainTable.putValue("Robot x", NetworkTableValue.makeDouble(m_poseEstimator.getPose().getX()));
-    driveTrainTable.putValue("Robot y", NetworkTableValue.makeDouble(m_poseEstimator.getPose().getY()));
-    driveTrainTable.putValue("Robot theta",
-        NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
+    // driveTrainTable.putValue("Robot x",
+    // NetworkTableValue.makeDouble(m_poseEstimator.getPose().getX()));
+    // driveTrainTable.putValue("Robot y",
+    // NetworkTableValue.makeDouble(m_poseEstimator.getPose().getY()));
+    // driveTrainTable.putValue("Robot theta",
+    // NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
     driveTrainTable.putValue("is Drive Abs Working", NetworkTableValue.makeBoolean(
         m_backLeft.m_absEncoder.get() != 0 &&
             m_backRight.m_absEncoder.get() != 0 &&

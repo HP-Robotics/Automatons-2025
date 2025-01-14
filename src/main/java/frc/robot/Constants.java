@@ -29,7 +29,7 @@ public final class Constants {
   public static class SubsystemConstants {
     public static final boolean useDrive = true;
     public static final boolean useIntake = true;
-    public static final boolean useShooter = true;
+    public static final boolean useShooter = false;
     public static final boolean useDataManager = true;
     public static final boolean useLimelight = true;
     public static final boolean usePivot = true;
@@ -51,14 +51,14 @@ public final class Constants {
     public static final int FRTurningMotorID = 23;
     public static final int BRTurningMotorID = 21;
     public static final int BLTurningMotorID = 25;
-    public static final int PigeonID = 0;
+    public static final int PigeonID = 57;
   }
 
   public static class PortConstants {
-    public static final int FLAbsEncoder = 0;
-    public static final int FRAbsEncoder = 0;
-    public static final int BRAbsEncoder = 0;
-    public static final int BLAbsEncoder = 0;
+    public static final int FLAbsEncoder = 12;
+    public static final int FRAbsEncoder = 10;
+    public static final int BRAbsEncoder = 13;
+    public static final int BLAbsEncoder = 11;
   }
 
   public static class ControllerConstants {
@@ -138,10 +138,11 @@ public final class Constants {
     public static final double turningControllerIZone = 0.15;
 
     // Absolute encoder values that make the wheels point forward
-    public static final double absEncoderForwardFL = 0.973;
-    public static final double absEncoderForwardFR = 0.612;
-    public static final double absEncoderForwardBR = 0.746;
-    public static final double absEncoderForwardBL = 0.551;
+
+    public static final double absEncoderForwardFL = 0.075;
+    public static final double absEncoderForwardFR = 0.238;
+    public static final double absEncoderForwardBR = 0.267;
+    public static final double absEncoderForwardBL = 0.950;
 
     // public static final HolonomicPathFollowerConfig holonomicConfig = new
     // HolonomicPathFollowerConfig(
