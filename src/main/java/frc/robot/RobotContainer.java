@@ -61,7 +61,6 @@ public class RobotContainer {
 
     if (SubsystemConstants.useDrive) {
       m_driveSubsystem.setDefaultCommand(
-
           new RunCommand(
               () -> {
                 m_driveSubsystem.driveWithJoystick(m_driveJoystick);
