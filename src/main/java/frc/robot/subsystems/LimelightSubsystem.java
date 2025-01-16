@@ -10,7 +10,6 @@ import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
 import edu.wpi.first.wpilibj.Timer;
@@ -22,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.LimelightConstants;
 
 public class LimelightSubsystem extends SubsystemBase {
-  NetworkTableEntry botposeBlue;
+  NetworkTableEntry botposeBlue; // Red will be mirrored from this
   CommandJoystick m_driveJoystick;
 
   public final Field2d m_field = new Field2d();
@@ -33,15 +32,14 @@ public class LimelightSubsystem extends SubsystemBase {
   public double rx;
   public double ry;
   public double rz;
-  public double tv;
-  public boolean m_sawAprilTag;
+  public boolean m_seeingAprilTag;
   public boolean m_aprilTagSeen;
   public int m_targetAprilTagID;
   final DoubleArraySubscriber limeSub;
-  private double[] defaultValues = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+  private double[] defaultValues = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
   public Pose2d m_visionPose2d = new Pose2d();
-  public Pose2d m_robotPose;
+  public Pose2d m_targetPoseRelative;
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
   NetworkTable poseEstimatorTable = inst.getTable("pose-estimator-table");
@@ -63,70 +61,61 @@ public class LimelightSubsystem extends SubsystemBase {
     m_aprilTagSeen = false;
   }
 
-  public double getDistanceTo(Pose2d robot, Pose2d fieldpose) {
-    double turnToSpeakerA = fieldpose.getX() - robot.getX();
-    double turnToSpeakerB = fieldpose.getY() - robot.getY();
-    double distanceToSpeaker = Math.sqrt(Math.pow(turnToSpeakerA, 2) + Math.pow(turnToSpeakerB, 2));
+  public double getDistanceToPose(Pose2d robot, Pose2d fieldPose) {
+    double distX = fieldPose.getX() - robot.getX();
+    double distY = fieldPose.getY() - robot.getY();
 
-    return distanceToSpeaker;
+    return Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2));
   }
 
-  public double getAngleTo(Pose2d robot, Pose2d fieldpose) {
-    double turnToSpeakerA = fieldpose.getX() - robot.getX();
-    double turnToSpeakerB = fieldpose.getY() - robot.getY();
-    double angleToSpeaker = Math.atan2(turnToSpeakerB, turnToSpeakerA);
+  public double getAngleToPose(Pose2d robot, Pose2d fieldPose) {
+    double distX = fieldPose.getX() - robot.getX();
+    double distY = fieldPose.getY() - robot.getY();
+    double angleRadians = Math.atan2(distY, distX);
 
-    return Math.toDegrees(angleToSpeaker);
+    return Math.toDegrees(angleRadians);
   }
 
   @Override
   public void periodic() {
-    double[] entries = new double[6];
-        entries[0] = 0; //m_poseEstimator.getPose().getRotation().getDegrees();
-        entries[1] = 0;
-        entries[2] = 0;
-        entries[3] = 0;
-        entries[4] = 0;
-        entries[5] = 0;
-    double[] botpose = null;
+    double[] botPose = null;
     double latency = 0;
     double timeStamp = 0;
-    double botposeEmpty[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    m_sawAprilTag = m_table.getEntry("tv").getDouble(0) != 0;
-    botpose = botposeBlue.getDoubleArray(botposeEmpty);
+    m_seeingAprilTag = m_table.getEntry("tv").getDouble(0) != 0;
+    botPose = botposeBlue.getDoubleArray(defaultValues);
     tx = m_table.getEntry("tx").getDouble(0);
     ty = m_table.getEntry("ty").getDouble(0);
-    tv = m_table.getEntry("tv").getDouble(0);
 
-    m_robotPose = new Pose2d(tx, ty, new Rotation2d());
+    m_targetPoseRelative = new Pose2d(tx, ty, new Rotation2d());
 
-    m_field.setRobotPose(m_robotPose);
+    m_field.setRobotPose(m_targetPoseRelative);
 
-    if (m_sawAprilTag) {
+    if (m_seeingAprilTag) {
       m_targetAprilTagID = (int) m_table.getEntry("tid").getInteger(0);
       for (TimestampedDoubleArray tsValue : limeSub.readQueue()) {
-        botpose = tsValue.value;
+        botPose = tsValue.value;
         timeStamp = Timer.getFPGATimestamp();
-        double tx = botpose[0];
-        double ty = botpose[1];
-        // double tz = botpose[2];
-        // double rx = botpose[3];
-        // double ry = botpose[4]; // TODO: Store tz, rx, and ry somewhere (Store 3D)
-        double rz = botpose[5];
-        latency = botpose[6];
+        double botPosX = botPose[0];
+        double botPosY = botPose[1];
+        // double botPosZ = botpose[2];
+        // double botRotX = botpose[3];
+        // double botRotY = botpose[4]; // TODO: Store botPosZ, botRotX, and botRotY somewhere (Store 3D)
+        double botRotZ = botPose[5];
+        latency = botPose[6];
         timeStamp -= latency / 1000;
-        m_robotPose = new Pose2d(tx, ty, new Rotation2d(Math.toRadians(rz)));
-        m_visionPose2d = m_robotPose;
+        m_targetPoseRelative = new Pose2d(botPosX, botPosY, new Rotation2d(Math.toRadians(botRotZ)));
+        m_visionPose2d = m_targetPoseRelative;
         if (m_poseEstimator != null && 0 <= m_targetAprilTagID && m_targetAprilTagID <= 22) {
-          if (botpose[0] != 0 || botpose[1] != 0 || botpose[5] != 0) {
-            publisher.set(m_robotPose);
-            double skew = LimelightConstants.aprilTagList[m_targetAprilTagID].getRotation()
-                .minus(Rotation2d
-                    .fromDegrees(getAngleTo(m_robotPose, LimelightConstants.aprilTagList[m_targetAprilTagID])-180))
-                .getRadians();
-            skew = Math.abs(skew);
-            m_poseEstimator.updateVision(m_robotPose, timeStamp,
-                getDistanceTo(m_robotPose, LimelightConstants.aprilTagList[m_targetAprilTagID]), skew);
+          if (botPosX != 0 || botPosY != 0 || botRotZ != 0) {
+            publisher.set(m_targetPoseRelative);
+            Rotation2d relativeSkew = Rotation2d.fromDegrees(getAngleToPose(m_targetPoseRelative, LimelightConstants.aprilTagList[m_targetAprilTagID])-180);
+            double absoluteSkew = Math.abs(LimelightConstants.aprilTagList[m_targetAprilTagID].getRotation()
+                .minus(relativeSkew)
+                .getRadians()
+            );
+            absoluteSkew = Math.abs(absoluteSkew);
+            m_poseEstimator.updateVision(m_targetPoseRelative, timeStamp,
+                getDistanceToPose(m_targetPoseRelative, LimelightConstants.aprilTagList[m_targetAprilTagID]), absoluteSkew);
             // System.out.println("saw apriltag: " + timeStamp + " latency: " + latency);
           }
         }

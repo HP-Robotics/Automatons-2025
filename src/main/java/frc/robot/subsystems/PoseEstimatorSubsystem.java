@@ -84,6 +84,12 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     if (poseEstimator != null) {
+      updatePoseEstimator(new Rotation2d(), new SwerveModulePosition[] {
+        new SwerveModulePosition(0, new Rotation2d()),
+        new SwerveModulePosition(0, new Rotation2d()),
+        new SwerveModulePosition(0, new Rotation2d()),
+        new SwerveModulePosition(0, new Rotation2d())
+    }); // TODO: don't update pose here and use real values
       posePublisher.set(poseEstimator.getEstimatedPosition());
       VecBuilder.fill(0, 0, 0);
     }
