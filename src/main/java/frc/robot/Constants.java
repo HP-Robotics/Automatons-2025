@@ -45,9 +45,8 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
-  
   public static class RobotConfigConstants {
-    public static final double massKG = 52.16; //TODO: Find out actual value
+    public static final double massKG = 52.16; // TODO: Find out actual value
     public static final double MOI = 0;
     public static final ModuleConfig moduleConfig = new ModuleConfig(null, null, MOI, null, null, 0);
     public static Translation2d moduleOffsets;
@@ -65,6 +64,7 @@ public final class Constants {
     public static final int BLTurningMotorID = 25;
     public static final int PigeonID = 0;
   }
+
   public static class AutoConstants {
     public static final double kMaxSpeedMetersPerSecond = 5.0;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;
@@ -77,6 +77,7 @@ public final class Constants {
 
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
   }
+
   public static class PortConstants {
     public static final int FLAbsEncoder = 0;
     public static final int FRAbsEncoder = 0;
@@ -143,7 +144,7 @@ public final class Constants {
     public static final Translation2d kBackRightLocation = new Translation2d(-0.308, -0.308);
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-        kFrontLeftLocation, kFrontRightLocation, kBackRightLocation, kBackLeftLocation);
+        kFrontLeftLocation, kFrontRightLocation, kBackRightLocation, kBackLeftLocation); // TODO: Fix these
 
     public static final double drivekP = 5;
     public static final double drivekI = 10;
@@ -184,7 +185,6 @@ public final class Constants {
     public static final double currentTimeThreshold = 0.04;
 
     public static final double driveToNoteSpeed = 0.5;
-
 
   }
 
