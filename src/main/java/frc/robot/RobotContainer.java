@@ -4,29 +4,24 @@
 
 package frc.robot;
 
-import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
+import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.PoseEstimatorSubsystem;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.SubsystemConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.PoseEstimatorSubsystem;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -45,9 +40,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-
+  SendableChooser<Command> autoChooser;
   final PoseEstimatorSubsystem m_poseEstimatorSubsystem = new PoseEstimatorSubsystem();
   final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
+  final LimelightSubsystem m_limelightSubsystem = new LimelightSubsystem(m_poseEstimatorSubsystem);
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
 
@@ -62,10 +58,17 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    // This is for testing change this
+    m_poseEstimatorSubsystem.createPoseEstimator(DriveConstants.kDriveKinematics,
+        new Rotation2d(), new SwerveModulePosition[] {
+            new SwerveModulePosition(0, new Rotation2d()),
+            new SwerveModulePosition(0, new Rotation2d()),
+            new SwerveModulePosition(0, new Rotation2d()),
+            new SwerveModulePosition(0, new Rotation2d())
+        }, new Pose2d(0, 0, new Rotation2d(Math.PI)));
 
     if (SubsystemConstants.useDrive) {
       m_driveSubsystem.setDefaultCommand(
-
           new RunCommand(
               () -> {
                 m_driveSubsystem.driveWithJoystick(m_driveJoystick);
@@ -82,10 +85,6 @@ public class RobotContainer {
     // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
-  }
-
-  public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
   }
 
   /**
@@ -132,8 +131,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    // return Autos.exampleAuto(m_exampleSubsystem);
-    return new WaitCommand(0);
+    return autoChooser.getSelected();
   }
 }

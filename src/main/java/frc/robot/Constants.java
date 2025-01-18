@@ -4,11 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
@@ -32,7 +34,7 @@ public final class Constants {
   public static class SubsystemConstants {
     public static final boolean useDrive = true;
     public static final boolean useIntake = true;
-    public static final boolean useShooter = true;
+    public static final boolean useShooter = false;
     public static final boolean useDataManager = true;
     public static final boolean useLimelight = true;
     public static final boolean usePivot = true;
@@ -52,16 +54,19 @@ public final class Constants {
   }
 
   public static class IDConstants {
-    public static final int FLTurningMotorID = 0;
-    public static final int FRTurningMotorID = 0;
-    public static final int BRTurningMotorID = 0;
-    public static final int BLTurningMotorID = 0;
-    public static final int FLDriveMotorID = 0;
-    public static final int FRDriveMotorID = 0;
-    public static final int BRDriveMotorID = 0;
-    public static final int BLDriveMotorID = 0;
+    public static final int FLDriveMotorID = 26;
+    public static final int FRDriveMotorID = 22;
+    public static final int BRDriveMotorID = 20;
+    public static final int BLDriveMotorID = 24;
+
+    public static final int FLTurningMotorID = 27;
+    public static final int FRTurningMotorID = 23;
+    public static final int BRTurningMotorID = 21;
+    public static final int BLTurningMotorID = 25;
+
     public static final int IntakeMotorID = 31;
-    public static final int PigeonID = 0;
+
+    public static final int PigeonID = 57;
   }
 
   public static class AutoConstants {
@@ -78,10 +83,10 @@ public final class Constants {
   }
 
   public static class PortConstants {
-    public static final int FLAbsEncoder = 0;
-    public static final int FRAbsEncoder = 0;
-    public static final int BRAbsEncoder = 0;
-    public static final int BLAbsEncoder = 0;
+    public static final int FLAbsEncoder = 12;
+    public static final int FRAbsEncoder = 10;
+    public static final int BRAbsEncoder = 13;
+    public static final int BLAbsEncoder = 11;
   }
 
   public static class ControllerConstants {
@@ -143,7 +148,7 @@ public final class Constants {
     public static final Translation2d kBackRightLocation = new Translation2d(-0.308, -0.308);
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-        kFrontLeftLocation, kFrontRightLocation, kBackRightLocation, kBackLeftLocation);
+        kFrontLeftLocation, kFrontRightLocation, kBackRightLocation, kBackLeftLocation); // TODO: Fix these
 
     public static final double drivekP = 5;
     public static final double drivekI = 10;
@@ -161,10 +166,11 @@ public final class Constants {
     public static final double turningControllerIZone = 0.15;
 
     // Absolute encoder values that make the wheels point forward
-    public static final double absEncoderForwardFL = 0.973;
-    public static final double absEncoderForwardFR = 0.612;
-    public static final double absEncoderForwardBR = 0.746;
-    public static final double absEncoderForwardBL = 0.551;
+
+    public static final double absEncoderForwardFL = 0.075;
+    public static final double absEncoderForwardFR = 0.238;
+    public static final double absEncoderForwardBR = 0.267;
+    public static final double absEncoderForwardBL = 0.950;
 
     // public static final HolonomicPathFollowerConfig holonomicConfig = new
     // HolonomicPathFollowerConfig(
@@ -184,11 +190,10 @@ public final class Constants {
     public static final double currentTimeThreshold = 0.04;
 
     public static final double driveToNoteSpeed = 0.5;
-
   }
 
-  public static final class PoseEstimatorConstants {
-
+  public static class PoseEstimatorConstants {
+    // TODO: this is all pasted from last year; PLEASE DON'T USE, FIND REAL VALUES
     public static final Matrix<N3, N1> statesStandardDev = VecBuilder.fill(0.001, 0.001, 0.005);
     public static final double visionXStandardDev = 0.005; // TODO: adjust with framerate
     public static final double visionYStandardDev = 0.005;
@@ -201,6 +206,35 @@ public final class Constants {
   public static final class PIDConstantsOurs {
     public static final PIDConstants translationConstants = new PIDConstants(0, 0, 0);
     public static final PIDConstants rotationConstants = new PIDConstants(0, 0, 0);
+  }
 
+  public static class LimelightConstants {
+    public static final double inToM = 0.0254;
+    public static final Pose2d aprilTagList[] = { // 0 is empty, april tag number is that number in list
+        // TODO: These are values from last year so get the ones from this year
+        new Pose2d(),
+        new Pose2d(7.923198, -3.37068, new Rotation2d(Math.PI * 2 / 3)), // 1
+        new Pose2d(7.923198, 3.37068, new Rotation2d(Math.PI * 2 / 3)), // 2
+        new Pose2d(2.78681, 4.02961, new Rotation2d(Math.PI)), // 3
+        new Pose2d(0.50208, 2.111656, new Rotation2d(Math.PI)), // 4
+        new Pose2d(0.50208, -2.111094, new Rotation2d(Math.PI * 3 / 2)), // 5
+        new Pose2d(4.700446, -0.719682, new Rotation2d(Math.PI * 3 / 2)), // 6
+        new Pose2d(5.116498, -0.0001, new Rotation2d(0)), // 7
+        new Pose2d(4.700446, 0.719482, new Rotation2d(0)), // 8
+        new Pose2d(3.869358, 0.719482, new Rotation2d(Math.PI / 3)), // 9
+        new Pose2d(3.453306, -0.0001, new Rotation2d(Math.PI / 3)), // 10
+        new Pose2d(3.869358, -0.719682, new Rotation2d(Math.PI * 5 / 3)), // 11
+        new Pose2d(-7.922846, -3.37068, new Rotation2d(Math.PI / 3)), // 12
+        new Pose2d(-7.922846, 3.37048, new Rotation2d(Math.PI)), // 13
+        new Pose2d(-0.501728, 2.111656, new Rotation2d(0)), // 14
+        new Pose2d(-0.501728, -2.111094, new Rotation2d(Math.PI * 2 / 3)), // 15
+        new Pose2d(-2.786458, -4.02981, new Rotation2d(Math.PI * 4 / 3)), // 16
+        new Pose2d(-4.700094, 0.719682, new Rotation2d(Math.PI * 4 / 3)), // 17
+        new Pose2d(-5.1164, -0.00001, new Rotation2d(Math.PI * 4 / 3)), // 18
+        new Pose2d(-4.700094, 0.719482, new Rotation2d(Math.PI * 4 / 3)), // 19
+        new Pose2d(-3.86926, 0.719482, new Rotation2d(Math.PI * 4 / 3)), // 20
+        new Pose2d(-3.452954, -0.0001, new Rotation2d(Math.PI * 4 / 3)), // 21
+        new Pose2d(-3.86926, -0.719682, new Rotation2d(Math.PI * 4 / 3)) // 22
+    };
   }
 }
