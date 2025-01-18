@@ -13,7 +13,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 
 /**
@@ -45,9 +44,8 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
-  
   public static class RobotConfigConstants {
-    public static final double massKG = 52.16; //TODO: Find out actual value
+    public static final double massKG = 52.16; // TODO: Find out actual value
     public static final double MOI = 0;
     public static final ModuleConfig moduleConfig = new ModuleConfig(null, null, MOI, null, null, 0);
     public static Translation2d moduleOffsets;
@@ -62,8 +60,10 @@ public final class Constants {
     public static final int FRDriveMotorID = 0;
     public static final int BRDriveMotorID = 0;
     public static final int BLDriveMotorID = 0;
+    public static final int IntakeMotorID = 31;
     public static final int PigeonID = 0;
   }
+
   public static class AutoConstants {
     public static final double kMaxSpeedMetersPerSecond = 5.0;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;
@@ -76,6 +76,7 @@ public final class Constants {
 
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
   }
+
   public static class PortConstants {
     public static final int FLAbsEncoder = 0;
     public static final int FRAbsEncoder = 0;
@@ -183,7 +184,6 @@ public final class Constants {
     public static final double currentTimeThreshold = 0.04;
 
     public static final double driveToNoteSpeed = 0.5;
-
 
   }
 

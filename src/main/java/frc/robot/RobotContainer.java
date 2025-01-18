@@ -104,7 +104,18 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    m_driverController.button(1).whileTrue(new InstantCommand(m_intakeSubsystem::StopIntake));
+    m_driverController.button(1).and(new Trigger(() -> {
+      return m_intakeSubsystem.m_state == "empty";
+    })).whileTrue(new InstantCommand(m_intakeSubsystem::startIntake));// Intake
+    m_driverController.button(2).and(new Trigger(() -> {
+      return m_intakeSubsystem.m_state == "intaking";
+    })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));// StopIntake
+    m_driverController.button(3).and(new Trigger(() -> {
+      return m_intakeSubsystem.m_state == "shoot";
+    })).and(m_driverController.button(4)).whileTrue(new InstantCommand(m_intakeSubsystem::shoot));// Shoot
+    m_driverController.button(4).and(new Trigger(() -> {
+      return m_intakeSubsystem.m_state == "intaking";
+    })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_exampleSubsystem::exampleCondition)
     // .onTrue(new ExampleCommand(m_exampleSubsystem));
