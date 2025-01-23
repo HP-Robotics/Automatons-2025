@@ -139,10 +139,10 @@ public final class Constants {
 
     // Absolute encoder values that make the wheels point forward
 
-    public static final double absEncoderForwardFL = 0.075;
-    public static final double absEncoderForwardFR = 0.238;
-    public static final double absEncoderForwardBR = 0.267;
-    public static final double absEncoderForwardBL = 0.950;
+    public static final double absEncoderForwardFL = 0.580;
+    public static final double absEncoderForwardFR = 0.280;
+    public static final double absEncoderForwardBR = 0.268;
+    public static final double absEncoderForwardBL = 0.960;
 
     // public static final HolonomicPathFollowerConfig holonomicConfig = new
     // HolonomicPathFollowerConfig(

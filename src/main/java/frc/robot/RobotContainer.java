@@ -80,6 +80,13 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
+  public void resetDriveOffsets() {
+    // The encoders aren't ready immediately
+    if (SubsystemConstants.useDrive) {
+      m_driveSubsystem.resetOffsets();
+    }
+  } // TODO: this is a choice (make this not run resetOffsets through three classes)
+
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_exampleSubsystem::exampleCondition)

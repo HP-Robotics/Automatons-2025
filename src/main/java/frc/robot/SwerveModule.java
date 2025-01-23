@@ -77,6 +77,7 @@ public class SwerveModule {
         turningConfig.Slot0.kP = DriveConstants.turningkP;
         turningConfig.Slot0.kI = DriveConstants.turningkI;
         turningConfig.Slot0.kD = DriveConstants.turningkD;
+        turningConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         m_turningMotor.getConfigurator().apply(new TalonFXConfiguration());
         m_turningMotor.getConfigurator().apply(turningConfig);
         m_driveMotor.getConfigurator().apply(currentConfigs);

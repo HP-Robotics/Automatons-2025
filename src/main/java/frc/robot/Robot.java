@@ -28,6 +28,10 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
   }
 
+  public void robotInit() {
+
+  }
+
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test.
@@ -54,6 +58,10 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    if (SubsystemConstants.useDrive) {
+      m_robotContainer.resetDriveOffsets();
+    }
+
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -68,6 +76,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    if (SubsystemConstants.useDrive) {
+      m_robotContainer.resetDriveOffsets();
+    }
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
