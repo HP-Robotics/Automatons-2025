@@ -9,19 +9,24 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-
+import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
-
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,6 +37,16 @@ import frc.robot.SwerveModule;
 
 /** Represents a swerve drive style drivetrain. */
 public class DriveSubsystem extends SubsystemBase {
+  SwerveDriveOdometry m_odometry;
+
+  PPHolonomicDriveController m_driveController;
+
+  NetworkTableInstance inst = NetworkTableInstance.getDefault();
+  public NetworkTable driveTrainTable = inst.getTable("drive-train");
+  NetworkTable poseEstimatorTable = inst.getTable("pose-estimator-table");
+
+  StructPublisher<Pose2d> posePublisher = poseEstimatorTable.getStructTopic("Fused Pose", Pose2d.struct).publish();
+
   // BIG BONGO 7
   private final SwerveModule m_frontLeft = new SwerveModule(IDConstants.FLDriveMotorID,
       IDConstants.FLTurningMotorID, PortConstants.FLAbsEncoder, DriveConstants.absEncoderForwardFL, "FL");
@@ -66,13 +81,47 @@ public class DriveSubsystem extends SubsystemBase {
   PIDController rotationController;
   PoseEstimatorSubsystem m_poseEstimator;
 
-  NetworkTableInstance inst = NetworkTableInstance.getDefault();
-  public NetworkTable driveTrainTable = inst.getTable("drive-train");
-  NetworkTable poseEstimatorTable = inst.getTable("pose-estimator-table");
   StructPublisher<Pose2d> drivePublisher;
   private double m_gyroOffset;
+  RobotConfig config;
 
   public DriveSubsystem(PoseEstimatorSubsystem poseEstimator) {
+    try {
+      config = RobotConfig.fromGUISettings();
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
+
+    // Configure AutoBuilder last
+    AutoBuilder.configure(
+        this::getPose, // Robot pose supplier
+        this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+        this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        (speeds, feedforwards) -> driveRobotRelative(speeds, feedforwards), // Method that will drive the robot given
+                                                                            // ROBOT RELATIVE ChassisSpeeds. Also
+                                                                            // optionally outputs individual module
+                                                                            // feedforwards
+        new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic
+                                        // drive trains
+            new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+            new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+        ),
+        config, // The robot configuration
+        () -> {
+          // Boolean supplier that controls when the path will be mirrored for the red
+          // alliance
+          // This will flip the path being followed to the red side of the field.
+          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          return false;
+        },
+        this // Reference to this subsystem to set requirements
+    );
     m_poseEstimator = poseEstimator;
     m_pGyro.setYaw(0);
 
@@ -96,6 +145,10 @@ public class DriveSubsystem extends SubsystemBase {
       // SignalLogger.start();
     }
 
+  }
+
+  public ChassisSpeeds getRobotRelativeSpeeds() {
+    return DriveConstants.kDriveKinematics.toChassisSpeeds(m_swerveModuleStates);
   }
 
   public void updateOdometry() {
@@ -160,7 +213,7 @@ public class DriveSubsystem extends SubsystemBase {
     setModuleStates(swerveModuleStates);
   }
 
-  public void driveRobotRelative(ChassisSpeeds speeds) {
+  public void driveRobotRelative(ChassisSpeeds speeds, DriveFeedforwards feedForwards) {
     ChassisSpeeds discSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(discSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeed);
@@ -178,7 +231,7 @@ public class DriveSubsystem extends SubsystemBase {
             * Math.pow(MathUtil.applyDeadband(joystick.getRawAxis(0),
                 ControllerConstants.driveJoystickDeadband), ControllerConstants.driveJoystickExponent)
             * -1 * DriveConstants.kMaxSpeed,
-        MathUtil.applyDeadband(ControllerConstants.getRotation(joystick), ControllerConstants.driveJoystickDeadband)
+        MathUtil.applyDeadband(joystick.getRawAxis(0), ControllerConstants.driveJoystickDeadband)
             * -1
             * DriveConstants.kMaxAngularSpeed,
         m_fieldRelative);
@@ -281,7 +334,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_backLeft.resetOffset();
   }
 
-  public void resetPoseEstimator(Pose2d pose) {
+  public void resetPose(Pose2d pose) {
     if (pose == null) {
       return;
     }

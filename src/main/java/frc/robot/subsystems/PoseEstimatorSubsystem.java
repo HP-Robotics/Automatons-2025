@@ -31,8 +31,6 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
 
   public PoseEstimatorSubsystem() {
     posePublisher = poseEstimatorTable.getStructTopic("Fused Pose", Pose2d.struct).publish();
-
-    // make fake intializaition run in Drive Subsystem
   }
 
   public void createPoseEstimator(SwerveDriveKinematics kinematics, Rotation2d angle,
@@ -48,13 +46,13 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     }
   }
 
-  public void updateVision(Pose2d vPose, double vTime, double distance, double skew) {
+  public void updateVision(Pose2d vPose, double vTime, double distanceToTag, double skew) {
     if (poseEstimator != null) {
-      if (skew < PoseEstimatorConstants.maxAcceptableSkew && distance < PoseEstimatorConstants.maxAcceptableDistance) {
+      if (skew < PoseEstimatorConstants.maxAcceptableSkew && distanceToTag < PoseEstimatorConstants.maxAcceptableDistance) {
         poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(
-            PoseEstimatorConstants.visionXStandardDev * distance,
-            PoseEstimatorConstants.visionYStandardDev * distance,
-            PoseEstimatorConstants.visionHeadingStandardDev * distance));
+            PoseEstimatorConstants.visionXStandardDev * distanceToTag,
+            PoseEstimatorConstants.visionYStandardDev * distanceToTag,
+            PoseEstimatorConstants.visionHeadingStandardDev * distanceToTag));
         poseEstimator.addVisionMeasurement(vPose, vTime);
         // System.out.println(vTime);
       }
@@ -87,6 +85,12 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     if (poseEstimator != null) {
+      updatePoseEstimator(new Rotation2d(), new SwerveModulePosition[] {
+        new SwerveModulePosition(0, new Rotation2d()),
+        new SwerveModulePosition(0, new Rotation2d()),
+        new SwerveModulePosition(0, new Rotation2d()),
+        new SwerveModulePosition(0, new Rotation2d())
+    }); // TODO: don't update pose here and use real values
       posePublisher.set(poseEstimator.getEstimatedPosition());
       VecBuilder.fill(0, 0, 0);
     }
