@@ -315,7 +315,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_fieldRelative = !m_fieldRelative;
   }
 
-  public void initializePoseEstimator(Pose2d pose) {
+  public void startPoseEstimator(Pose2d pose) {
     if (m_poseEstimator != null) {
       m_poseEstimator.createPoseEstimator(DriveConstants.kDriveKinematics,
           new Rotation2d(Math.toRadians(getYaw())), new SwerveModulePosition[] {

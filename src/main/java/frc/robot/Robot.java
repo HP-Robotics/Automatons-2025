@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -35,7 +37,12 @@ public class Robot extends TimedRobot {
   }
 
   public void robotInit() {
-
+    if (SubsystemConstants.useDrive) {
+      addPeriodic(() -> {
+        m_robotContainer.m_driveSubsystem.updateOdometry();
+      }, 0.01);
+    }
+    m_robotContainer.m_driveSubsystem.startPoseEstimator(new Pose2d());
   }
 
   /**

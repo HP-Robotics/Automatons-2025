@@ -46,23 +46,10 @@ public class RobotContainer {
   final CommandJoystick m_driveJoystick = new CommandJoystick(ControllerConstants.kDriverControllerPort);
   final CommandJoystick m_opJoystick = new CommandJoystick(ControllerConstants.kOperatorControllerPort);
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController = new CommandXboxController(
-      OperatorConstants.kDriverControllerPort);
-
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    // This is for testing change this
-    m_poseEstimatorSubsystem.createPoseEstimator(DriveConstants.kDriveKinematics,
-    new Rotation2d(), new SwerveModulePosition[] {
-        new SwerveModulePosition(0, new Rotation2d()),
-        new SwerveModulePosition(0, new Rotation2d()),
-        new SwerveModulePosition(0, new Rotation2d()),
-        new SwerveModulePosition(0, new Rotation2d())
-    }, new Pose2d(0, 0, new Rotation2d(Math.PI)));
-
     if (SubsystemConstants.useDrive) {
       m_driveSubsystem.setDefaultCommand(
           new RunCommand(
@@ -76,9 +63,6 @@ public class RobotContainer {
 
     // Build an auto chooser. This will use Commands.none() as the default option.
     autoChooser = AutoBuilder.buildAutoChooser();
-
-    // Another option that allows you to specify the default auto by its name
-    // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
