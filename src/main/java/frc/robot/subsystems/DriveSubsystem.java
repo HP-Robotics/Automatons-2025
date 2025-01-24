@@ -231,7 +231,7 @@ public class DriveSubsystem extends SubsystemBase {
             * Math.pow(MathUtil.applyDeadband(joystick.getRawAxis(0),
                 ControllerConstants.driveJoystickDeadband), ControllerConstants.driveJoystickExponent)
             * -1 * DriveConstants.kMaxSpeed,
-        MathUtil.applyDeadband(joystick.getRawAxis(0), ControllerConstants.driveJoystickDeadband)
+        MathUtil.applyDeadband(joystick.getRawAxis(4), ControllerConstants.driveJoystickDeadband)
             * -1
             * DriveConstants.kMaxAngularSpeed,
         m_fieldRelative);

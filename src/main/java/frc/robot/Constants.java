@@ -145,7 +145,7 @@ public final class Constants {
     public static final Translation2d kBackRightLocation = new Translation2d(-0.308, -0.308);
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-      kFrontLeftLocation, kFrontRightLocation, kBackRightLocation, kBackLeftLocation); // TODO: Fix these
+        kFrontLeftLocation, kFrontRightLocation, kBackRightLocation, kBackLeftLocation); // TODO: Fix these
 
     public static final double drivekP = 5;
     public static final double drivekI = 10;
@@ -188,11 +188,11 @@ public final class Constants {
 
     public static final double driveToNoteSpeed = 0.5;
   }
-    
+
   public static class PoseEstimatorConstants {
-    //TODO: this is all pasted from last year; PLEASE DON'T USE, FIND REAL VALUES
+    // TODO: this is all pasted from last year; PLEASE DON'T USE, FIND REAL VALUES
     public static final Matrix<N3, N1> statesStandardDev = VecBuilder.fill(0.001, 0.001, 0.005);
-    public static final double visionXStandardDev = 0.005; //TODO: adjust with framerate
+    public static final double visionXStandardDev = 0.005; // TODO: adjust with framerate
     public static final double visionYStandardDev = 0.005;
     public static final double visionHeadingStandardDev = 0.05;
 
@@ -216,7 +216,7 @@ public final class Constants {
         new Pose2d(0.50208, 2.111656, new Rotation2d(Math.PI)), // 4
         new Pose2d(0.50208, -2.111094, new Rotation2d(Math.PI * 3 / 2)), // 5
         new Pose2d(4.700446, -0.719682, new Rotation2d(Math.PI * 3 / 2)), // 6
-        new Pose2d(5.116498, -0.0001, new Rotation2d(0)), // 7
+        new Pose2d(5.116498 + 8.775, 4.0199, new Rotation2d(0)), // 7
         new Pose2d(4.700446, 0.719482, new Rotation2d(0)), // 8
         new Pose2d(3.869358, 0.719482, new Rotation2d(Math.PI / 3)), // 9
         new Pose2d(3.453306, -0.0001, new Rotation2d(Math.PI / 3)), // 10
