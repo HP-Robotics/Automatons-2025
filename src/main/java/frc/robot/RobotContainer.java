@@ -54,18 +54,6 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-<<<<<<< HEAD
-=======
-    // This is for testing change this
-    m_poseEstimatorSubsystem.createPoseEstimator(DriveConstants.kDriveKinematics,
-        new Rotation2d(), new SwerveModulePosition[] {
-            new SwerveModulePosition(0, new Rotation2d()),
-            new SwerveModulePosition(0, new Rotation2d()),
-            new SwerveModulePosition(0, new Rotation2d()),
-            new SwerveModulePosition(0, new Rotation2d())
-        }, new Pose2d(0, 0, new Rotation2d(Math.PI)));
-
->>>>>>> origin/main
     if (SubsystemConstants.useDrive) {
       m_driveSubsystem.setDefaultCommand(
           new RunCommand(
@@ -106,16 +94,16 @@ public class RobotContainer {
   } // TODO: this is a choice (make this not run resetOffsets through three classes)
 
   private void configureBindings() {
-    m_driverController.button(1).and(new Trigger(() -> {
+    m_driveJoystick.button(1).and(new Trigger(() -> {
       return m_intakeSubsystem.m_state == "empty";
     })).whileTrue(new InstantCommand(m_intakeSubsystem::startIntake));// Intake
-    m_driverController.button(2).and(new Trigger(() -> {
+    m_driveJoystick.button(2).and(new Trigger(() -> {
       return m_intakeSubsystem.m_state == "intaking";
     })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));// StopIntake
-    m_driverController.button(3).and(new Trigger(() -> {
+    m_driveJoystick.button(3).and(new Trigger(() -> {
       return m_intakeSubsystem.m_state == "shoot";
-    })).and(m_driverController.button(4)).whileTrue(new InstantCommand(m_intakeSubsystem::shoot));// Shoot
-    m_driverController.button(4).and(new Trigger(() -> {
+    })).and(m_driveJoystick.button(4)).whileTrue(new InstantCommand(m_intakeSubsystem::shoot));// Shoot
+    m_driveJoystick.button(4).and(new Trigger(() -> {
       return m_intakeSubsystem.m_state == "intaking";
     })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
