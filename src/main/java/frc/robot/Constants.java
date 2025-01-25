@@ -4,16 +4,17 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 
 /**
@@ -62,6 +63,9 @@ public final class Constants {
     public static final int FRTurningMotorID = 23;
     public static final int BRTurningMotorID = 21;
     public static final int BLTurningMotorID = 25;
+
+    public static final int IntakeMotorID = 31;
+
     public static final int PigeonID = 57;
   }
 
@@ -186,11 +190,10 @@ public final class Constants {
     public static final double currentTimeThreshold = 0.04;
 
     public static final double driveToNoteSpeed = 0.5;
-
   }
 
-  public static final class PoseEstimatorConstants {
-
+  public static class PoseEstimatorConstants {
+    // TODO: this is all pasted from last year; PLEASE DON'T USE, FIND REAL VALUES
     public static final Matrix<N3, N1> statesStandardDev = VecBuilder.fill(0.001, 0.001, 0.005);
     public static final double visionXStandardDev = 0.005; // TODO: adjust with framerate
     public static final double visionYStandardDev = 0.005;
@@ -203,6 +206,35 @@ public final class Constants {
   public static final class PIDConstantsOurs {
     public static final PIDConstants translationConstants = new PIDConstants(0, 0, 0);
     public static final PIDConstants rotationConstants = new PIDConstants(0, 0, 0);
+  }
 
+  public static class LimelightConstants {
+    public static final double inToM = 0.0254;
+    public static final Pose2d aprilTagList[] = { // 0 is empty, april tag number is that number in list
+        // TODO: These are values from last year so get the ones from this year
+        new Pose2d(),
+        new Pose2d(7.923198, -3.37068, new Rotation2d(Math.PI * 2 / 3)), // 1
+        new Pose2d(7.923198, 3.37068, new Rotation2d(Math.PI * 2 / 3)), // 2
+        new Pose2d(2.78681, 4.02961, new Rotation2d(Math.PI)), // 3
+        new Pose2d(0.50208, 2.111656, new Rotation2d(Math.PI)), // 4
+        new Pose2d(0.50208, -2.111094, new Rotation2d(Math.PI * 3 / 2)), // 5
+        new Pose2d(4.700446, -0.719682, new Rotation2d(Math.PI * 3 / 2)), // 6
+        new Pose2d(5.116498, -0.0001, new Rotation2d(0)), // 7
+        new Pose2d(4.700446, 0.719482, new Rotation2d(0)), // 8
+        new Pose2d(3.869358, 0.719482, new Rotation2d(Math.PI / 3)), // 9
+        new Pose2d(3.453306, -0.0001, new Rotation2d(Math.PI / 3)), // 10
+        new Pose2d(3.869358, -0.719682, new Rotation2d(Math.PI * 5 / 3)), // 11
+        new Pose2d(-7.922846, -3.37068, new Rotation2d(Math.PI / 3)), // 12
+        new Pose2d(-7.922846, 3.37048, new Rotation2d(Math.PI)), // 13
+        new Pose2d(-0.501728, 2.111656, new Rotation2d(0)), // 14
+        new Pose2d(-0.501728, -2.111094, new Rotation2d(Math.PI * 2 / 3)), // 15
+        new Pose2d(-2.786458, -4.02981, new Rotation2d(Math.PI * 4 / 3)), // 16
+        new Pose2d(-4.700094, 0.719682, new Rotation2d(Math.PI * 4 / 3)), // 17
+        new Pose2d(-5.1164, -0.00001, new Rotation2d(Math.PI * 4 / 3)), // 18
+        new Pose2d(-4.700094, 0.719482, new Rotation2d(Math.PI * 4 / 3)), // 19
+        new Pose2d(-3.86926, 0.719482, new Rotation2d(Math.PI * 4 / 3)), // 20
+        new Pose2d(-3.452954, -0.0001, new Rotation2d(Math.PI * 4 / 3)), // 21
+        new Pose2d(-3.86926, -0.719682, new Rotation2d(Math.PI * 4 / 3)) // 22
+    };
   }
 }
