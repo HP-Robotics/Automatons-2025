@@ -11,6 +11,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
+import com.pathplanner.lib.util.swerve.SwerveSetpoint;
+import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -22,6 +24,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
@@ -40,6 +43,9 @@ public class DriveSubsystem extends SubsystemBase {
   SwerveDriveOdometry m_odometry;
 
   PPHolonomicDriveController m_driveController;
+
+  SwerveSetpointGenerator setpointGenerator;
+  SwerveSetpoint previousSetpoint;
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
   public NetworkTable driveTrainTable = inst.getTable("drive-train");
@@ -145,6 +151,13 @@ public class DriveSubsystem extends SubsystemBase {
       // SignalLogger.start();
     }
 
+    setpointGenerator = new SwerveSetpointGenerator(
+            config, // The robot configuration. This is the same config used for generating trajectories and running path following commands.
+            Units.rotationsToRadians(10.0) // The max rotation velocity of a swerve module in radians per second. This should probably be stored in your Constants file
+        );
+
+    previousSetpoint = new SwerveSetpoint(getRobotRelativeSpeeds(), m_swerveModuleStates, DriveFeedforwards.zeros(config.numModules));
+
   }
 
   public ChassisSpeeds getRobotRelativeSpeeds() {
@@ -215,9 +228,14 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void driveRobotRelative(ChassisSpeeds speeds, DriveFeedforwards feedForwards) {
     ChassisSpeeds discSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(discSpeeds);
+    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeed);
-    setModuleStates(swerveModuleStates);
+    previousSetpoint = setpointGenerator.generateSetpoint(
+            previousSetpoint, // The previous setpoint
+            speeds, // The desired target speeds
+            0.02 // The loop time of the robot code, in seconds
+        );
+    setModuleStates(previousSetpoint.moduleStates()); // Method that will drive the robot given target module states
   }
 
   public void driveWithJoystick(CommandJoystick joystick) {
