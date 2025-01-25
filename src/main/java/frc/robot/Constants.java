@@ -63,6 +63,9 @@ public final class Constants {
     public static final int FRTurningMotorID = 23;
     public static final int BRTurningMotorID = 21;
     public static final int BLTurningMotorID = 25;
+
+    public static final int IntakeMotorID = 31;
+
     public static final int PigeonID = 57;
   }
 
