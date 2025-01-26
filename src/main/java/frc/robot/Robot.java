@@ -40,7 +40,7 @@ public class Robot extends TimedRobot {
     if (SubsystemConstants.useDrive) {
       addPeriodic(() -> {
         m_robotContainer.m_driveSubsystem.updateOdometry();
-      }, 0.01);
+      }, 0.004);
     }
     m_robotContainer.m_driveSubsystem.startPoseEstimator(new Pose2d());
   }

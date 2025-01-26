@@ -85,6 +85,8 @@ public class DriveSubsystem extends SubsystemBase {
   private StatusSignal<Angle> m_pGyroRoll = m_pGyro.getRoll();
 
   PIDController rotationController;
+  PIDController xController;
+  PIDController yController;
   PoseEstimatorSubsystem m_poseEstimator;
 
   StructPublisher<Pose2d> drivePublisher;
@@ -145,6 +147,11 @@ public class DriveSubsystem extends SubsystemBase {
     rotationController.setTolerance(DriveConstants.turningControllerTolerance);
     rotationController.setIZone(DriveConstants.turningControllerIZone);
 
+    xController = new PIDController(0.5, 0, 0);
+    xController.setTolerance(0.05);
+    yController = new PIDController(0.5, 0, 0);
+    yController.setTolerance(0.05);
+
     drivePublisher = poseEstimatorTable.getStructTopic("Drive Pose", Pose2d.struct).publish();
 
     if (SubsystemConstants.useDataManager) {
@@ -165,6 +172,11 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void updateOdometry() {
+    StatusSignal.waitForAll(0.004, 
+      m_frontLeft.m_driveMotor.getRotorPosition(), 
+      m_frontRight.m_driveMotor.getRotorPosition(), 
+      m_backLeft.m_driveMotor.getRotorPosition(),
+      m_backRight.m_driveMotor.getRotorPosition(), m_pGyro.getYaw());
     var pigeonYaw = new Rotation2d(Math.toRadians(getYaw()));
     // Update the odometry in the periodic block
     if (m_poseEstimator != null) {
@@ -227,9 +239,9 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void driveRobotRelative(ChassisSpeeds speeds, DriveFeedforwards feedForwards) {
-    ChassisSpeeds discSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeed);
+    //ChassisSpeeds discSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+    //var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
+    //SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeed);
     previousSetpoint = setpointGenerator.generateSetpoint(
             previousSetpoint, // The previous setpoint
             speeds, // The desired target speeds
@@ -281,6 +293,21 @@ public class DriveSubsystem extends SubsystemBase {
         NetworkTableValue.makeDouble(rotationController.getError()));
     driveTrainTable.putValue("Rotation Controller Setpoint",
         NetworkTableValue.makeDouble(rotationController.getSetpoint()));
+  }
+
+  public void driveToPose(Pose2d target) {
+    double rot = rotationController.calculate(m_poseEstimator.getPose().getRotation().getRadians(),
+        target.getRotation().getRadians());
+    double x = MathUtil.clamp(xController.calculate(m_poseEstimator.getPose().getX(),
+        target.getX()), -1, 1);
+    double y = MathUtil.clamp(yController.calculate(m_poseEstimator.getPose().getY(),
+        target.getY()), -1, 1);
+    System.out.println(x + ", " + y);
+    drive(
+        MathUtil.isNear(0, x, 0.07) ? 0 : x * -1 * DriveConstants.kMaxSpeed,
+        MathUtil.isNear(0, y, 0.07) ? 0 : y * -1 * DriveConstants.kMaxSpeed,
+        rot * DriveConstants.kMaxAngularSpeed,
+        true);
   }
 
   public void driveForwardWithAngle(double speed, Rotation2d noteAngle) {

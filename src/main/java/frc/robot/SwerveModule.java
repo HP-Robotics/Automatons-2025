@@ -68,6 +68,7 @@ public class SwerveModule {
 
         m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
 
+        m_driveMotor.getRotorPosition().setUpdateFrequency(250);
         // BaseStatusSignal.setUpdateFrequencyForAll(50,m_driveMotor.getClosedLoopError(),
         // m_driveMotor.getClosedLoopDerivativeOutput(),m_driveMotor.getClosedLoopIntegratedOutput(),m_driveMotor.getClosedLoopProportionalOutput(),m_driveMotor.getClosedLoopFeedForward());
 
