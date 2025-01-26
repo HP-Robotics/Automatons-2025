@@ -5,11 +5,13 @@
 package frc.robot;
 
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.SubsystemConstants;
@@ -18,8 +20,10 @@ import frc.robot.subsystems.IntakeSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -114,13 +118,23 @@ public class RobotContainer {
       PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
 
       m_driveJoystick.button(5).whileTrue(new SequentialCommandGroup(new InstantCommand(() -> {
-        m_driveSubsystem.resetPose(path.getStartingHolonomicPose().get());
+        if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
+          m_driveSubsystem.resetPose(FlippingUtil.flipFieldPose(path.getStartingHolonomicPose().get()));
+        } else {
+          m_driveSubsystem.resetPose(path.getStartingHolonomicPose().get());
+        }
+        
       }),
           (AutoBuilder.followPath(path))));
 
     } catch (Exception e) {
       DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
     }
+    m_driveJoystick.button(6).whileTrue(new RunCommand(
+      () -> {
+        m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 9.775, 4.0199, new Rotation2d(Math.PI)));
+      }, 
+      m_driveSubsystem));
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_exampleSubsystem::exampleCondition)
