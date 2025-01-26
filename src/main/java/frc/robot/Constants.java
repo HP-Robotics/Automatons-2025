@@ -142,10 +142,10 @@ public final class Constants {
     public static final double driveGearRatio = 6.75 / 1.02;
     public static final double turningGearRatio = 540.0 / 35.0;
 
-    public static final Translation2d kFrontLeftLocation = new Translation2d(0.308 - 0.038, 0.308);
-    public static final Translation2d kFrontRightLocation = new Translation2d(0.308 - 0.038, -0.308);
-    public static final Translation2d kBackLeftLocation = new Translation2d(-0.308, 0.308);
-    public static final Translation2d kBackRightLocation = new Translation2d(-0.308, -0.308);
+    public static final Translation2d kFrontLeftLocation = new Translation2d(0.31, 0.305);
+    public static final Translation2d kFrontRightLocation = new Translation2d(0.31, -0.305);
+    public static final Translation2d kBackLeftLocation = new Translation2d(-0.31, 0.305);
+    public static final Translation2d kBackRightLocation = new Translation2d(-0.31, -0.305);
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
         kFrontLeftLocation, kFrontRightLocation, kBackRightLocation, kBackLeftLocation); // TODO: Fix these
