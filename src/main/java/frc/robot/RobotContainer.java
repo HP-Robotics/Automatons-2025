@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.SubsystemConstants;
+import frc.robot.commands.IntakeFoldCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 
@@ -20,6 +21,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -42,7 +44,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   SendableChooser<Command> autoChooser;
   final PoseEstimatorSubsystem m_poseEstimatorSubsystem = new PoseEstimatorSubsystem();
-  final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
+  final IntakeSubsystem m_intakeSubsystem = SubsystemConstants.useIntake ? new IntakeSubsystem() : null;
   final LimelightSubsystem m_limelightSubsystem = new LimelightSubsystem(m_poseEstimatorSubsystem);
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
@@ -74,17 +76,16 @@ public class RobotContainer {
                 m_driveSubsystem.driveWithJoystick(m_driveJoystick);
               },
               m_driveSubsystem));
+
+      // Build an auto chooser. This will use Commands.none() as the default option.
+      autoChooser = AutoBuilder.buildAutoChooser();
+      // Another option that allows you to specify the default auto by its name
+      // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
+
+      SmartDashboard.putData("Auto Chooser", autoChooser);
     }
     // Configure the trigger bindings
     configureBindings();
-
-    // Build an auto chooser. This will use Commands.none() as the default option.
-    autoChooser = AutoBuilder.buildAutoChooser();
-
-    // Another option that allows you to specify the default auto by its name
-    // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
-
-    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   /**
@@ -123,6 +124,9 @@ public class RobotContainer {
     // pressed,
     // cancelling on release.
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
+      m_driveJoystick.button(7).onTrue(new IntakeFoldCommand(m_intakeSubsystem));
+    }
   }
 
   /**

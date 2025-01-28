@@ -32,14 +32,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 public final class Constants {
 
   public static class SubsystemConstants {
-    public static final boolean useDrive = true;
+    public static final boolean useDrive = false;
     public static final boolean useIntake = true;
     public static final boolean useShooter = false;
-    public static final boolean useDataManager = true;
-    public static final boolean useLimelight = true;
-    public static final boolean usePivot = true;
+    public static final boolean useDataManager = false;
+    public static final boolean useLimelight = false;
+    public static final boolean usePivot = false;
     public static final boolean useClimber = true;
-    public static final boolean useTrigger = true;
+    public static final boolean useTrigger = false;
   }
 
   public static class OperatorConstants {
@@ -65,6 +65,7 @@ public final class Constants {
     public static final int BLTurningMotorID = 25;
 
     public static final int IntakeMotorID = 31;
+    public static final int IntakeFoldMotorID = 32;
 
     public static final int PigeonID = 57;
   }
@@ -190,6 +191,11 @@ public final class Constants {
     public static final double currentTimeThreshold = 0.04;
 
     public static final double driveToNoteSpeed = 0.5;
+  }
+
+  public static class ClimberConstants {
+    public static final double foldSpeed = 0.5;
+    public static final double foldRunTime = 2; // TODO: Make this a number that makes sense
   }
 
   public static class PoseEstimatorConstants {
