@@ -68,6 +68,8 @@ public final class Constants {
     public static final int IntakeFoldMotorID = 32;
 
     public static final int PigeonID = 57;
+
+    public static final int ClimbMotorID = 0; // TODO: Find motor ID
   }
 
   public static class AutoConstants {

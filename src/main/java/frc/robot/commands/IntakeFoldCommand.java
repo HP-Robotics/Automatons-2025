@@ -1,20 +1,17 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.IntakeSubsystem;
 
 public class IntakeFoldCommand extends Command {
     IntakeSubsystem m_intakeSubsystem;
-    Timer m_timer = new Timer();
 
     public IntakeFoldCommand(IntakeSubsystem intakeSubsystem) {
         m_intakeSubsystem = intakeSubsystem;
     }
 
     public void initialize() {
-        m_timer.start();
         if (Constants.SubsystemConstants.useIntake) {
             m_intakeSubsystem.m_intakeFoldMotor.set(Constants.ClimberConstants.foldSpeed);
         }
@@ -25,6 +22,6 @@ public class IntakeFoldCommand extends Command {
     }
 
     public boolean isFinished() {
-        return m_timer.hasElapsed(Constants.ClimberConstants.foldRunTime);
+        return false;
     }
 }
