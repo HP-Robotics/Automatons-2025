@@ -8,6 +8,8 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+
+import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 
@@ -67,6 +69,9 @@ public final class Constants {
     public static final int IntakeMotorID = 31;
 
     public static final int PigeonID = 57;
+
+    public static final int ElevatorMotor1ID = 10; //TODO: Fix the motor ID
+    public static final int ElevatorMotor2ID = 11; //TODO: Fix the motor ID
   }
 
   public static class AutoConstants {
@@ -89,8 +94,14 @@ public final class Constants {
     public static final int BLAbsEncoder = 11;
   }
 
+  public static class ElevatorConstants {
+    public static final double L4Position = 0; //TODO: figure out what these are
+    public static final double L3Position = 0; //TODO: figure out what these are
+    public static final double ElevatorDownPosition = 0; //TODO: this might be right but should be checked with the other two
+  }
+
   public static class ControllerConstants {
-    public static final boolean useXbox = true;
+    public static final boolean useXbox = true; 
 
     public static final int kOperatorControllerPort = 0;
     public static final int kDriverControllerPort = 1;
@@ -111,6 +122,8 @@ public final class Constants {
     public static final int driveToNoteAxis = useXbox ? 2 : 0;
     public static final int driveToAmpButton = 1;
     public static final int pointToCornerButton = 2;
+    public static final int L4Button = 9;
+    public static final int L3Button = 10;
 
     // TODO: Add operator joystick constants
 
