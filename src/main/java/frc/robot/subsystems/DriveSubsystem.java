@@ -198,8 +198,8 @@ public class DriveSubsystem extends SubsystemBase {
     // NetworkTableValue.makeDouble(m_poseEstimator.getPose().getX()));
     // driveTrainTable.putValue("Robot y",
     // NetworkTableValue.makeDouble(m_poseEstimator.getPose().getY()));
-    // driveTrainTable.putValue("Robot theta",
-    // NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
+    driveTrainTable.putValue("Robot theta",
+    NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
     driveTrainTable.putValue("is Drive Abs Working", NetworkTableValue.makeBoolean(
         m_backLeft.m_absEncoder.get() != 0 &&
             m_backRight.m_absEncoder.get() != 0 &&
@@ -207,7 +207,7 @@ public class DriveSubsystem extends SubsystemBase {
             m_frontRight.m_absEncoder.get() != 0));
     // TODO investigate why this takes so long
     m_frontLeft.updateShuffleboard();
-    m_frontRight.updateShuffleboard();
+    m_frontRight.updateShuffleboard(); 
     m_backRight.updateShuffleboard();
     m_backLeft.updateShuffleboard();
 
