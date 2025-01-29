@@ -308,6 +308,15 @@ public class DriveSubsystem extends SubsystemBase {
         MathUtil.isNear(0, y, 0.07) ? 0 : y * -1 * DriveConstants.kMaxSpeed,
         rot * DriveConstants.kMaxAngularSpeed,
         true);
+    driveTrainTable.putValue("X Error", NetworkTableValue.makeDouble(xController.getError()));
+    driveTrainTable.putValue("X P Contribution", NetworkTableValue.makeDouble(xController.getError() * xController.getP()));
+    driveTrainTable.putValue("X I Contribution", NetworkTableValue.makeDouble(xController.getAccumulatedError() * xController.getI()));
+    driveTrainTable.putValue("X D Contribution", NetworkTableValue.makeDouble(xController.getErrorDerivative() * xController.getD()));
+    
+    driveTrainTable.putValue("Y Error", NetworkTableValue.makeDouble(yController.getError()));
+    driveTrainTable.putValue("Y P Contribution", NetworkTableValue.makeDouble(yController.getError() * yController.getP()));
+    driveTrainTable.putValue("Y I Contribution", NetworkTableValue.makeDouble(yController.getAccumulatedError() * yController.getI()));
+    driveTrainTable.putValue("Y D Contribution", NetworkTableValue.makeDouble(yController.getErrorDerivative() * yController.getD()));
   }
 
   public void driveForwardWithAngle(double speed, Rotation2d noteAngle) {
