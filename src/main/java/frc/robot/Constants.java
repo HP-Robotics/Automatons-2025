@@ -98,6 +98,9 @@ public final class Constants {
     public static final double L4Position = 0; //TODO: figure out what these are
     public static final double L3Position = 0; //TODO: figure out what these are
     public static final double ElevatorDownPosition = 0; //TODO: this might be right but should be checked with the other two
+    public static final double kP = 0;// TODO: tune these
+    public static final double kI = 0;
+    public static final double kD = 0;
   }
 
   public static class ControllerConstants {
@@ -122,8 +125,10 @@ public final class Constants {
     public static final int driveToNoteAxis = useXbox ? 2 : 0;
     public static final int driveToAmpButton = 1;
     public static final int pointToCornerButton = 2;
+
     public static final int L4Button = 9;
     public static final int L3Button = 10;
+    public static final int ElevatorDownButton = 11;
 
     // TODO: Add operator joystick constants
 

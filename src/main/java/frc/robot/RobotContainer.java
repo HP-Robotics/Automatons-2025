@@ -15,6 +15,7 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.SubsystemConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -46,7 +47,7 @@ public class RobotContainer {
   final LimelightSubsystem m_limelightSubsystem = new LimelightSubsystem(m_poseEstimatorSubsystem);
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
-
+  final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
   final CommandJoystick m_driveJoystick = new CommandJoystick(ControllerConstants.kDriverControllerPort);
   final CommandJoystick m_opJoystick = new CommandJoystick(ControllerConstants.kOperatorControllerPort);
 
@@ -115,13 +116,14 @@ public class RobotContainer {
     m_driverController.button(4).and(new Trigger(() -> {
       return m_intakeSubsystem.m_state == "intaking";
     })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));
+    m_driveJoystick.button(7).whileTrue(m_elevatorSubsystem.GoToL4());
+    m_driveJoystick.button(8).whileTrue(m_elevatorSubsystem.GoToL3());
+    m_driveJoystick.button(9).whileTrue(m_elevatorSubsystem.ElevatorDown());
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_exampleSubsystem::exampleCondition)
     // .onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-    // pressed,
-    // cancelling on release.
+    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed, cancelling on release.
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
   }
 
