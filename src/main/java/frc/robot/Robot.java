@@ -10,7 +10,6 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.SubsystemConstants;
 
 /**
@@ -43,7 +42,7 @@ public class Robot extends TimedRobot {
         m_robotContainer.m_driveSubsystem.updateOdometry();
       }, 0.004);
     }
-    m_robotContainer.m_driveSubsystem.startPoseEstimator(LimelightConstants.aprilTagList[7]);
+    m_robotContainer.m_driveSubsystem.startPoseEstimator(new Pose2d());
   }
 
   /**
