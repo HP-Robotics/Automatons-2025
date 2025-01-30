@@ -14,7 +14,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.SubsystemConstants;
+import frc.robot.commands.ClimberClimbCommand;
 import frc.robot.commands.IntakeFoldCommand;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 
@@ -48,6 +50,7 @@ public class RobotContainer {
   final LimelightSubsystem m_limelightSubsystem = new LimelightSubsystem(m_poseEstimatorSubsystem);
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
+  final ClimberSubsystem m_ClimberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
 
   final CommandJoystick m_driveJoystick = new CommandJoystick(ControllerConstants.kDriverControllerPort);
   final CommandJoystick m_opJoystick = new CommandJoystick(ControllerConstants.kOperatorControllerPort);
@@ -128,6 +131,8 @@ public class RobotContainer {
       m_driveJoystick.button(7)
           .onTrue(new IntakeFoldCommand(m_intakeSubsystem).withTimeout(ClimberConstants.foldRunTime));
     }
+
+    m_driveJoystick.button(8).whileTrue(new ClimberClimbCommand(m_ClimberSubsystem));
   }
 
   /**
