@@ -177,7 +177,8 @@ public class DriveSubsystem extends SubsystemBase {
       m_frontLeft.m_driveMotor.getRotorPosition(), 
       m_frontRight.m_driveMotor.getRotorPosition(), 
       m_backLeft.m_driveMotor.getRotorPosition(),
-      m_backRight.m_driveMotor.getRotorPosition(), m_pGyro.getYaw());
+      m_backRight.m_driveMotor.getRotorPosition(),  
+      m_pGyro.getYaw());
     var pigeonYaw = new Rotation2d(Math.toRadians(getYaw()));
     // Update the odometry in the periodic block
     if (m_poseEstimator != null) {
