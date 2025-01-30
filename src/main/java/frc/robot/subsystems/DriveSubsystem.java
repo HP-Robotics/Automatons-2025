@@ -94,6 +94,8 @@ public class DriveSubsystem extends SubsystemBase {
   RobotConfig config;
 
   public DriveSubsystem(PoseEstimatorSubsystem poseEstimator) {
+    m_pGyro.getYaw().setUpdateFrequency(250);
+
     try {
       config = RobotConfig.fromGUISettings();
     } catch (Exception e) {
