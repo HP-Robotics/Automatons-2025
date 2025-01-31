@@ -159,11 +159,26 @@ public final class Constants {
     public static final double turningkI = 1;
     public static final double turningkD = 0.008;
 
-    public static final double turningControllerkP = 1.8;
-    public static final double turningControllerkI = 0.3;
-    public static final double turningControllerkD = 0.15;
-    public static final double turningControllerTolerance = Math.toRadians(2);
-    public static final double turningControllerIZone = 0.15;
+    public static final double XControllerkP = 6.5;
+    public static final double XControllerkI = 0.03;
+    public static final double XControllerkD = 1.3;
+    public static final double XControllerTolerance = 0.01;
+    public static final double XControllerIZone = 0.5;
+
+
+    public static final double YControllerkP = 6.5;
+    public static final double YControllerkI = 0.03;
+    public static final double YControllerkD = 1.3;
+    public static final double YControllerTolerance = 0.01;
+    public static final double YControllerIZone = 0.5;
+
+
+
+    public static final double rotationControllerkP = 2;
+    public static final double rotationControllerkI = 0.3;//0.3;
+    public static final double rotationControllerkD = 0.15;//0.15;
+    public static final double rotationControllerTolerance = Math.toRadians(2);
+    public static final double rotationControllerIZone = 0.15;
 
     // Absolute encoder values that make the wheels point forward
 

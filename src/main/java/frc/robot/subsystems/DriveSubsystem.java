@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import javax.xml.stream.util.XMLEventConsumer;
+
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
@@ -36,6 +38,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.*;
+import frc.robot.Constants;
 import frc.robot.SwerveModule;
 
 /** Represents a swerve drive style drivetrain. */
@@ -143,16 +146,18 @@ public class DriveSubsystem extends SubsystemBase {
     });
 
     SmartDashboard.putData("Field", m_field);
-    rotationController = new PIDController(DriveConstants.turningControllerkP, DriveConstants.turningControllerkI,
-        DriveConstants.turningControllerkD);
+    rotationController = new PIDController(DriveConstants.rotationControllerkP, DriveConstants.rotationControllerkI,
+        DriveConstants.rotationControllerkD);
     rotationController.enableContinuousInput(-Math.PI, Math.PI);
-    rotationController.setTolerance(DriveConstants.turningControllerTolerance);
-    rotationController.setIZone(DriveConstants.turningControllerIZone);
+    rotationController.setTolerance(DriveConstants.rotationControllerTolerance);
+    rotationController.setIZone(DriveConstants.rotationControllerIZone);
 
-    xController = new PIDController(0.5, 0, 0);
-    xController.setTolerance(0.05);
-    yController = new PIDController(0.5, 0, 0);
-    yController.setTolerance(0.05);
+    xController = new PIDController(DriveConstants.XControllerkP, DriveConstants.XControllerkI, DriveConstants.XControllerkD);
+    xController.setTolerance(DriveConstants.XControllerTolerance);
+    xController.setIZone(DriveConstants.XControllerIZone);
+    yController = new PIDController(DriveConstants.YControllerkP, DriveConstants.YControllerkI, DriveConstants.YControllerkD);
+    yController.setTolerance(DriveConstants.YControllerTolerance);
+    xController.setIZone(DriveConstants.YControllerIZone);
 
     drivePublisher = poseEstimatorTable.getStructTopic("Drive Pose", Pose2d.struct).publish();
 
@@ -233,13 +238,22 @@ public class DriveSubsystem extends SubsystemBase {
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
     var pigeonYaw = new Rotation2d(Math.toRadians(getYaw()));
 
-    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-        fieldRelative
+    // var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
+    //     fieldRelative
+    //         ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, pigeonYaw)
+    //         : new ChassisSpeeds(xSpeed, ySpeed, rot));
+        previousSetpoint = setpointGenerator.generateSetpoint(
+              previousSetpoint, // The previous setpoint
+              fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, pigeonYaw)
-            : new ChassisSpeeds(xSpeed, ySpeed, rot));
-    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeed);
-    setModuleStates(swerveModuleStates);
-  }
+            : new ChassisSpeeds(xSpeed, ySpeed, rot), // The desired target speeds
+              0.02 // The loop time of the robot code, in seconds
+          );
+      setModuleStates(previousSetpoint.moduleStates()); // Method that will drive the robot given target module states
+    }
+    //SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeed);
+    //setModuleStates(swerveModuleStates);
+  
 
   public void driveRobotRelative(ChassisSpeeds speeds, DriveFeedforwards feedForwards) {
     //ChassisSpeeds discSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
@@ -301,9 +315,9 @@ public class DriveSubsystem extends SubsystemBase {
   public void driveToPose(Pose2d target) {
     double rot = rotationController.calculate(m_poseEstimator.getPose().getRotation().getRadians(),
         target.getRotation().getRadians());
-    double x = MathUtil.clamp(xController.calculate(m_poseEstimator.getPose().getX(),
+    double x = -MathUtil.clamp(xController.calculate(m_poseEstimator.getPose().getX(),
         target.getX()), -1, 1);
-    double y = MathUtil.clamp(yController.calculate(m_poseEstimator.getPose().getY(),
+    double y = -MathUtil.clamp(yController.calculate(m_poseEstimator.getPose().getY(),
         target.getY()), -1, 1);
     System.out.println(x + ", " + y);
     drive(
@@ -316,6 +330,11 @@ public class DriveSubsystem extends SubsystemBase {
     driveTrainTable.putValue("X I Contribution", NetworkTableValue.makeDouble(xController.getAccumulatedError() * xController.getI()));
     driveTrainTable.putValue("X D Contribution", NetworkTableValue.makeDouble(xController.getErrorDerivative() * xController.getD()));
     
+    driveTrainTable.putValue("Theta Error", NetworkTableValue.makeDouble(rotationController.getError()));
+    driveTrainTable.putValue("Theta P Contribution", NetworkTableValue.makeDouble(rotationController.getError() * rotationController.getP()));
+    driveTrainTable.putValue("Theta I Contribution", NetworkTableValue.makeDouble(rotationController.getAccumulatedError() * rotationController.getI()));
+    driveTrainTable.putValue("Theta D Contribution", NetworkTableValue.makeDouble(rotationController.getErrorDerivative() * rotationController.getD()));
+
     driveTrainTable.putValue("Y Error", NetworkTableValue.makeDouble(yController.getError()));
     driveTrainTable.putValue("Y P Contribution", NetworkTableValue.makeDouble(yController.getError() * yController.getP()));
     driveTrainTable.putValue("Y I Contribution", NetworkTableValue.makeDouble(yController.getAccumulatedError() * yController.getI()));
@@ -360,8 +379,8 @@ public class DriveSubsystem extends SubsystemBase {
     this.m_swerveModuleStates = swerveModuleStates;
     m_frontLeft.setDesiredState(swerveModuleStates[0]);
     m_frontRight.setDesiredState(swerveModuleStates[1]);
-    m_backRight.setDesiredState(swerveModuleStates[2]);
-    m_backLeft.setDesiredState(swerveModuleStates[3]);
+    m_backLeft.setDesiredState(swerveModuleStates[2]);
+    m_backRight.setDesiredState(swerveModuleStates[3]);
   }
 
   public void setFieldRelative(boolean isTrue) {
