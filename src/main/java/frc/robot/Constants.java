@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -65,6 +66,7 @@ public final class Constants {
     public static final int BLTurningMotorID = 25;
 
     public static final int IntakeMotorID = 31;
+    public static final int outtakeMotorID = 32; // Maybe?
 
     public static final int PigeonID = 57;
   }
@@ -90,6 +92,8 @@ public final class Constants {
   }
 
   public static class ControllerConstants {
+    public static final CommandJoystick m_driveJoystick = new CommandJoystick(ControllerConstants.kDriverControllerPort);
+    public static final CommandJoystick m_opJoystick = new CommandJoystick(ControllerConstants.kOperatorControllerPort);
     public static final boolean useXbox = true;
 
     public static final int kOperatorControllerPort = 0;
@@ -106,6 +110,8 @@ public final class Constants {
     public static final int yuckButton = useXbox ? 4 : 2;
     public static final int climberButton = useXbox ? 10 : 10;
     public static final int intakeButton = useXbox ? 0 : 1;
+    public static final int outtakeButton = useXbox ? 0 : 0;
+    public static final Trigger outtakeTrigger = m_driveJoystick.button(outtakeButton);
     public static final int drivePointedToSpeakerButton = useXbox ? 6 : 0;
     public static final int drivePointedToNoteButton = useXbox ? 5 : 0;
     public static final int driveToNoteAxis = useXbox ? 2 : 0;
@@ -236,5 +242,10 @@ public final class Constants {
         new Pose2d(-3.452954, -0.0001, new Rotation2d(Math.PI * 4 / 3)), // 21
         new Pose2d(-3.86926, -0.719682, new Rotation2d(Math.PI * 4 / 3)) // 22
     };
+  }
+
+  public static class OuttakeConstants {
+    public static final double loadSpeed = 0.2;
+    public static final double outtakeSpeed = 0.2;
   }
 }

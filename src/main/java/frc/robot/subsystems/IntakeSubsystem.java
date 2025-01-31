@@ -32,7 +32,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public void stopIntake() {
         m_intakeMotor.set(0);
         if (m_fakeBeamBreak.getAsBoolean()) {// TODO: use beamBroken method once available
-            m_state = "shoot";
+            m_state = "shoot"; // TODO: Should this be outtaking?
         } else {
             m_state = "empty";
         }
