@@ -134,7 +134,7 @@ public class RobotContainer {
     }
     ControllerConstants.m_driveJoystick.button(6).whileTrue(new RunCommand(
         () -> {
-          m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 9.775, 4.0199, new Rotation2d(Math.PI)));
+          m_driveSubsystem.driveToPose(new Pose2d());
         },
         m_driveSubsystem));
 
