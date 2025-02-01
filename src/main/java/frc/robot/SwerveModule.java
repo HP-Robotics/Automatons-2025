@@ -12,7 +12,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -31,7 +30,7 @@ public class SwerveModule {
     public final TalonFX m_driveMotor;
     private final TalonFX m_turningMotor;
     private final double m_absEncoderForward;
-    public double m_turningOffset;
+    public double m_relativeTurningOffset;
     public final DutyCycleEncoder m_absEncoder;
     String m_name;
     NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -69,6 +68,7 @@ public class SwerveModule {
 
         m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
 
+        m_driveMotor.getRotorPosition().setUpdateFrequency(250);
         // BaseStatusSignal.setUpdateFrequencyForAll(50,m_driveMotor.getClosedLoopError(),
         // m_driveMotor.getClosedLoopDerivativeOutput(),m_driveMotor.getClosedLoopIntegratedOutput(),m_driveMotor.getClosedLoopProportionalOutput(),m_driveMotor.getClosedLoopFeedForward());
 
@@ -77,6 +77,7 @@ public class SwerveModule {
         turningConfig.Slot0.kP = DriveConstants.turningkP;
         turningConfig.Slot0.kI = DriveConstants.turningkI;
         turningConfig.Slot0.kD = DriveConstants.turningkD;
+        turningConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         m_turningMotor.getConfigurator().apply(new TalonFXConfiguration());
         m_turningMotor.getConfigurator().apply(turningConfig);
         m_driveMotor.getConfigurator().apply(currentConfigs);
@@ -94,17 +95,35 @@ public class SwerveModule {
         m_turningMotor.getConfigurator().apply(rampConfigsTurning);
 
         m_absEncoder = new DutyCycleEncoder(absEncoder);
-        m_turningOffset = 0.0;
+        m_absEncoder.setInverted(false);
+        m_relativeTurningOffset = 0.0;
         m_absEncoderForward = absEncoderForward;
         m_name = name;
     }
 
     public void resetOffset() {
-
         if (m_absEncoder.get() != 0) {
             double offset = m_absEncoderForward - m_absEncoder.get();
-            m_turningOffset = m_turningMotor.getPosition().getValueAsDouble()
+            m_relativeTurningOffset = m_turningMotor.getPosition().getValueAsDouble()
                     + offset * (DriveConstants.kEncoderResolution * DriveConstants.turningGearRatio);
+            driveTrainTable.putValue(m_name + "turning motor at startup",
+                    NetworkTableValue.makeDouble(m_turningMotor.getPosition().getValueAsDouble()));
+            driveTrainTable.putValue(m_name + "abs encoder at startup",
+                    NetworkTableValue.makeDouble(m_absEncoder.get()));
+            driveTrainTable.putValue(m_name + " offset", NetworkTableValue.makeDouble(offset));
+            // System.out.println(" ");
+            // System.out.println(m_absEncoder.get());
+            // System.out.println(m_absEncoder.get());
+            // System.out.println(m_absEncoder.get());
+            // System.out.println(m_absEncoder.get());
+
+            // System.out.println(m_turningMotor.getPosition().getValueAsDouble());
+            // System.out.println(m_turningMotor.getPosition().getValueAsDouble());
+
+            // System.out.println(m_turningMotor.getPosition().getValueAsDouble());
+
+            // System.out.println(m_turningMotor.getPosition().getValueAsDouble());
+
         }
 
     }
@@ -134,23 +153,39 @@ public class SwerveModule {
      * @param desiredState Desired state with speed and angle.
      */
     public void setDesiredState(SwerveModuleState desiredState) {
-        double currentAngle = ticksToRadians(motorValueToTicks(m_turningMotor.getRotorPosition().getValueAsDouble()));
-        currentAngle = MathUtil.inputModulus(currentAngle, desiredState.angle.getRadians() - Math.PI,
-                desiredState.angle.getRadians() + Math.PI);
+        // State or radians means that it's in radians
+        // Relative or setpoint means that it's in kraken/falcon units
+        // Abs means that it's absolute encoder units
+
+        driveTrainTable.putValue(m_name + " desiredState",
+                NetworkTableValue.makeDouble(desiredState.angle.getRadians()));
+        double modifiedCurrentAngle = MathUtil.inputModulus(getRadiansAngle(),
+                desiredState.angle.getRadians() - Math.PI,
+                desiredState.angle.getRadians() + Math.PI); // Limit current robot angle within pi of desired angle
+
+        desiredState.optimize(new Rotation2d(modifiedCurrentAngle));
         // Optimize the reference state to avoid spinning further than 90 degrees
-        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(currentAngle));
-        driveTrainTable.putValue(m_name + "turningOffset", NetworkTableValue.makeDouble(m_turningOffset));
-        double currentPosition = m_turningMotor.getPosition().getValueAsDouble();
-        double goalPosition = MathUtil.inputModulus(ticksToMotorValue(radiansToTicks(state.angle.getRadians())),
-                currentPosition - Constants.DriveConstants.turningGearRatio / 2,
-                currentPosition + Constants.DriveConstants.turningGearRatio / 2);
-        m_turningMotor.setControl(new PositionDutyCycle(goalPosition));
-        driveTrainTable.putValue(m_name + "turningSetpoint", NetworkTableValue.makeDouble(goalPosition));
-        driveTrainTable.putValue(m_name + "driveSetpoint",
-                NetworkTableValue.makeDouble(metersToTicks(state.speedMetersPerSecond)));
 
-        m_driveMotor.setControl(new VelocityTorqueCurrentFOC(metersToTicks(state.speedMetersPerSecond)));
+        double currentRelativeAngle = getEncoderAngle();
+        double desiredSetpoint = MathUtil.inputModulus(
+                ticksToMotorValue(radiansToTicks(desiredState.angle.getRadians())),
+                currentRelativeAngle - Constants.DriveConstants.turningGearRatio / 2,
+                currentRelativeAngle + Constants.DriveConstants.turningGearRatio / 2);
+        // Compute a desired setpoint from the relative encoder and make it less than
+        // half of a rotation
 
+        m_turningMotor.setControl(new PositionDutyCycle(desiredSetpoint));
+        m_driveMotor.setControl(new VelocityTorqueCurrentFOC(metersToTicks(desiredState.speedMetersPerSecond)));
+
+        // TODO: Comment out the shuffleboard values we don't need
+        driveTrainTable.putValue(m_name + " optimizedDesiredState",
+                NetworkTableValue.makeDouble(desiredState.angle.getRadians()));
+        driveTrainTable.putValue(m_name + " relativeTurningOffset",
+                NetworkTableValue.makeDouble(m_relativeTurningOffset));
+        driveTrainTable.putValue(m_name + " modifiedCurrentAngle", NetworkTableValue.makeDouble(modifiedCurrentAngle));
+        driveTrainTable.putValue(m_name + " desiredSetpoint", NetworkTableValue.makeDouble(desiredSetpoint));
+        driveTrainTable.putValue(m_name + " speedSetpoint",
+                NetworkTableValue.makeDouble(metersToTicks(desiredState.speedMetersPerSecond)));
     }
 
     public double getModifiedAbsolute() {
@@ -159,11 +194,15 @@ public class SwerveModule {
     }
 
     public double motorValueToTicks(double position) {
-        return position - m_turningOffset;
+        return position - m_relativeTurningOffset;
     }
 
     public double ticksToMotorValue(double position) {
-        return position + m_turningOffset;
+        return position + m_relativeTurningOffset;
+    }
+
+    public double getRadiansAngle() {
+        return ticksToRadians(motorValueToTicks(getEncoderAngle()));
     }
 
     public SwerveModulePosition getPosition() {
@@ -179,11 +218,11 @@ public class SwerveModule {
         return new SwerveModulePosition(
                 ticksToMeters(m_driveMotor.getRotorPosition().getValueAsDouble()),
                 new Rotation2d(
-                        ticksToRadians(motorValueToTicks(m_turningMotor.getRotorPosition().getValueAsDouble()))));
+                        getRadiansAngle()));
     }
 
     public double getEncoderAngle() {
-        return m_turningMotor.getRotorPosition().getValueAsDouble(); // do we want a double here?
+        return m_turningMotor.getRotorPosition().getValueAsDouble();
     }
 
     public double turnPower() {
@@ -205,10 +244,14 @@ public class SwerveModule {
         // NetworkTableValue.makeDouble(driveSpeed()));
         // driveTrainTable.putValue(m_name + " Turn Power",
         // NetworkTableValue.makeDouble(turnPower()));
-        // driveTrainTable.putValue(m_name + " Turn Angle",
-        // NetworkTableValue.makeDouble(getEncoderAngle()));
+        driveTrainTable.putValue(m_name + " Relative Encoder Angle",
+                NetworkTableValue.makeDouble(getEncoderAngle()));
         driveTrainTable.putValue(m_name + " Abs Encoder",
                 NetworkTableValue.makeDouble(m_absEncoder.get()));
+        driveTrainTable.putValue(m_name + " Abs Encoder Radians",
+                NetworkTableValue.makeDouble(getModifiedAbsolute()));
+        driveTrainTable.putValue(m_name + " Relative Encoder Radians",
+                NetworkTableValue.makeDouble(getRadiansAngle()));
         // driveTrainTable.putValue(m_name + " Turning kD Proportion",
         // NetworkTableValue.makeDouble(m_turningMotor.getClosedLoopDerivativeOutput().getValue()));
         // driveTrainTable.putValue(m_name + " Turning kP Proportion",

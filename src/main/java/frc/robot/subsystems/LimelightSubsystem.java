@@ -52,7 +52,7 @@ public class LimelightSubsystem extends SubsystemBase {
     Shuffleboard.getTab("shuffleboard")
         .add("Pose2d", m_field)
         .withWidget(BuiltInWidgets.kField);
-    m_table = NetworkTableInstance.getDefault().getTable("limelight-bite");
+    m_table = NetworkTableInstance.getDefault().getTable("limelight-delight");
     botposeBlue = m_table.getEntry("botpose_wpiblue");
     m_poseEstimator = poseEstimatorSubsystem;
     publisher = poseEstimatorTable.getStructTopic("AprilTag Pose", Pose2d.struct).publish();
@@ -99,7 +99,8 @@ public class LimelightSubsystem extends SubsystemBase {
         double botPosY = botPose[1];
         // double botPosZ = botpose[2];
         // double botRotX = botpose[3];
-        // double botRotY = botpose[4]; // TODO: Store botPosZ, botRotX, and botRotY somewhere (Store 3D)
+        // double botRotY = botpose[4]; // TODO: Store botPosZ, botRotX, and botRotY
+        // somewhere (Store 3D)
         double botRotZ = botPose[5];
         latency = botPose[6];
         timeStamp -= latency / 1000;
@@ -108,14 +109,14 @@ public class LimelightSubsystem extends SubsystemBase {
         if (m_poseEstimator != null && 0 <= m_targetAprilTagID && m_targetAprilTagID <= 22) {
           if (botPosX != 0 || botPosY != 0 || botRotZ != 0) {
             publisher.set(m_targetPoseRelative);
-            Rotation2d relativeSkew = Rotation2d.fromDegrees(getAngleToPose(m_targetPoseRelative, LimelightConstants.aprilTagList[m_targetAprilTagID])-180);
-            double absoluteSkew = Math.abs(LimelightConstants.aprilTagList[m_targetAprilTagID].getRotation()
-                .minus(relativeSkew)
-                .getRadians()
-            );
-            absoluteSkew = Math.abs(absoluteSkew);
+            Rotation2d aprilTagToRobotAngle = Rotation2d.fromDegrees(
+                getAngleToPose(m_targetPoseRelative, LimelightConstants.aprilTagList[m_targetAprilTagID]) - 180);
+            double angleDiff = Math.abs(LimelightConstants.aprilTagList[m_targetAprilTagID].getRotation()
+                .minus(aprilTagToRobotAngle)
+                .getRadians());
             m_poseEstimator.updateVision(m_targetPoseRelative, timeStamp,
-                getDistanceToPose(m_targetPoseRelative, LimelightConstants.aprilTagList[m_targetAprilTagID]), absoluteSkew);
+                getDistanceToPose(m_targetPoseRelative, LimelightConstants.aprilTagList[m_targetAprilTagID]),
+                angleDiff);
             // System.out.println("saw apriltag: " + timeStamp + " latency: " + latency);
           }
         }

@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -69,6 +70,8 @@ public final class Constants {
     public static final int IntakeMotorID = 31;
     public static final int IntakeFoldMotorID = 32;
 
+    public static final int outtakeMotorID = 41;
+
     public static final int PigeonID = 57;
 
     public static final int ElevatorMotor1ID = 10; // TODO: Fix the motor ID
@@ -105,6 +108,9 @@ public final class Constants {
   }
 
   public static class ControllerConstants {
+    public static final CommandJoystick m_driveJoystick = new CommandJoystick(
+        ControllerConstants.kDriverControllerPort);
+    public static final CommandJoystick m_opJoystick = new CommandJoystick(ControllerConstants.kOperatorControllerPort);
     public static final boolean useXbox = true;
 
     public static final int kOperatorControllerPort = 0;
@@ -121,6 +127,8 @@ public final class Constants {
     public static final int yuckButton = useXbox ? 4 : 2;
     public static final int climberButton = useXbox ? 10 : 10;
     public static final int intakeButton = useXbox ? 0 : 1;
+    public static final int outtakeButton = useXbox ? 0 : 0;
+    public static final Trigger outtakeTrigger = m_driveJoystick.button(outtakeButton);
     public static final int drivePointedToSpeakerButton = useXbox ? 6 : 0;
     public static final int drivePointedToNoteButton = useXbox ? 5 : 0;
     public static final int driveToNoteAxis = useXbox ? 2 : 0;
@@ -156,13 +164,13 @@ public final class Constants {
     public static final double kWheelRadius = 0.0508 * (218.5 / 225.6); // This is a fudge factor
     public static final double kEncoderResolution = 1.0;
 
-    public static final double driveGearRatio = 6.75;
+    public static final double driveGearRatio = 6.75 / 1.02;
     public static final double turningGearRatio = 540.0 / 35.0;
 
-    public static final Translation2d kFrontLeftLocation = new Translation2d(0.308 - 0.038, 0.308);
-    public static final Translation2d kFrontRightLocation = new Translation2d(0.308 - 0.038, -0.308);
-    public static final Translation2d kBackLeftLocation = new Translation2d(-0.308, 0.308);
-    public static final Translation2d kBackRightLocation = new Translation2d(-0.308, -0.308);
+    public static final Translation2d kFrontLeftLocation = new Translation2d(0.31, 0.305);
+    public static final Translation2d kFrontRightLocation = new Translation2d(0.31, -0.305);
+    public static final Translation2d kBackLeftLocation = new Translation2d(-0.31, 0.305);
+    public static final Translation2d kBackRightLocation = new Translation2d(-0.31, -0.305);
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
         kFrontLeftLocation, kFrontRightLocation, kBackRightLocation, kBackLeftLocation); // TODO: Fix these
@@ -184,10 +192,10 @@ public final class Constants {
 
     // Absolute encoder values that make the wheels point forward
 
-    public static final double absEncoderForwardFL = 0.075;
-    public static final double absEncoderForwardFR = 0.238;
-    public static final double absEncoderForwardBR = 0.267;
-    public static final double absEncoderForwardBL = 0.950;
+    public static final double absEncoderForwardFL = 0.580;
+    public static final double absEncoderForwardFR = 0.280;
+    public static final double absEncoderForwardBR = 0.268;
+    public static final double absEncoderForwardBL = 0.960;
 
     // public static final HolonomicPathFollowerConfig holonomicConfig = new
     // HolonomicPathFollowerConfig(
@@ -241,7 +249,7 @@ public final class Constants {
         new Pose2d(0.50208, 2.111656, new Rotation2d(Math.PI)), // 4
         new Pose2d(0.50208, -2.111094, new Rotation2d(Math.PI * 3 / 2)), // 5
         new Pose2d(4.700446, -0.719682, new Rotation2d(Math.PI * 3 / 2)), // 6
-        new Pose2d(5.116498, -0.0001, new Rotation2d(0)), // 7
+        new Pose2d(5.116498 + 8.775, 4.0199, new Rotation2d(0)), // 7
         new Pose2d(4.700446, 0.719482, new Rotation2d(0)), // 8
         new Pose2d(3.869358, 0.719482, new Rotation2d(Math.PI / 3)), // 9
         new Pose2d(3.453306, -0.0001, new Rotation2d(Math.PI / 3)), // 10
@@ -258,5 +266,10 @@ public final class Constants {
         new Pose2d(-3.452954, -0.0001, new Rotation2d(Math.PI * 4 / 3)), // 21
         new Pose2d(-3.86926, -0.719682, new Rotation2d(Math.PI * 4 / 3)) // 22
     };
+  }
+
+  public static class OuttakeConstants {
+    public static final double loadSpeed = 0.2;
+    public static final double outtakeSpeed = 0.2;
   }
 }

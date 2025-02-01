@@ -48,7 +48,8 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
 
   public void updateVision(Pose2d vPose, double vTime, double distanceToTag, double skew) {
     if (poseEstimator != null) {
-      if (skew < PoseEstimatorConstants.maxAcceptableSkew && distanceToTag < PoseEstimatorConstants.maxAcceptableDistance) {
+      if (skew < PoseEstimatorConstants.maxAcceptableSkew
+          && distanceToTag < PoseEstimatorConstants.maxAcceptableDistance) {
         poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(
             PoseEstimatorConstants.visionXStandardDev * distanceToTag,
             PoseEstimatorConstants.visionYStandardDev * distanceToTag,
@@ -85,12 +86,6 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     if (poseEstimator != null) {
-      updatePoseEstimator(new Rotation2d(), new SwerveModulePosition[] {
-        new SwerveModulePosition(0, new Rotation2d()),
-        new SwerveModulePosition(0, new Rotation2d()),
-        new SwerveModulePosition(0, new Rotation2d()),
-        new SwerveModulePosition(0, new Rotation2d())
-    }); // TODO: don't update pose here and use real values
       posePublisher.set(poseEstimator.getEstimatedPosition());
       VecBuilder.fill(0, 0, 0);
     }
