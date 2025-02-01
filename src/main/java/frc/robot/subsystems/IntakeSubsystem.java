@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class IntakeSubsystem extends SubsystemBase {
     TalonFX m_intakeMotor = new TalonFX(IDConstants.IntakeMotorID);
+    public TalonFX m_intakeFoldMotor = new TalonFX(IDConstants.IntakeFoldMotorID);
     BeamBreak m_beamBreak = new BeamBreak(0);// TODO: Find channel id and remove fakeBeamBreak
     Trigger m_fakeBeamBreak = new CommandXboxController(OperatorConstants.kDriverControllerPort).button(4);
     public String m_state = "empty";
