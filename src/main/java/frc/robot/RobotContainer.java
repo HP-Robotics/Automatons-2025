@@ -17,6 +17,7 @@ import frc.robot.commands.IntakeFoldCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -54,6 +55,8 @@ public class RobotContainer {
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
   final ClimberSubsystem m_ClimberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
+  final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
+  // Replace with CommandPS4Controller or CommandJoystick if needed
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -135,13 +138,15 @@ public class RobotContainer {
         },
         m_driveSubsystem));
 
+    ControllerConstants.m_driveJoystick.button(7).whileTrue(m_elevatorSubsystem.GoToL4());
+    ControllerConstants.m_driveJoystick.button(8).whileTrue(m_elevatorSubsystem.GoToL3());
+    ControllerConstants.m_driveJoystick.button(9).whileTrue(m_elevatorSubsystem.ElevatorDown());
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_exampleSubsystem::exampleCondition)
     // .onTrue(new ExampleCommand(m_exampleSubsystem));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-    // pressed,
-    // cancelling on release.
+    // pressed, cancelling on release.
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
       ControllerConstants.m_driveJoystick.button(7)
