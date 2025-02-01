@@ -9,7 +9,6 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
-import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 
@@ -20,18 +19,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-/**
- * The Constants class provides a convenient place for teams to hold robot-wide
- * numerical or boolean
- * constants. This class should not be used for any other purpose. All constants
- * should be declared
- * globally (i.e. public static). Do not put anything functional in this class.
- *
- * <p>
- * It is advised to statically import this class (or one of its inner classes)
- * wherever the
- * constants are needed, to reduce verbosity.
- */
 public final class Constants {
 
   public static class SubsystemConstants {
@@ -45,13 +32,9 @@ public final class Constants {
     public static final boolean useTrigger = false;
   }
 
-  public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;
-  }
-
   public static class RobotConfigConstants {
     public static final double massKG = 52.16; // TODO: Find out actual value
-    public static final double MOI = 0;
+    public static final double MOI = 0; // TODO: find the actual number
     public static final ModuleConfig moduleConfig = new ModuleConfig(null, null, MOI, null, null, 0);
     public static Translation2d moduleOffsets;
   }
@@ -81,7 +64,7 @@ public final class Constants {
   }
 
   public static class AutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = 5.0;
+    public static final double kMaxSpeedMetersPerSecond = 5.0; // TODO: Measure with krakens
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;
     public static final double kMaxAngularSpeedRadiansPerSecond = 8.37758; // 480 degrees in radians
     public static final double kMaxAngularAcceleration = 11.1701; // 640 degrees in radians
@@ -149,27 +132,22 @@ public final class Constants {
         return stick.getRawAxis(4);
       } else {
         return stick.getRawAxis(2);
-        // if (stick.povLeft().getAsBoolean()) {
-        // return -0.5;
-        // }
-        // else if (stick.povRight().getAsBoolean()) {
-        // return 0.5;
-        // }
-        // return 0;
       }
     }
   }
 
   public static class DriveConstants {
-    public static final double kMaxSpeed = 4.4; // meters per second
+    public static final double kMaxSpeed = 4.4; // meters per second TODO: check this
     public static final double kMaxAngularSpeed = Math.PI * 1.3; // 1/2 rotation per second //auto is 540
+    public static final double kModuleMaxAngularSpeed = 10; // TODO: Is right?
     public static final double kSlowSpeed = 2.0;
     public static final double kSlowAngularspeed = Math.PI / 2; // 1/4 rotation per second
 
     public static final double kWheelRadius = 0.0508 * (218.5 / 225.6); // This is a fudge factor
     public static final double kEncoderResolution = 1.0;
 
-    public static final double driveGearRatio = 6.75 / 1.02;
+    public static final double driveGearRatio = 6.75 / 1.02; // 1.02 is a fudge factor TODO: move it into the wheel
+                                                             // radius
     public static final double turningGearRatio = 540.0 / 35.0;
 
     public static final Translation2d kFrontLeftLocation = new Translation2d(0.31, 0.305);
@@ -178,16 +156,17 @@ public final class Constants {
     public static final Translation2d kBackRightLocation = new Translation2d(-0.31, -0.305);
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-        kFrontLeftLocation, kFrontRightLocation, kBackRightLocation, kBackLeftLocation); // TODO: Fix these
+        kFrontLeftLocation, kFrontRightLocation, kBackRightLocation, kBackLeftLocation);
+    // TODO: make these the same order as the swerve setpoint generator
 
-    public static final double drivekP = 5;
-    public static final double drivekI = 10;
-    public static final double drivekD = 0;
-    public static final double drivekF = 0;
+    public static final double driveModulekP = 5; // TODO: tune these for 2025
+    public static final double driveModulekI = 10;
+    public static final double driveModulekD = 0;
+    public static final double driveModulekF = 0;
 
-    public static final double turningkP = 1.8;
-    public static final double turningkI = 1;
-    public static final double turningkD = 0.008;
+    public static final double turningModulekP = 1.8; // TODO: tune these for 2025
+    public static final double turningModulekI = 1;
+    public static final double turningModulekD = 0.008;
 
     public static final double XControllerkP = 6.5;
     public static final double XControllerkI = 0.03;
@@ -195,46 +174,39 @@ public final class Constants {
     public static final double XControllerTolerance = 0.01;
     public static final double XControllerIZone = 0.5;
 
-
     public static final double YControllerkP = 6.5;
     public static final double YControllerkI = 0.03;
     public static final double YControllerkD = 1.3;
     public static final double YControllerTolerance = 0.01;
     public static final double YControllerIZone = 0.5;
 
-
-
     public static final double rotationControllerkP = 2;
-    public static final double rotationControllerkI = 0.3;//0.3;
-    public static final double rotationControllerkD = 0.15;//0.15;
+    public static final double rotationControllerkI = 0.3;// 0.3;
+    public static final double rotationControllerkD = 0.15;// 0.15;
     public static final double rotationControllerTolerance = Math.toRadians(2);
     public static final double rotationControllerIZone = 0.15;
 
     // Absolute encoder values that make the wheels point forward
-
+    // To calculate this, line the wheels up facing forward with the bevel gear
+    // pointing to the right(?) or outside(?),
+    // and look at the shuffleboard values.
     public static final double absEncoderForwardFL = 0.580;
     public static final double absEncoderForwardFR = 0.280;
     public static final double absEncoderForwardBR = 0.268;
     public static final double absEncoderForwardBL = 0.960;
 
-    // public static final HolonomicPathFollowerConfig holonomicConfig = new
-    // HolonomicPathFollowerConfig(
-    // new PIDConstants(5.0, 0.0, 0.0),
-    // new PIDConstants(5.0, 0.0, 0.0),
-    // 4.5,
-    // 0.4, // Distance from robot center to furthest module.
-    // new ReplanningConfig());
+    public static final double driveCurrentMax = 40.0; // TODO: tune for 2025
+    public static final double driveCurrentMin = -40.0;
 
-    public static final double currentMax = 40.0;
-    public static final double currentMin = -40.0;
+    public static final double driveRampTimeTo300s = 0.01;
+    public static boolean useDriveRamp = false;
 
-    public static final double rampTimeTo300s = 0.01;
+    public static final double turnCurrentLimit = 40.0;
+    public static final double turningCurrentThreshold = 40.0;
+    public static final double turningCurrentTimeThreshold = 0.04;
+    public static final double turningRampTimeTo300s = 0.01;
 
-    public static final double currentLimit = 40.0;
-    public static final double currentThreshold = 40.0;
-    public static final double currentTimeThreshold = 0.04;
-
-    public static final double driveToNoteSpeed = 0.5;
+    public static final double odometryUpdateFrequency = 250;
   }
 
   public static class ClimberConstants {
@@ -253,15 +225,15 @@ public final class Constants {
     public static final double maxAcceptableDistance = 5.0;
   }
 
-  public static final class PIDConstantsOurs {
-    public static final PIDConstants translationConstants = new PIDConstants(0, 0, 0);
-    public static final PIDConstants rotationConstants = new PIDConstants(0, 0, 0);
+  public static final class PathplannerPIDConstants {
+    public static final PIDConstants translationConstants = new PIDConstants(5, 0, 0);
+    public static final PIDConstants rotationConstants = new PIDConstants(5, 0, 0);
   }
 
   public static class LimelightConstants {
     public static final double inToM = 0.0254;
     public static final Pose2d aprilTagList[] = { // 0 is empty, april tag number is that number in list
-        // TODO: These are values from last year so get the ones from this year
+        // TODO: update rotations/positions to have a blue origin (only 7 is correct)
         new Pose2d(),
         new Pose2d(7.923198, -3.37068, new Rotation2d(Math.PI * 2 / 3)), // 1
         new Pose2d(7.923198, 3.37068, new Rotation2d(Math.PI * 2 / 3)), // 2

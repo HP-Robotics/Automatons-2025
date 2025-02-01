@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import javax.xml.stream.util.XMLEventConsumer;
-
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
@@ -16,13 +14,11 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -32,13 +28,13 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.*;
-import frc.robot.Constants;
 import frc.robot.SwerveModule;
 
 /** Represents a swerve drive style drivetrain. */
@@ -47,14 +43,14 @@ public class DriveSubsystem extends SubsystemBase {
 
   PPHolonomicDriveController m_driveController;
 
-  SwerveSetpointGenerator setpointGenerator;
-  SwerveSetpoint previousSetpoint;
+  SwerveSetpointGenerator m_setpointGenerator;
+  SwerveSetpoint m_previousSetpoint;
 
-  NetworkTableInstance inst = NetworkTableInstance.getDefault();
-  public NetworkTable driveTrainTable = inst.getTable("drive-train");
-  NetworkTable poseEstimatorTable = inst.getTable("pose-estimator-table");
+  NetworkTableInstance m_inst = NetworkTableInstance.getDefault();
+  public NetworkTable m_driveTrainTable = m_inst.getTable("drive-train");
+  NetworkTable m_poseEstimatorTable = m_inst.getTable("pose-estimator-table");
 
-  StructPublisher<Pose2d> posePublisher = poseEstimatorTable.getStructTopic("Fused Pose", Pose2d.struct).publish();
+  StructPublisher<Pose2d> m_posePublisher = m_poseEstimatorTable.getStructTopic("Fused Pose", Pose2d.struct).publish();
 
   // BIG BONGO 7
   private final SwerveModule m_frontLeft = new SwerveModule(IDConstants.FLDriveMotorID,
@@ -74,8 +70,6 @@ public class DriveSubsystem extends SubsystemBase {
   };
 
   public boolean m_fieldRelative = true;
-  public boolean m_pathplannerUsingNoteVision = false;
-  public boolean m_pathPlannerCancelIfNoteSeen = false;
 
   public final Field2d m_field = new Field2d();
   public final Field2d m_currentPose = new Field2d();
@@ -87,20 +81,20 @@ public class DriveSubsystem extends SubsystemBase {
   private StatusSignal<Angle> m_pGyroYaw = m_pGyro.getYaw();
   private StatusSignal<Angle> m_pGyroRoll = m_pGyro.getRoll();
 
-  PIDController rotationController;
-  PIDController xController;
-  PIDController yController;
+  PIDController m_rotationController;
+  PIDController m_xController;
+  PIDController m_yController;
   PoseEstimatorSubsystem m_poseEstimator;
 
-  StructPublisher<Pose2d> drivePublisher;
+  StructPublisher<Pose2d> m_drivePublisher;
   private double m_gyroOffset;
-  RobotConfig config;
+  RobotConfig m_config;
 
   public DriveSubsystem(PoseEstimatorSubsystem poseEstimator) {
-    m_pGyro.getYaw().setUpdateFrequency(250);
+    m_pGyro.getYaw().setUpdateFrequency(DriveConstants.odometryUpdateFrequency);
 
     try {
-      config = RobotConfig.fromGUISettings();
+      m_config = RobotConfig.fromGUISettings();
     } catch (Exception e) {
       // Handle exception as needed
       e.printStackTrace();
@@ -111,16 +105,15 @@ public class DriveSubsystem extends SubsystemBase {
         this::getPose, // Robot pose supplier
         this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
         this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        (speeds, feedforwards) -> driveRobotRelative(speeds, feedforwards), // Method that will drive the robot given
-                                                                            // ROBOT RELATIVE ChassisSpeeds. Also
-                                                                            // optionally outputs individual module
-                                                                            // feedforwards
+        (speeds, feedforwards) -> driveRobotRelative(speeds, feedforwards),
+        // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+        // Also optionally outputs individual module feedforwards
         new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic
                                         // drive trains
-            new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-            new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+            PathplannerPIDConstants.translationConstants, // Translation PID constants
+            PathplannerPIDConstants.rotationConstants // Rotation PID constants
         ),
-        config, // The robot configuration
+        m_config, // The robot configuration
         () -> {
           // Boolean supplier that controls when the path will be mirrored for the red
           // alliance
@@ -146,31 +139,37 @@ public class DriveSubsystem extends SubsystemBase {
     });
 
     SmartDashboard.putData("Field", m_field);
-    rotationController = new PIDController(DriveConstants.rotationControllerkP, DriveConstants.rotationControllerkI,
+    m_rotationController = new PIDController(DriveConstants.rotationControllerkP, DriveConstants.rotationControllerkI,
         DriveConstants.rotationControllerkD);
-    rotationController.enableContinuousInput(-Math.PI, Math.PI);
-    rotationController.setTolerance(DriveConstants.rotationControllerTolerance);
-    rotationController.setIZone(DriveConstants.rotationControllerIZone);
+    m_rotationController.enableContinuousInput(-Math.PI, Math.PI);
+    m_rotationController.setTolerance(DriveConstants.rotationControllerTolerance);
+    m_rotationController.setIZone(DriveConstants.rotationControllerIZone);
 
-    xController = new PIDController(DriveConstants.XControllerkP, DriveConstants.XControllerkI, DriveConstants.XControllerkD);
-    xController.setTolerance(DriveConstants.XControllerTolerance);
-    xController.setIZone(DriveConstants.XControllerIZone);
-    yController = new PIDController(DriveConstants.YControllerkP, DriveConstants.YControllerkI, DriveConstants.YControllerkD);
-    yController.setTolerance(DriveConstants.YControllerTolerance);
-    xController.setIZone(DriveConstants.YControllerIZone);
+    m_xController = new PIDController(DriveConstants.XControllerkP, DriveConstants.XControllerkI,
+        DriveConstants.XControllerkD);
+    m_xController.setTolerance(DriveConstants.XControllerTolerance);
+    m_xController.setIZone(DriveConstants.XControllerIZone);
+    m_yController = new PIDController(DriveConstants.YControllerkP, DriveConstants.YControllerkI,
+        DriveConstants.YControllerkD);
+    m_yController.setTolerance(DriveConstants.YControllerTolerance);
+    m_yController.setIZone(DriveConstants.YControllerIZone);
 
-    drivePublisher = poseEstimatorTable.getStructTopic("Drive Pose", Pose2d.struct).publish();
+    m_drivePublisher = m_poseEstimatorTable.getStructTopic("Drive Pose", Pose2d.struct).publish();
 
     if (SubsystemConstants.useDataManager) {
-      // SignalLogger.start();
+      // SignalLogger.start(); //Phoenix hoot logger
     }
 
-    setpointGenerator = new SwerveSetpointGenerator(
-            config, // The robot configuration. This is the same config used for generating trajectories and running path following commands.
-            Units.rotationsToRadians(10.0) // The max rotation velocity of a swerve module in radians per second. This should probably be stored in your Constants file
-        );
+    m_setpointGenerator = new SwerveSetpointGenerator(
+        m_config, // The robot configuration
+        // This is the same config used for generating trajectories and running path
+        // following commands
+        Units.rotationsToRadians(DriveConstants.kModuleMaxAngularSpeed)
+    // The max rotation velocity of a swerve module in radians per second
+    );
 
-    previousSetpoint = new SwerveSetpoint(getRobotRelativeSpeeds(), m_swerveModuleStates, DriveFeedforwards.zeros(config.numModules));
+    m_previousSetpoint = new SwerveSetpoint(getRobotRelativeSpeeds(), m_swerveModuleStates,
+        DriveFeedforwards.zeros(m_config.numModules));
 
   }
 
@@ -179,12 +178,12 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void updateOdometry() {
-    StatusSignal.waitForAll(0.004, 
-      m_frontLeft.m_driveMotor.getRotorPosition(), 
-      m_frontRight.m_driveMotor.getRotorPosition(), 
-      m_backLeft.m_driveMotor.getRotorPosition(),
-      m_backRight.m_driveMotor.getRotorPosition(),  
-      m_pGyro.getYaw());
+    StatusSignal.waitForAll(1.0 / DriveConstants.odometryUpdateFrequency,
+        m_frontLeft.m_driveMotor.getRotorPosition(),
+        m_frontRight.m_driveMotor.getRotorPosition(),
+        m_backLeft.m_driveMotor.getRotorPosition(),
+        m_backRight.m_driveMotor.getRotorPosition(),
+        m_pGyro.getYaw());
     var pigeonYaw = new Rotation2d(Math.toRadians(getYaw()));
     // Update the odometry in the periodic block
     if (m_poseEstimator != null) {
@@ -202,27 +201,25 @@ public class DriveSubsystem extends SubsystemBase {
     if (getPose() != null) {
       m_field.setRobotPose(getPose());
     }
-    // driveTrainTable.putValue("Robot x",
-    // NetworkTableValue.makeDouble(m_poseEstimator.getPose().getX()));
-    // driveTrainTable.putValue("Robot y",
-    // NetworkTableValue.makeDouble(m_poseEstimator.getPose().getY()));
-    driveTrainTable.putValue("Robot theta",
-    NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
-    driveTrainTable.putValue("is Drive Abs Working", NetworkTableValue.makeBoolean(
+
+    m_driveTrainTable.putValue("Robot theta",
+        NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
+    m_driveTrainTable.putValue("is Drive Abs Working", NetworkTableValue.makeBoolean(
         m_backLeft.m_absEncoder.get() != 0 &&
             m_backRight.m_absEncoder.get() != 0 &&
             m_frontLeft.m_absEncoder.get() != 0 &&
             m_frontRight.m_absEncoder.get() != 0));
+
     // TODO investigate why this takes so long
     m_frontLeft.updateShuffleboard();
-    m_frontRight.updateShuffleboard(); 
+    m_frontRight.updateShuffleboard();
     m_backRight.updateShuffleboard();
     m_backLeft.updateShuffleboard();
 
     // BaseStatusSignal.refreshAll(m_pGyroPitch, m_pGyroYaw, m_pGyroRoll);
-    driveTrainTable.putValue("Pigeon Pitch", NetworkTableValue.makeDouble(m_pGyroPitch.getValueAsDouble()));
-    driveTrainTable.putValue("Pigeon Yaw", NetworkTableValue.makeDouble(m_pGyroYaw.getValueAsDouble()));
-    driveTrainTable.putValue("Pigeon Roll", NetworkTableValue.makeDouble(m_pGyroRoll.getValueAsDouble()));
+    m_driveTrainTable.putValue("Pigeon Pitch", NetworkTableValue.makeDouble(m_pGyroPitch.getValueAsDouble()));
+    m_driveTrainTable.putValue("Pigeon Yaw", NetworkTableValue.makeDouble(m_pGyroYaw.getValueAsDouble()));
+    m_driveTrainTable.putValue("Pigeon Roll", NetworkTableValue.makeDouble(m_pGyroRoll.getValueAsDouble()));
   }
 
   /**
@@ -238,35 +235,27 @@ public class DriveSubsystem extends SubsystemBase {
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
     var pigeonYaw = new Rotation2d(Math.toRadians(getYaw()));
 
-    // var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-    //     fieldRelative
-    //         ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, pigeonYaw)
-    //         : new ChassisSpeeds(xSpeed, ySpeed, rot));
-        previousSetpoint = setpointGenerator.generateSetpoint(
-              previousSetpoint, // The previous setpoint
-              fieldRelative
+    m_previousSetpoint = m_setpointGenerator.generateSetpoint(
+        m_previousSetpoint, // The previous setpoint
+        fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, pigeonYaw)
             : new ChassisSpeeds(xSpeed, ySpeed, rot), // The desired target speeds
-              0.02 // The loop time of the robot code, in seconds
-          );
-      setModuleStates(previousSetpoint.moduleStates()); // Method that will drive the robot given target module states
-    }
-    //SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeed);
-    //setModuleStates(swerveModuleStates);
-  
-
-  public void driveRobotRelative(ChassisSpeeds speeds, DriveFeedforwards feedForwards) {
-    //ChassisSpeeds discSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-    //var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
-    //SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeed);
-    previousSetpoint = setpointGenerator.generateSetpoint(
-            previousSetpoint, // The previous setpoint
-            speeds, // The desired target speeds
-            0.02 // The loop time of the robot code, in seconds
-        );
-    setModuleStates(previousSetpoint.moduleStates()); // Method that will drive the robot given target module states
+        TimedRobot.kDefaultPeriod // The loop time of the robot code, in seconds
+    );
+    setModuleStates(m_previousSetpoint.moduleStates()); // Method that will drive the robot given target module states
   }
 
+  public void driveRobotRelative(ChassisSpeeds speeds, DriveFeedforwards feedForwards) {
+
+    m_previousSetpoint = m_setpointGenerator.generateSetpoint(
+        m_previousSetpoint, // The previous setpoint
+        speeds, // The desired target speeds
+        TimedRobot.kDefaultPeriod // The loop time of the robot code, in seconds
+    );
+    setModuleStates(m_previousSetpoint.moduleStates()); // Method that will drive the robot given target module states
+  }
+
+  // TODO: Refactor + get rid of magic numbers
   public void driveWithJoystick(CommandJoystick joystick) {
     drive(
         Math.signum(joystick.getRawAxis(1))
@@ -285,7 +274,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void drivePointedTowardsAngle(CommandJoystick joystick, Rotation2d targetAngle) {
-    double rot = rotationController.calculate(m_poseEstimator.getPose().getRotation().getRadians(),
+    double rot = m_rotationController.calculate(m_poseEstimator.getPose().getRotation().getRadians(),
         targetAngle.getRadians());
     drive(
         Math.signum(joystick.getRawAxis(1))
@@ -299,25 +288,25 @@ public class DriveSubsystem extends SubsystemBase {
         rot * 1 * DriveConstants.kMaxAngularSpeed,
         m_fieldRelative);
 
-    driveTrainTable.putValue("Rotation Current Angle",
+    m_driveTrainTable.putValue("Rotation Current Angle",
         NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
-    driveTrainTable.putValue("Rotation Target Angle", NetworkTableValue.makeDouble(targetAngle.getDegrees()));
-    driveTrainTable.putValue("Rotation Power Input", NetworkTableValue.makeDouble(rot));
+    m_driveTrainTable.putValue("Rotation Target Angle", NetworkTableValue.makeDouble(targetAngle.getDegrees()));
+    m_driveTrainTable.putValue("Rotation Power Input", NetworkTableValue.makeDouble(rot));
 
-    driveTrainTable.putValue("Rotation Controller P",
-        NetworkTableValue.makeDouble(rotationController.getP() * rotationController.getError()));
-    driveTrainTable.putValue("Rotation Controller Position Error",
-        NetworkTableValue.makeDouble(rotationController.getError()));
-    driveTrainTable.putValue("Rotation Controller Setpoint",
-        NetworkTableValue.makeDouble(rotationController.getSetpoint()));
+    m_driveTrainTable.putValue("Rotation Controller P",
+        NetworkTableValue.makeDouble(m_rotationController.getP() * m_rotationController.getError()));
+    m_driveTrainTable.putValue("Rotation Controller Position Error",
+        NetworkTableValue.makeDouble(m_rotationController.getError()));
+    m_driveTrainTable.putValue("Rotation Controller Setpoint",
+        NetworkTableValue.makeDouble(m_rotationController.getSetpoint()));
   }
 
   public void driveToPose(Pose2d target) {
-    double rot = rotationController.calculate(m_poseEstimator.getPose().getRotation().getRadians(),
+    double rot = m_rotationController.calculate(m_poseEstimator.getPose().getRotation().getRadians(),
         target.getRotation().getRadians());
-    double x = -MathUtil.clamp(xController.calculate(m_poseEstimator.getPose().getX(),
+    double x = -MathUtil.clamp(m_xController.calculate(m_poseEstimator.getPose().getX(),
         target.getX()), -1, 1);
-    double y = -MathUtil.clamp(yController.calculate(m_poseEstimator.getPose().getY(),
+    double y = -MathUtil.clamp(m_yController.calculate(m_poseEstimator.getPose().getY(),
         target.getY()), -1, 1);
     System.out.println(x + ", " + y);
     drive(
@@ -325,24 +314,33 @@ public class DriveSubsystem extends SubsystemBase {
         MathUtil.isNear(0, y, 0.07) ? 0 : y * -1 * DriveConstants.kMaxSpeed,
         rot * DriveConstants.kMaxAngularSpeed,
         true);
-    driveTrainTable.putValue("X Error", NetworkTableValue.makeDouble(xController.getError()));
-    driveTrainTable.putValue("X P Contribution", NetworkTableValue.makeDouble(xController.getError() * xController.getP()));
-    driveTrainTable.putValue("X I Contribution", NetworkTableValue.makeDouble(xController.getAccumulatedError() * xController.getI()));
-    driveTrainTable.putValue("X D Contribution", NetworkTableValue.makeDouble(xController.getErrorDerivative() * xController.getD()));
-    
-    driveTrainTable.putValue("Theta Error", NetworkTableValue.makeDouble(rotationController.getError()));
-    driveTrainTable.putValue("Theta P Contribution", NetworkTableValue.makeDouble(rotationController.getError() * rotationController.getP()));
-    driveTrainTable.putValue("Theta I Contribution", NetworkTableValue.makeDouble(rotationController.getAccumulatedError() * rotationController.getI()));
-    driveTrainTable.putValue("Theta D Contribution", NetworkTableValue.makeDouble(rotationController.getErrorDerivative() * rotationController.getD()));
+    m_driveTrainTable.putValue("X Error", NetworkTableValue.makeDouble(m_xController.getError()));
+    m_driveTrainTable.putValue("X P Contribution",
+        NetworkTableValue.makeDouble(m_xController.getError() * m_xController.getP()));
+    m_driveTrainTable.putValue("X I Contribution",
+        NetworkTableValue.makeDouble(m_xController.getAccumulatedError() * m_xController.getI()));
+    m_driveTrainTable.putValue("X D Contribution",
+        NetworkTableValue.makeDouble(m_xController.getErrorDerivative() * m_xController.getD()));
 
-    driveTrainTable.putValue("Y Error", NetworkTableValue.makeDouble(yController.getError()));
-    driveTrainTable.putValue("Y P Contribution", NetworkTableValue.makeDouble(yController.getError() * yController.getP()));
-    driveTrainTable.putValue("Y I Contribution", NetworkTableValue.makeDouble(yController.getAccumulatedError() * yController.getI()));
-    driveTrainTable.putValue("Y D Contribution", NetworkTableValue.makeDouble(yController.getErrorDerivative() * yController.getD()));
+    m_driveTrainTable.putValue("Theta Error", NetworkTableValue.makeDouble(m_rotationController.getError()));
+    m_driveTrainTable.putValue("Theta P Contribution",
+        NetworkTableValue.makeDouble(m_rotationController.getError() * m_rotationController.getP()));
+    m_driveTrainTable.putValue("Theta I Contribution",
+        NetworkTableValue.makeDouble(m_rotationController.getAccumulatedError() * m_rotationController.getI()));
+    m_driveTrainTable.putValue("Theta D Contribution",
+        NetworkTableValue.makeDouble(m_rotationController.getErrorDerivative() * m_rotationController.getD()));
+
+    m_driveTrainTable.putValue("Y Error", NetworkTableValue.makeDouble(m_yController.getError()));
+    m_driveTrainTable.putValue("Y P Contribution",
+        NetworkTableValue.makeDouble(m_yController.getError() * m_yController.getP()));
+    m_driveTrainTable.putValue("Y I Contribution",
+        NetworkTableValue.makeDouble(m_yController.getAccumulatedError() * m_yController.getI()));
+    m_driveTrainTable.putValue("Y D Contribution",
+        NetworkTableValue.makeDouble(m_yController.getErrorDerivative() * m_yController.getD()));
   }
 
   public void driveForwardWithAngle(double speed, Rotation2d noteAngle) {
-    double rot = rotationController.calculate(m_poseEstimator.getPose().getRotation().getRadians(),
+    double rot = m_rotationController.calculate(m_poseEstimator.getPose().getRotation().getRadians(),
         noteAngle.getRadians());
     drive(
         speed * DriveConstants.kMaxSpeed * Math.max(1 - Math.abs(rot), 0),
@@ -350,21 +348,21 @@ public class DriveSubsystem extends SubsystemBase {
         rot * DriveConstants.kMaxAngularSpeed,
         false);
 
-    driveTrainTable.putValue("Rotation Current Angle",
+    m_driveTrainTable.putValue("Rotation Current Angle",
         NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
-    driveTrainTable.putValue("Rotation Target Angle", NetworkTableValue.makeDouble(noteAngle.getDegrees()));
-    driveTrainTable.putValue("Rotation Power Input", NetworkTableValue.makeDouble(rot));
+    m_driveTrainTable.putValue("Rotation Target Angle", NetworkTableValue.makeDouble(noteAngle.getDegrees()));
+    m_driveTrainTable.putValue("Rotation Power Input", NetworkTableValue.makeDouble(rot));
 
-    driveTrainTable.putValue("Rotation Controller P",
-        NetworkTableValue.makeDouble(rotationController.getP() * rotationController.getError()));
-    driveTrainTable.putValue("Rotation Controller Position Error",
-        NetworkTableValue.makeDouble(rotationController.getError()));
-    driveTrainTable.putValue("Rotation Controller Setpoint",
-        NetworkTableValue.makeDouble(rotationController.getSetpoint()));
+    m_driveTrainTable.putValue("Rotation Controller P",
+        NetworkTableValue.makeDouble(m_rotationController.getP() * m_rotationController.getError()));
+    m_driveTrainTable.putValue("Rotation Controller Position Error",
+        NetworkTableValue.makeDouble(m_rotationController.getError()));
+    m_driveTrainTable.putValue("Rotation Controller Setpoint",
+        NetworkTableValue.makeDouble(m_rotationController.getSetpoint()));
   }
 
   public boolean pointedTowardsAngle() {
-    return rotationController.atSetpoint();
+    return m_rotationController.atSetpoint();
   }
 
   public Pose2d getPose() {
@@ -424,9 +422,6 @@ public class DriveSubsystem extends SubsystemBase {
             m_backLeft.getPosition()
         },
         pose);
-    // setModuleStates(DriveConstants.kDriveKinematics.toSwerveModuleStates(new
-    // ChassisSpeeds()));
-
   }
 
   public void resetPoseEstimatorHeading(Rotation2d angle) {
@@ -451,9 +446,6 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public void resetYaw(double angle) {
     m_gyroOffset = m_pGyro.getYaw().getValueAsDouble() - angle;
-    // m_pGyro.setYaw(angle);// TODO how do we want this to interact with pose
-    // estimator?
-    // add offset (and a wraparound to avoid the offset breaking things)
   }
 
   public double getYaw() {

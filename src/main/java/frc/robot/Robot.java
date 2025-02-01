@@ -5,11 +5,10 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SubsystemConstants;
 
 /**
@@ -40,7 +39,7 @@ public class Robot extends TimedRobot {
     if (SubsystemConstants.useDrive) {
       addPeriodic(() -> {
         m_robotContainer.m_driveSubsystem.updateOdometry();
-      }, 0.004);
+      }, 1.0 / DriveConstants.odometryUpdateFrequency);
     }
     m_robotContainer.m_driveSubsystem.startPoseEstimator(new Pose2d());
   }
@@ -83,12 +82,12 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     if (SubsystemConstants.useDrive) {
-      m_robotContainer.resetDriveOffsets();
+      m_robotContainer.resetModuleRotationOffsets();
     }
 
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    // schedule the autonomous command (example)
+    // schedule the autonomous command
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
@@ -102,7 +101,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     if (SubsystemConstants.useDrive) {
-      m_robotContainer.resetDriveOffsets();
+      m_robotContainer.resetModuleRotationOffsets();
     }
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to

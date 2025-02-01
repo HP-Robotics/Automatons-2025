@@ -9,29 +9,22 @@ import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 import com.pathplanner.lib.util.FileVersionException;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.controllers.PathFollowingController;
 
-import edu.wpi.first.math.controller.HolonomicDriveController;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.Constants.PIDConstantsOurs;
+import frc.robot.Constants.PathplannerPIDConstants;
 import frc.robot.Constants.RobotConfigConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import com.pathplanner.lib.commands.PathfindThenFollowPath;
@@ -52,9 +45,10 @@ public class DriveToPoseCommand extends Command {
   public DriveToPoseCommand(DriveSubsystem driveSubsystem, String pathName) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_driveSubsystem = driveSubsystem;
-    try{
-      //m_config = RobotConfig.fromGUISettings();
-    m_config = new RobotConfig(RobotConfigConstants.massKG,RobotConfigConstants.MOI,RobotConfigConstants.moduleConfig,RobotConfigConstants.moduleOffsets);
+    try {
+      // m_config = RobotConfig.fromGUISettings();
+      m_config = new RobotConfig(RobotConfigConstants.massKG, RobotConfigConstants.MOI,
+          RobotConfigConstants.moduleConfig, RobotConfigConstants.moduleOffsets);
     } catch (Exception e) {
       // Handle exception as needed
       e.printStackTrace();
@@ -62,13 +56,13 @@ public class DriveToPoseCommand extends Command {
     m_pathName = pathName;
     try {
       m_path = PathPlannerPath.fromPathFile(pathName);
-    }
-    catch(Exception e) {
+    } catch (Exception e) {
       System.out.println("Path Exception");
     }
     m_pathPlannerCommand = PathCommand();
     addRequirements(driveSubsystem);
   }
+
   public PathfindThenFollowPath PathCommand() {
     return new PathfindThenFollowPath(
         m_path,
@@ -80,10 +74,11 @@ public class DriveToPoseCommand extends Command {
         m_driveSubsystem::getCurrentspeeds,
         m_driveSubsystem::driveRobotRelative,
         m_driveController = new PPHolonomicDriveController(
-  PIDConstantsOurs.translationConstants, PIDConstantsOurs.rotationConstants),
+            PathplannerPIDConstants.translationConstants, PathplannerPIDConstants.rotationConstants),
         m_config,
         () -> {
-          // Boolean supplier that controls when the path will be mirrored for the red alliance
+          // Boolean supplier that controls when the path will be mirrored for the red
+          // alliance
           // This will flip the path being followed to the red side of the field.
           // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
