@@ -7,8 +7,6 @@ package frc.robot;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.SubsystemConstants;
@@ -31,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -48,15 +45,14 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  SendableChooser<Command> autoChooser;
+  SendableChooser<Command> m_autoChooser;
   final PoseEstimatorSubsystem m_poseEstimatorSubsystem = new PoseEstimatorSubsystem();
   final IntakeSubsystem m_intakeSubsystem = SubsystemConstants.useIntake ? new IntakeSubsystem() : null;
   final LimelightSubsystem m_limelightSubsystem = new LimelightSubsystem(m_poseEstimatorSubsystem);
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
-  final ClimberSubsystem m_ClimberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
+  final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
   final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
-  // Replace with CommandPS4Controller or CommandJoystick if needed
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -71,39 +67,26 @@ public class RobotContainer {
               m_driveSubsystem));
 
       // Build an auto chooser. This will use Commands.none() as the default option.
-      autoChooser = AutoBuilder.buildAutoChooser();
+      m_autoChooser = AutoBuilder.buildAutoChooser();
       // Another option that allows you to specify the default auto by its name
       // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
-
-      SmartDashboard.putData("Auto Chooser", autoChooser);
+      SmartDashboard.putData("Auto Chooser", m_autoChooser);
     }
     // Configure the trigger bindings
     configureBindings();
   }
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be
-   * created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor
-   * with
-   * an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
-   * {@link
-   * CommandXboxController
-   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or
-   * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
-  public void resetDriveOffsets() {
-    // The encoders aren't ready immediately
+  public void resetModuleRotationOffsets() {
+    // The encoders aren't ready immediately so it can't do this in robot init
     if (SubsystemConstants.useDrive) {
       m_driveSubsystem.resetOffsets();
     }
-  } // TODO: this is a choice (make this not run resetOffsets through three classes)
+  }
 
   private void configureBindings() {
+    /*
+     * TEST CODE
+     */
     ControllerConstants.m_driveJoystick.button(1).and(new Trigger(() -> {
       return m_intakeSubsystem.m_state == "empty";
     })).whileTrue(new InstantCommand(m_intakeSubsystem::startIntake));// Intake
@@ -141,19 +124,16 @@ public class RobotContainer {
     ControllerConstants.m_driveJoystick.button(7).whileTrue(m_elevatorSubsystem.GoToL4());
     ControllerConstants.m_driveJoystick.button(8).whileTrue(m_elevatorSubsystem.GoToL3());
     ControllerConstants.m_driveJoystick.button(9).whileTrue(m_elevatorSubsystem.ElevatorDown());
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    // new Trigger(m_exampleSubsystem::exampleCondition)
-    // .onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-    // pressed, cancelling on release.
-    // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
       ControllerConstants.m_driveJoystick.button(7)
           .onTrue(new IntakeFoldCommand(m_intakeSubsystem).withTimeout(ClimberConstants.foldRunTime));
     }
 
-    ControllerConstants.m_driveJoystick.button(8).whileTrue(new ClimberClimbCommand(m_ClimberSubsystem));
+    ControllerConstants.m_driveJoystick.button(8).whileTrue(new ClimberClimbCommand(m_climberSubsystem));
+    /*
+     * END TEST CODE
+     */
   }
 
   /**
@@ -162,6 +142,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    return m_autoChooser.getSelected();
   }
 }
