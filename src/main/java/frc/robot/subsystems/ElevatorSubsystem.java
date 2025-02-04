@@ -20,6 +20,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_PIDValues.kI = ElevatorConstants.kI;
         m_PIDValues.kD = ElevatorConstants.kD;
         m_elevatorMotor1.getConfigurator().apply(m_PIDValues);
+        m_elevatorMotor2.getConfigurator().apply(m_PIDValues);
     }
 
     public void elevatorDown() {
