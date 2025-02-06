@@ -208,9 +208,11 @@ public final class Constants {
 
     public static final double odometryUpdateFrequency = 250;
 
-    public static final Translation2d blueReefCenter = new Translation2d(); // TODO: put actual values TODO: consider a
-                                                                            // field constants? does not belong in drive
+    // TODO: put actual values TODO: consider a field constants? doesn't go in drive
+    public static final Translation2d blueReefCenter = new Translation2d();
     public static final Translation2d redReefCenter = new Translation2d();
+    public static final int autoAlignSectorCount = 12;
+    public static final double autoAlignSectorRadius = 3; // TODO: change
 
   }
 
