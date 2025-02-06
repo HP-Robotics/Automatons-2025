@@ -19,7 +19,7 @@ import frc.robot.Constants.OuttakeConstants;
 public class OuttakeSubsystem extends SubsystemBase {
   TalonFX m_outtakeMotor = new TalonFX(IDConstants.outtakeMotorID);
   BeamBreak elevatorBeamBreak = new BeamBreak(0); 
-  BeamBreak outtakeBeamBreak = new BeamBreak(0); // TODO: Find channel ids
+  BeamBreak outtakeBeamBreak = new BeamBreak(0); // TODO: Find channel IDs
   public String m_state = "empty";
   NetworkTable m_table;
   /** Creates a new OuttakeSubsystem. */

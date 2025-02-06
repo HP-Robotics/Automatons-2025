@@ -89,7 +89,7 @@ public class RobotContainer {
      */
     ControllerConstants.m_driveJoystick.button(1).and(new Trigger(() -> {
       return m_intakeSubsystem.m_state == "empty";
-    })).whileTrue(new InstantCommand(m_intakeSubsystem::startIntake));// Intake
+    })).whileTrue(new InstantCommand(m_intakeSubsystem::runIntake));// Intake
     ControllerConstants.m_driveJoystick.button(2).and(new Trigger(() -> {
       return m_intakeSubsystem.m_state == "intaking";
     })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));// StopIntake
