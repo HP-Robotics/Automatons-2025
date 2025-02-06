@@ -207,6 +207,11 @@ public final class Constants {
     public static final double turningRampTimeTo300s = 0.01;
 
     public static final double odometryUpdateFrequency = 250;
+
+    public static final Translation2d blueReefCenter = new Translation2d(); // TODO: put actual values TODO: consider a
+                                                                            // field constants? does not belong in drive
+    public static final Translation2d redReefCenter = new Translation2d();
+
   }
 
   public static class ClimberConstants {
