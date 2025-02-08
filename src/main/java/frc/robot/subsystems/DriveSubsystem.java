@@ -355,7 +355,7 @@ public class DriveSubsystem extends SubsystemBase {
         rot * DriveConstants.kMaxAngularSpeed,
         true);
 
-    m_autoAlignPublisher.set(new Pose2d(m_targetX.position, m_targetY.position, new Rotation2d()));
+    m_autoAlignPublisher.set(target);
     m_driveTrainTable.putValue("X Error", NetworkTableValue.makeDouble(m_xController.getError()));
     m_driveTrainTable.putValue("X P Contribution",
         NetworkTableValue.makeDouble(m_xController.getError() * m_xController.getP()));
@@ -518,6 +518,7 @@ public class DriveSubsystem extends SubsystemBase {
     if (isRed) {
       sector += DriveConstants.autoAlignSectorCount;
     }
+    System.out.println(sector);
     return Optional.of(sector);
   }
 

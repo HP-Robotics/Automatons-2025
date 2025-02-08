@@ -208,9 +208,38 @@ public final class Constants {
     // TODO: put actual values TODO: consider a field constants? doesn't go in drive
     public static final Translation2d blueReefCenter = new Translation2d();
     public static final Translation2d redReefCenter = new Translation2d();
-    public static final int autoAlignSectorCount = 12;
+    public static final int autoAlignSectorCount = 6;
     public static final double autoAlignSectorRadius = 3; // TODO: change
 
+    // TODO: actually do this
+    public static final Pose2d[] leftAlignPoses = {
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+    };
+    public static final Pose2d[] rightAlignPoses = {
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+    };
   }
 
   public static class ClimberConstants {

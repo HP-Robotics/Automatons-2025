@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SubsystemConstants;
 import frc.robot.commands.ClimberClimbCommand;
 import frc.robot.commands.IntakeFoldCommand;
@@ -17,6 +18,8 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+
+import java.util.Optional;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -121,7 +124,14 @@ public class RobotContainer {
     }
     ControllerConstants.m_driveJoystick.button(6).whileTrue(new RunCommand(
         () -> {
-          m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18, new Rotation2d(Math.PI)));
+          // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
+          // new Rotation2d(Math.PI)));
+          Optional<Integer> sector = m_driveSubsystem.getCurrentSector(m_poseEstimatorSubsystem.getPose());
+          if (sector.isPresent()) {
+            m_driveSubsystem.driveToPose(DriveConstants.rightAlignPoses[sector.get()]);
+          } else {
+            m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
+          }
         },
         m_driveSubsystem));
 
