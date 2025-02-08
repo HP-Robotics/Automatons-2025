@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.Constants.ClimberConstants;
@@ -53,6 +54,7 @@ public class RobotContainer {
       : null;
   final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
   final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
+  final OuttakeSubsystem m_outtakeSubsystem = new OuttakeSubsystem();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -87,52 +89,83 @@ public class RobotContainer {
     /*
      * TEST CODE
      */
-    ControllerConstants.m_driveJoystick.button(1).and(new Trigger(() -> {
-      return m_intakeSubsystem.m_state == "empty";
-    })).whileTrue(new InstantCommand(m_intakeSubsystem::runIntake));// Intake
-    ControllerConstants.m_driveJoystick.button(2).and(new Trigger(() -> {
-      return m_intakeSubsystem.m_state == "intaking";
-    })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));// StopIntake
-    ControllerConstants.m_driveJoystick.button(3).and(new Trigger(() -> {
-      return m_intakeSubsystem.m_state == "shoot";
-    })).and(ControllerConstants.m_driveJoystick.button(4)).whileTrue(new InstantCommand(m_intakeSubsystem::shoot));// Shoot
-    ControllerConstants.m_driveJoystick.button(4).and(new Trigger(() -> {
-      return m_intakeSubsystem.m_state == "intaking";
-    })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));
     try {
       PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
 
-      ControllerConstants.m_driveJoystick.button(5).whileTrue(new SequentialCommandGroup(new InstantCommand(() -> {
-        if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
-          m_driveSubsystem.resetPose(FlippingUtil.flipFieldPose(path.getStartingHolonomicPose().get()));
-        } else {
-          m_driveSubsystem.resetPose(path.getStartingHolonomicPose().get());
-        }
+      ControllerConstants.m_driveJoystick.button(5)
+          .whileTrue(new SequentialCommandGroup(new InstantCommand(() -> {
+            if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
+              m_driveSubsystem.resetPose(FlippingUtil.flipFieldPose(path.getStartingHolonomicPose().get()));
+            } else {
+              m_driveSubsystem.resetPose(path.getStartingHolonomicPose().get());
+            }
 
-      }),
-          (AutoBuilder.followPath(path))));
+          }),
+              (AutoBuilder.followPath(path))));
 
     } catch (Exception e) {
       DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
     }
+
+    /*
+     * END TEST CODE
+     */
+
+    /*
+     * PRODUCTION CODE
+     */
+    if (SubsystemConstants.useIntake) {
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton).and(new Trigger(() -> {
+        return m_intakeSubsystem.m_state == "empty";
+      }))
+          .whileTrue(new InstantCommand(m_intakeSubsystem::doIntaking)); // run intake if intake button pressed and
+                                                                         // state is empty; add beam break?
+
+      ControllerConstants.m_driveJoystick.button(2).and(new Trigger(() -> {
+        return m_intakeSubsystem.m_state == "intaking";
+      }))
+          .whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake)); // StopIntake if a button is pressed and state
+                                                                         // is intaking?
+      ControllerConstants.m_driveJoystick.button(2)
+          .and(new Trigger(IntakeSubsystem::isLoaded))
+          .whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake)); // stop intake (do we need a second one?) if
+                                                                         // loaded
+    }
+    if (SubsystemConstants.useOuttake) {
+      ControllerConstants.m_driveJoystick.button(3)
+          .and(new Trigger(() -> {
+            return m_intakeSubsystem.m_state == "shoot";
+          }))
+          .and(ControllerConstants.m_driveJoystick.button(4))
+          .whileTrue(new InstantCommand(m_intakeSubsystem::shoot)); // Shoot if two buttons pressed and state is shoot
+
+      ControllerConstants.m_driveJoystick.button(6)
+          .and(new Trigger(IntakeSubsystem::isEmpty))
+          .whileTrue(new InstantCommand(m_outtakeSubsystem::stopOuttake)); // Stop outtake (maybe necessary?) if button is pressed and intake is empty
+    }
+
     ControllerConstants.m_driveJoystick.button(6).whileTrue(new RunCommand(
         () -> {
           m_driveSubsystem.driveToPose(new Pose2d());
         },
         m_driveSubsystem));
 
-    ControllerConstants.m_driveJoystick.button(7).whileTrue(m_elevatorSubsystem.GoToL4());
-    ControllerConstants.m_driveJoystick.button(8).whileTrue(m_elevatorSubsystem.GoToL3());
-    ControllerConstants.m_driveJoystick.button(9).whileTrue(m_elevatorSubsystem.ElevatorDown());
+    ControllerConstants.m_driveJoystick.button(7)
+        .whileTrue(m_elevatorSubsystem.GoToL4());
+    ControllerConstants.m_driveJoystick.button(8)
+        .whileTrue(m_elevatorSubsystem.GoToL3());
+    ControllerConstants.m_driveJoystick.button(9)
+        .whileTrue(m_elevatorSubsystem.ElevatorDown());
 
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
       ControllerConstants.m_driveJoystick.button(7)
           .onTrue(new IntakeFoldCommand(m_intakeSubsystem).withTimeout(ClimberConstants.foldRunTime));
     }
 
-    ControllerConstants.m_driveJoystick.button(8).whileTrue(new ClimberClimbCommand(m_climberSubsystem));
+    ControllerConstants.m_driveJoystick.button(8)
+        .whileTrue(new ClimberClimbCommand(m_climberSubsystem));
     /*
-     * END TEST CODE
+     * END PRODUCTION CODE
      */
   }
 
