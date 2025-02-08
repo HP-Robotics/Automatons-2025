@@ -5,7 +5,6 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.ForwardLimitValue;
 import com.ctre.phoenix6.signals.ReverseLimitValue;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -50,8 +49,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     //       (float) (ClimberConstants.bottomPosition - m_offset));
         }
     }
-
-    //TODO: Put elevatorPreset in shuffleboard (That might be done?)
 
     public void L4ButtonIsPressed() {
         targetRotation = Constants.ElevatorConstants.L4Position;
