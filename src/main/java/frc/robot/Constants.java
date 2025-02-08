@@ -206,6 +206,13 @@ public final class Constants {
     public static final double turningRampTimeTo300s = 0.01;
 
     public static final double odometryUpdateFrequency = 250;
+
+    // TODO: put actual values TODO: consider a field constants? doesn't go in drive
+    public static final Translation2d blueReefCenter = new Translation2d();
+    public static final Translation2d redReefCenter = new Translation2d();
+    public static final int autoAlignSectorCount = 12;
+    public static final double autoAlignSectorRadius = 3; // TODO: change
+
   }
 
   public static class ClimberConstants {
