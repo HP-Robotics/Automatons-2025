@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.LimelightConstants;
 
 public class LimelightSubsystem extends SubsystemBase {
-  NetworkTableEntry botposeBlue; // Red will be mirrored from this
+  NetworkTableEntry botPoseBlue; // Red will be mirrored from this
   CommandJoystick m_driveJoystick;
 
   public final Field2d m_field = new Field2d();
@@ -52,11 +52,12 @@ public class LimelightSubsystem extends SubsystemBase {
     Shuffleboard.getTab("shuffleboard")
         .add("Pose2d", m_field)
         .withWidget(BuiltInWidgets.kField);
-    m_table = NetworkTableInstance.getDefault().getTable("limelight-delight");
-    botposeBlue = m_table.getEntry("botpose_wpiblue");
+    m_table = NetworkTableInstance.getDefault().getTable("limelight-shipwright");
+    m_table.getEntry("imumode_set").setDouble(1); // Uses yaw from robot and limelight
+    botPoseBlue = m_table.getEntry("botpose_orb_wpiblue");
     m_poseEstimator = poseEstimatorSubsystem;
     publisher = poseEstimatorTable.getStructTopic("AprilTag Pose", Pose2d.struct).publish();
-    limeSub = m_table.getDoubleArrayTopic("botpose_wpiblue").subscribe(defaultValues);
+    limeSub = m_table.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(defaultValues);
 
     m_aprilTagSeen = false;
   }
@@ -78,11 +79,20 @@ public class LimelightSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    double[] robotOrientationEntries = new double[6];
+        robotOrientationEntries[0] = m_poseEstimator.getPose().getRotation().getDegrees();
+        robotOrientationEntries[1] = 0;
+        robotOrientationEntries[2] = 0;
+        robotOrientationEntries[3] = 0;
+        robotOrientationEntries[4] = 0;
+        robotOrientationEntries[5] = 0;
+    m_table.getEntry("robot_orientation_set").setDoubleArray(robotOrientationEntries);
+
     double[] botPose = null;
     double latency = 0;
     double timeStamp = 0;
     m_seeingAprilTag = m_table.getEntry("tv").getDouble(0) != 0;
-    botPose = botposeBlue.getDoubleArray(defaultValues);
+    botPose = botPoseBlue.getDoubleArray(defaultValues);
     tx = m_table.getEntry("tx").getDouble(0);
     ty = m_table.getEntry("ty").getDouble(0);
 
