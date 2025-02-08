@@ -24,7 +24,7 @@ public final class Constants {
   public static class SubsystemConstants {
     public static final boolean useDrive = false;
     public static final boolean useIntake = true;
-    public static final boolean useShooter = false;
+    public static final boolean useOuttake = true;
     public static final boolean useDataManager = false;
     public static final boolean useLimelight = false;
     public static final boolean usePivot = false;
@@ -113,6 +113,7 @@ public final class Constants {
     public static final int yuckButton = useXbox ? 4 : 2;
     public static final int climberButton = useXbox ? 10 : 10;
     public static final int intakeButton = useXbox ? 0 : 1;
+    public static final int stopIntakeButtton = 9;
     public static final int outtakeButton = useXbox ? 0 : 0;
     public static final Trigger outtakeTrigger = m_driveJoystick.button(outtakeButton);
     public static final int drivePointedToSpeakerButton = useXbox ? 6 : 0;
@@ -124,8 +125,6 @@ public final class Constants {
     public static final int L4Button = 9;
     public static final int L3Button = 10;
     public static final int ElevatorDownButton = 11;
-
-    // TODO: Add operator joystick constants
 
     public static double getRotation(CommandJoystick stick) {
       if (useXbox) {
@@ -212,6 +211,10 @@ public final class Constants {
   public static class ClimberConstants {
     public static final double foldSpeed = 0.5;
     public static final double foldRunTime = 2; // TODO: Make this a number that makes sense
+  }
+
+  public static class IntakeConstants {
+    public static final double intakeSpeed = 0.2;
   }
 
   public static class PoseEstimatorConstants {
