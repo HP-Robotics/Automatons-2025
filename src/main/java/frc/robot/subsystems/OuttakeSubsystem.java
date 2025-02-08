@@ -18,10 +18,11 @@ import frc.robot.Constants.OuttakeConstants;
 
 public class OuttakeSubsystem extends SubsystemBase {
   TalonFX m_outtakeMotor = new TalonFX(IDConstants.outtakeMotorID);
-  BeamBreak elevatorBeamBreak = new BeamBreak(0); 
+  BeamBreak elevatorBeamBreak = new BeamBreak(0);
   BeamBreak outtakeBeamBreak = new BeamBreak(0); // TODO: Find channel IDs
   public String m_state = "empty";
   NetworkTable m_table;
+
   /** Creates a new OuttakeSubsystem. */
   public OuttakeSubsystem() {
     m_table = NetworkTableInstance.getDefault().getTable("OuttakeSubsystem");
@@ -29,7 +30,7 @@ public class OuttakeSubsystem extends SubsystemBase {
 
   public void loadOuttake() {
     m_outtakeMotor.set(OuttakeConstants.loadSpeed);
-    if (!elevatorBeamBreak.beamBroken() && outtakeBeamBreak.beamBroken()) {
+    if (IntakeSubsystem.isLoaded()) {
       m_outtakeMotor.set(0);
       m_state = "loaded";
     }
@@ -38,11 +39,15 @@ public class OuttakeSubsystem extends SubsystemBase {
   public void runOuttake() {
     if (m_state == "loaded") {
       m_outtakeMotor.set(OuttakeConstants.outtakeSpeed);
-      m_state = "outtaking";
+      m_state = "shoot";
     } else if (m_state != "loaded") {
       m_outtakeMotor.set(0);
       m_state = "empty";
     }
+  }
+
+  public void stopOuttake() {
+    m_outtakeMotor.set(0);
   }
 
   @Override

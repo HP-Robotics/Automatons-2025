@@ -4,11 +4,16 @@
 
 package frc.robot.subsystems;
 
+import java.util.Optional;
+import java.util.function.ToLongBiFunction;
+
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.PoseEstimator;
+
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
@@ -18,6 +23,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -28,6 +34,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -441,7 +448,44 @@ public class DriveSubsystem extends SubsystemBase {
         pose);
   }
 
-  
+  // TTODO: getDistanceToPose() and getAngleToPose() already in limelight
+  // subsystem, move to where?
+
+  public double getDistanceToPose(Pose2d robot, Pose2d fieldPose) {
+    double distX = fieldPose.getX() - robot.getX();
+    double distY = fieldPose.getY() - robot.getY();
+
+    return Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2));
+  }
+
+  public double getAngleBetweenPoses(Pose2d pose1, Pose2d pose2) {
+    double distX = pose2.getX() - pose1.getX();
+    double distY = pose2.getY() - pose1.getY();
+    double angleRadians = Math.atan2(distY, distX);
+
+    return Math.toDegrees(angleRadians);
+  }
+
+  public Optional<Integer> getCurrentSector(Pose2d pose) {
+    boolean isRed = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red;
+    Pose2d reefCenter = new Pose2d(isRed ? DriveConstants.redReefCenter : DriveConstants.blueReefCenter,
+        new Rotation2d());
+
+    if (getDistanceToPose(reefCenter, pose) > DriveConstants.autoAlignSectorRadius) {
+      return Optional.empty();
+    }
+    double angle = getAngleBetweenPoses(reefCenter, pose) % 360;
+    int sector = (int) (angle / (360 / DriveConstants.autoAlignSectorCount));
+    if (isRed) {
+      sector += DriveConstants.autoAlignSectorCount;
+    }
+    return Optional.of(sector);
+  }
+
+  public boolean isNearTargetAngle(double angle, double targetAngle, double tolerance) {
+    return Math.abs(angle - targetAngle) <= tolerance;
+  }
+
   /**
    * Resets robot's conception of field orientation
    */
