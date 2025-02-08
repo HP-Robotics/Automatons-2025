@@ -124,16 +124,29 @@ public class RobotContainer {
           },
           m_driveSubsystem));
       }
-    ControllerConstants.m_driveJoystick.povUp().onTrue(
+    ControllerConstants.m_opJoystick.povUp().onTrue(
       new InstantCommand(() -> m_elevatorSubsystem.GoToL4()) );
-    ControllerConstants.m_driveJoystick.povRight().onTrue(
+    ControllerConstants.m_opJoystick.povRight().onTrue(
       new InstantCommand(() -> m_elevatorSubsystem.GoToL3()));
-    ControllerConstants.m_driveJoystick.povDown().onTrue(
+    ControllerConstants.m_opJoystick.povDown().onTrue(
       new InstantCommand(() ->m_elevatorSubsystem.GoToL2()));
-    ControllerConstants.m_driveJoystick.povLeft().onTrue(
+    ControllerConstants.m_opJoystick.povLeft().onTrue(
       new InstantCommand(() ->m_elevatorSubsystem.GoToL1()));
-    ControllerConstants.m_driveJoystick.button(9).onTrue(
+    ControllerConstants.m_opJoystick.button(9).onTrue(
       new InstantCommand(() -> m_elevatorSubsystem.GoToElevatorDown()));
+    
+    ControllerConstants.m_opJoystick.button(4).onTrue(
+      new InstantCommand(()-> m_elevatorSubsystem.L4ButtonIsPressed())
+    );
+    ControllerConstants.m_opJoystick.button(2).onTrue(
+      new InstantCommand(()-> m_elevatorSubsystem.L3ButtonIsPressed())
+    );
+    ControllerConstants.m_opJoystick.button(1).onTrue(
+      new InstantCommand(()-> m_elevatorSubsystem.L2ButtonIsPressed())
+    );
+    ControllerConstants.m_opJoystick.button(3).onTrue(
+      new InstantCommand(()-> m_elevatorSubsystem.L1ButtonIsPressed())
+    );
 
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
       ControllerConstants.m_driveJoystick.button(7)
