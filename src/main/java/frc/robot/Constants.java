@@ -266,30 +266,31 @@ public final class Constants {
   public static class LimelightConstants {
     public static final double inToM = 0.0254;
     public static final Pose2d aprilTagList[] = { // 0 is empty, april tag number is that number in list
-        // TODO: update rotations/positions to have a blue origin (only 7 is correct)
+        // TODO: update rotation for coral stations
+        // 4, 5, 14, and 15 aren't updated and shouldn't be because they're weird
         new Pose2d(),
-        new Pose2d(7.923198, -3.37068, new Rotation2d(Math.PI * 2 / 3)), // 1
-        new Pose2d(7.923198, 3.37068, new Rotation2d(Math.PI * 2 / 3)), // 2
-        new Pose2d(2.78681, 4.02961, new Rotation2d(Math.PI)), // 3
-        new Pose2d(0.50208, 2.111656, new Rotation2d(Math.PI)), // 4
-        new Pose2d(0.50208, -2.111094, new Rotation2d(Math.PI * 3 / 2)), // 5
-        new Pose2d(4.700446, -0.719682, new Rotation2d(Math.PI * 3 / 2)), // 6
-        new Pose2d(5.116498 + 8.775, 4.0199, new Rotation2d(0)), // 7
-        new Pose2d(4.700446, 0.719482, new Rotation2d(0)), // 8
-        new Pose2d(3.869358, 0.719482, new Rotation2d(Math.PI / 3)), // 9
-        new Pose2d(3.453306, -0.0001, new Rotation2d(Math.PI / 3)), // 10
-        new Pose2d(3.869358, -0.719682, new Rotation2d(Math.PI * 5 / 3)), // 11
-        new Pose2d(-7.922846, -3.37068, new Rotation2d(Math.PI / 3)), // 12
-        new Pose2d(-7.922846, 3.37048, new Rotation2d(Math.PI)), // 13
-        new Pose2d(-0.501728, 2.111656, new Rotation2d(0)), // 14
-        new Pose2d(-0.501728, -2.111094, new Rotation2d(Math.PI * 2 / 3)), // 15
-        new Pose2d(-2.786458, -4.02981, new Rotation2d(Math.PI * 4 / 3)), // 16
-        new Pose2d(-4.700094, 0.719682, new Rotation2d(Math.PI * 4 / 3)), // 17
-        new Pose2d(-5.1164, -0.00001, new Rotation2d(Math.PI * 4 / 3)), // 18
-        new Pose2d(-4.700094, 0.719482, new Rotation2d(Math.PI * 4 / 3)), // 19
-        new Pose2d(-3.86926, 0.719482, new Rotation2d(Math.PI * 4 / 3)), // 20
-        new Pose2d(-3.452954, -0.0001, new Rotation2d(Math.PI * 4 / 3)), // 21
-        new Pose2d(-3.86926, -0.719682, new Rotation2d(Math.PI * 4 / 3)) // 22
+        new Pose2d(7.923198 + 8.775, -3.37068 + 4.02, new Rotation2d(Math.PI * 2 / 3)), // 1
+        new Pose2d(7.923198 + 8.775, 3.37068 + 4.02, new Rotation2d(Math.PI * 2 / 3)), // 2
+        new Pose2d(2.78681 + 8.775, 4.02961 + 4.02, new Rotation2d(Math.PI * 3 / 2)), // 3
+        new Pose2d(0.50208 + 8.775, 2.111656 + 4.02, new Rotation2d(Math.PI)), // 4
+        new Pose2d(0.50208 + 8.775, -2.111094 + 4.02, new Rotation2d(Math.PI * 3 / 2)), // 5
+        new Pose2d(4.700446 + 8.775, -0.719682 + 4.02, new Rotation2d(Math.PI * 5 / 2)), // 6
+        new Pose2d(5.116498 + 8.775, -0.0001 + 4.02, new Rotation2d(0)), // 7
+        new Pose2d(4.700446 + 8.775, 0.719482 + 4.02, new Rotation2d(Math.PI / 3)), // 8
+        new Pose2d(3.869358 + 8.775, 0.719482 + 4.02, new Rotation2d(Math.PI * 2 / 3)), // 9
+        new Pose2d(3.453306 + 8.775, -0.0001 + 4.02, new Rotation2d(Math.PI)), // 10
+        new Pose2d(3.869358 + 8.775, -0.719682 + 4.02, new Rotation2d(Math.PI * 4 / 3)), // 11
+        new Pose2d(-7.922846 + 8.775, -3.37068 + 4.02, new Rotation2d(Math.PI / 3)), // 12
+        new Pose2d(-7.922846 + 8.775, 3.37048 + 4.02, new Rotation2d(Math.PI)), // 13
+        new Pose2d(-0.501728 + 8.775, 2.111656 + 4.02, new Rotation2d(0)), // 14
+        new Pose2d(-0.501728 + 8.775, -2.111094 + 4.02, new Rotation2d(Math.PI * 2 / 3)), // 15
+        new Pose2d(-2.786458 + 8.775, -4.02981 + 4.02, new Rotation2d(Math.PI / 2)), // 16
+        new Pose2d(-4.700094 + 8.775, 0.719682 + 4.02, new Rotation2d(Math.PI * 4 / 3)), // 17
+        new Pose2d(-5.1164 + 8.775, -0.00001 + 4.02, new Rotation2d(Math.PI)), // 18
+        new Pose2d(-4.700094 + 8.775, 0.719482 + 4.02, new Rotation2d(Math.PI * 2 / 3)), // 19
+        new Pose2d(-3.86926 + 8.775, 0.719482 + 4.02, new Rotation2d(Math.PI / 3)), // 20
+        new Pose2d(-3.452954 + 8.775, -0.0001 + 4.02, new Rotation2d(0)), // 21
+        new Pose2d(-3.86926 + 8.775, -0.719682 + 4.02, new Rotation2d(Math.PI * 5 / 3)) // 22
     };
   }
 
