@@ -23,14 +23,15 @@ public final class Constants {
 
   public static class SubsystemConstants {
     public static final boolean useDrive = false;
-    public static final boolean useIntake = true;
-    public static final boolean useOuttake = true;
+    public static final boolean useIntake = false;
+    public static final boolean useOuttake = false;
     public static final boolean useDataManager = false;
     public static final boolean useLimelight = false;
     public static final boolean usePivot = false;
-    public static final boolean useClimber = true;
+    public static final boolean useClimber = false;
     public static final boolean useTrigger = false;
     public static final boolean usePoseEstimator = false;
+    public static final boolean useElevator = false;
   }
 
   public static class RobotConfigConstants {
@@ -89,12 +90,14 @@ public final class Constants {
     public static final double L3Position = 900;
     public static final double L2Position = 600;
     public static final double L1Position = 300;
-    public static final double ElevatorDownPosition = 0; 
+    public static final double ElevatorDownPosition = 0;
     public static final double bottomPosition = 0;
     // TODO: this might be right but should be checked with the other two
     public static final double kP = 0;// TODO: tune these
     public static final double kI = 0;
     public static final double kD = 0;
+
+    public static final double elevatorSpeed = 0.3;
   }
 
   public static class ControllerConstants {
@@ -129,6 +132,7 @@ public final class Constants {
     public static final int L4Button = 9;
     public static final int L3Button = 10;
     public static final int ElevatorDownButton = 11;
+    public static final int elevatorUpButton = 13;
 
     public static double getRotation(CommandJoystick stick) {
       if (useXbox) {
@@ -278,4 +282,5 @@ public final class Constants {
     public static final double loadSpeed = 0.2;
     public static final double outtakeSpeed = 0.2;
   }
+
 }

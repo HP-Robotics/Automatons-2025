@@ -56,7 +56,7 @@ public class RobotContainer {
       : null;
   final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
   final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
-  final OuttakeSubsystem m_outtakeSubsystem = new OuttakeSubsystem();
+  TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -157,6 +157,15 @@ public class RobotContainer {
 
     ControllerConstants.m_driveJoystick.button(8)
         .whileTrue(new ClimberClimbCommand(m_climberSubsystem));
+
+    if (SubsystemConstants.useElevator) {
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.elevatorUpButton)
+          .whileTrue(new StartEndCommand(() -> {
+            m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorSpeed));
+          }, () -> {
+            m_elevatorMotor1.setControl(new DutyCycleOut(0));
+          }, m_elevatorSubsystem));
+    }
   }
   /*
    * END PRODUCTION CODE
