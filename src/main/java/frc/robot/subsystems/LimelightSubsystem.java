@@ -52,8 +52,8 @@ public class LimelightSubsystem extends SubsystemBase {
     Shuffleboard.getTab("shuffleboard")
         .add("Pose2d", m_field)
         .withWidget(BuiltInWidgets.kField);
-    m_table = NetworkTableInstance.getDefault().getTable("limelight-shipwright");
-    m_table.getEntry("imumode_set").setDouble(1); // Uses yaw from robot and limelight
+    m_table = NetworkTableInstance.getDefault().getTable("limelight-shpwrte");
+    m_table.getEntry("imumode_set").setDouble(0);
     botPoseBlue = m_table.getEntry("botpose_orb_wpiblue");
     m_poseEstimator = poseEstimatorSubsystem;
     publisher = poseEstimatorTable.getStructTopic("AprilTag Pose", Pose2d.struct).publish();
@@ -80,12 +80,12 @@ public class LimelightSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     double[] robotOrientationEntries = new double[6];
-        robotOrientationEntries[0] = m_poseEstimator.getPose().getRotation().getDegrees();
-        robotOrientationEntries[1] = 0;
-        robotOrientationEntries[2] = 0;
-        robotOrientationEntries[3] = 0;
-        robotOrientationEntries[4] = 0;
-        robotOrientationEntries[5] = 0;
+    robotOrientationEntries[0] = m_poseEstimator.getPose().getRotation().getDegrees();
+    robotOrientationEntries[1] = 0;
+    robotOrientationEntries[2] = 0;
+    robotOrientationEntries[3] = 0;
+    robotOrientationEntries[4] = 0;
+    robotOrientationEntries[5] = 0;
     m_table.getEntry("robot_orientation_set").setDoubleArray(robotOrientationEntries);
 
     double[] botPose = null;
@@ -113,6 +113,7 @@ public class LimelightSubsystem extends SubsystemBase {
         // somewhere (Store 3D)
         double botRotZ = botPose[5];
         latency = botPose[6];
+        System.out.println(latency);
         timeStamp -= latency / 1000;
         m_targetPoseRelative = new Pose2d(botPosX, botPosY, new Rotation2d(Math.toRadians(botRotZ)));
         m_visionPose2d = m_targetPoseRelative;

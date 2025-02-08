@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.SubsystemConstants;
@@ -87,18 +88,21 @@ public class RobotContainer {
     /*
      * TEST CODE
      */
-    ControllerConstants.m_driveJoystick.button(1).and(new Trigger(() -> {
-      return m_intakeSubsystem.m_state == "empty";
-    })).whileTrue(new InstantCommand(m_intakeSubsystem::runIntake));// Intake
-    ControllerConstants.m_driveJoystick.button(2).and(new Trigger(() -> {
-      return m_intakeSubsystem.m_state == "intaking";
-    })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));// StopIntake
-    ControllerConstants.m_driveJoystick.button(3).and(new Trigger(() -> {
-      return m_intakeSubsystem.m_state == "shoot";
-    })).and(ControllerConstants.m_driveJoystick.button(4)).whileTrue(new InstantCommand(m_intakeSubsystem::shoot));// Shoot
-    ControllerConstants.m_driveJoystick.button(4).and(new Trigger(() -> {
-      return m_intakeSubsystem.m_state == "intaking";
-    })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));
+    if (SubsystemConstants.useIntake) {
+      ControllerConstants.m_driveJoystick.button(1).and(new Trigger(() -> {
+        return m_intakeSubsystem.m_state == "empty";
+      })).whileTrue(new InstantCommand(m_intakeSubsystem::runIntake));// Intake
+      ControllerConstants.m_driveJoystick.button(2).and(new Trigger(() -> {
+        return m_intakeSubsystem.m_state == "intaking";
+      })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));// StopIntake
+      ControllerConstants.m_driveJoystick.button(3).and(new Trigger(() -> {
+        return m_intakeSubsystem.m_state == "shoot";
+      })).and(ControllerConstants.m_driveJoystick.button(4)).whileTrue(new InstantCommand(m_intakeSubsystem::shoot));// Shoot
+      ControllerConstants.m_driveJoystick.button(4).and(new Trigger(() -> {
+        return m_intakeSubsystem.m_state == "intaking";
+      })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));
+    }
+
     try {
       PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
 
@@ -117,7 +121,7 @@ public class RobotContainer {
     }
     ControllerConstants.m_driveJoystick.button(6).whileTrue(new RunCommand(
         () -> {
-          m_driveSubsystem.driveToPose(new Pose2d());
+          m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18, new Rotation2d(Math.PI)));
         },
         m_driveSubsystem));
 

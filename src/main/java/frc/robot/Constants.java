@@ -22,14 +22,11 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public final class Constants {
 
   public static class SubsystemConstants {
-    public static final boolean useDrive = false;
-    public static final boolean useIntake = true;
-    public static final boolean useShooter = false;
+    public static final boolean useDrive = true;
+    public static final boolean useIntake = false;
     public static final boolean useDataManager = false;
-    public static final boolean useLimelight = false;
-    public static final boolean usePivot = false;
-    public static final boolean useClimber = true;
-    public static final boolean useTrigger = false;
+    public static final boolean useLimelight = true;
+    public static final boolean useClimber = false;
   }
 
   public static class RobotConfigConstants {
@@ -65,7 +62,7 @@ public final class Constants {
 
   public static class AutoConstants {
     public static final double kMaxSpeedMetersPerSecond = 5.0; // TODO: Measure with krakens
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 3.6; // 3
     public static final double kMaxAngularSpeedRadiansPerSecond = 8.37758; // 480 degrees in radians
     public static final double kMaxAngularAcceleration = 11.1701; // 640 degrees in radians
     public static final double kFastAutoVelocity = 4.5;
@@ -171,13 +168,13 @@ public final class Constants {
     public static final double XControllerkP = 6.5;
     public static final double XControllerkI = 0.03;
     public static final double XControllerkD = 1.3;
-    public static final double XControllerTolerance = 0.01;
+    public static final double XControllerTolerance = 0.00; // 0.01
     public static final double XControllerIZone = 0.5;
 
     public static final double YControllerkP = 6.5;
     public static final double YControllerkI = 0.03;
     public static final double YControllerkD = 1.3;
-    public static final double YControllerTolerance = 0.01;
+    public static final double YControllerTolerance = 0.00; // 0.01
     public static final double YControllerIZone = 0.5;
 
     public static final double rotationControllerkP = 2;
@@ -224,8 +221,8 @@ public final class Constants {
   public static class PoseEstimatorConstants {
     // TODO: this is all pasted from last year; PLEASE DON'T USE, FIND REAL VALUES
     public static final Matrix<N3, N1> statesStandardDev = VecBuilder.fill(0.001, 0.001, 0.005);
-    public static final double visionXStandardDev = 0.005; // TODO: adjust with framerate
-    public static final double visionYStandardDev = 0.005;
+    public static final double visionXStandardDev = 0.0005; // TODO: adjust with framerate
+    public static final double visionYStandardDev = 0.0005;
     public static final double visionHeadingStandardDev = 0.05;
 
     public static final double maxAcceptableSkew = Math.PI / 3;
