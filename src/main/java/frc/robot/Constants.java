@@ -30,6 +30,7 @@ public final class Constants {
     public static final boolean usePivot = false;
     public static final boolean useClimber = true;
     public static final boolean useTrigger = false;
+    public static final boolean usePoseEstimator = false;
   }
 
   public static class RobotConfigConstants {
@@ -57,8 +58,8 @@ public final class Constants {
 
     public static final int PigeonID = 57;
 
-    public static final int ElevatorMotor1ID = 10; // TODO: Fix the motor ID
-    public static final int ElevatorMotor2ID = 11; // TODO: Fix the motor ID
+    public static final int ElevatorMotor1ID = 60; // TODO: Fix the motor ID
+    public static final int ElevatorMotor2ID = 61; // TODO: Fix the motor ID
 
     public static final int ClimbMotorID = 0; // TODO: Find motor ID
   }
@@ -84,10 +85,13 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final double L4Position = 0; // TODO: figure out what these are
-    public static final double L3Position = 0; // TODO: figure out what these are
-    public static final double ElevatorDownPosition = 0; // TODO: this might be right but should be checked with the
-                                                         // other two
+    public static final double L4Position = 1200; // TODO: figure out what these are
+    public static final double L3Position = 900;
+    public static final double L2Position = 600;
+    public static final double L1Position = 300;
+    public static final double ElevatorDownPosition = 0; 
+    public static final double bottomPosition = 0;
+    // TODO: this might be right but should be checked with the other two
     public static final double kP = 0;// TODO: tune these
     public static final double kI = 0;
     public static final double kD = 0;
