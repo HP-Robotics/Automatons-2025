@@ -51,6 +51,7 @@ import frc.robot.SwerveModule;
 
 /** Represents a swerve drive style drivetrain. */
 public class DriveSubsystem extends SubsystemBase {
+  public Optional<Integer> m_sector = Optional.empty();
   SwerveDriveOdometry m_odometry;
 
   PPHolonomicDriveController m_driveController;
@@ -252,6 +253,8 @@ public class DriveSubsystem extends SubsystemBase {
     if (getPose() != null) {
       m_field.setRobotPose(getPose());
     }
+
+    m_sector = getCurrentSector(m_poseEstimator.getPose());
 
     m_driveTrainTable.putValue("Robot theta",
         NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
@@ -513,7 +516,8 @@ public class DriveSubsystem extends SubsystemBase {
     if (getDistanceToPose(reefCenter, pose) > DriveConstants.autoAlignSectorRadius) {
       return Optional.empty();
     }
-    double angle = getAngleBetweenPoses(reefCenter, pose) % 360;
+    double angle = MathUtil.inputModulus(getAngleBetweenPoses(reefCenter, pose) + DriveConstants.autoAlignSectorOffset,
+        0, 360);
     int sector = (int) (angle / (360 / DriveConstants.autoAlignSectorCount));
     if (isRed) {
       sector += DriveConstants.autoAlignSectorCount;

@@ -109,31 +109,55 @@ public class RobotContainer {
     try {
       PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
 
-      ControllerConstants.m_driveJoystick.button(5).whileTrue(new SequentialCommandGroup(new InstantCommand(() -> {
-        if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
-          m_driveSubsystem.resetPose(FlippingUtil.flipFieldPose(path.getStartingHolonomicPose().get()));
-        } else {
-          m_driveSubsystem.resetPose(path.getStartingHolonomicPose().get());
-        }
+      // ControllerConstants.m_driveJoystick.button(5).whileTrue(new
+      // SequentialCommandGroup(new InstantCommand(() -> {
+      // if (DriverStation.getAlliance().isPresent() &&
+      // DriverStation.getAlliance().get() == Alliance.Red) {
+      // m_driveSubsystem.resetPose(FlippingUtil.flipFieldPose(path.getStartingHolonomicPose().get()));
+      // } else {
+      // m_driveSubsystem.resetPose(path.getStartingHolonomicPose().get());
+      // }
 
-      }),
-          (AutoBuilder.followPath(path))));
+      // }),
+      // (AutoBuilder.followPath(path))));
 
     } catch (Exception e) {
       DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
     }
-    ControllerConstants.m_driveJoystick.button(6).whileTrue(new RunCommand(
+    ControllerConstants.m_driveJoystick.button(5)
+        .and(new Trigger(() -> {
+          return m_driveSubsystem.m_sector.isPresent();
+        }))
+        .whileTrue(new RunCommand(
+            () -> {
+              // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
+              // new Rotation2d(Math.PI)));
+              m_driveSubsystem.driveToPose(DriveConstants.leftAlignPoses[m_driveSubsystem.m_sector.get()]);
+            },
+            m_driveSubsystem));
+    ControllerConstants.m_driveJoystick.button(6)
+        .and(new Trigger(() -> {
+          return m_driveSubsystem.m_sector.isPresent();
+        }))
+        .whileTrue(new RunCommand(
+            () -> {
+              // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
+              // new Rotation2d(Math.PI)));
+              m_driveSubsystem.driveToPose(DriveConstants.rightAlignPoses[m_driveSubsystem.m_sector.get()]);
+            },
+            m_driveSubsystem));
+
+    ControllerConstants.m_driveJoystick.button(1).whileTrue(new RunCommand(
         () -> {
-          // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
-          // new Rotation2d(Math.PI)));
-          Optional<Integer> sector = m_driveSubsystem.getCurrentSector(m_poseEstimatorSubsystem.getPose());
-          if (sector.isPresent()) {
-            m_driveSubsystem.driveToPose(DriveConstants.rightAlignPoses[sector.get()]);
-          } else {
-            m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
-          }
-        },
-        m_driveSubsystem));
+          m_driveSubsystem.drivePointedTowardsAngle(
+              ControllerConstants.m_driveJoystick,
+              Rotation2d.fromDegrees(m_driveSubsystem.getAngleBetweenPoses(m_poseEstimatorSubsystem.getPose(),
+                  new Pose2d(
+                      DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
+                          ? DriveConstants.redReefCenter
+                          : DriveConstants.blueReefCenter,
+                      new Rotation2d()))));
+        }, m_driveSubsystem));
 
     ControllerConstants.m_driveJoystick.button(7).whileTrue(m_elevatorSubsystem.GoToL4());
     ControllerConstants.m_driveJoystick.button(8).whileTrue(m_elevatorSubsystem.GoToL3());

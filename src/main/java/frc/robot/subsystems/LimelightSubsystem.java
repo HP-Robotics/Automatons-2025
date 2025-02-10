@@ -113,7 +113,7 @@ public class LimelightSubsystem extends SubsystemBase {
         // somewhere (Store 3D)
         double botRotZ = botPose[5];
         latency = botPose[6];
-        System.out.println(latency);
+
         timeStamp -= latency / 1000;
         m_targetPoseRelative = new Pose2d(botPosX, botPosY, new Rotation2d(Math.toRadians(botRotZ)));
         m_visionPose2d = m_targetPoseRelative;

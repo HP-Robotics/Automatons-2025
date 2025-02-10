@@ -206,25 +206,26 @@ public final class Constants {
     public static final double odometryUpdateFrequency = 250;
 
     // TODO: put actual values TODO: consider a field constants? doesn't go in drive
-    public static final Translation2d blueReefCenter = new Translation2d();
-    public static final Translation2d redReefCenter = new Translation2d();
+    public static final Translation2d blueReefCenter = new Translation2d(4.490323, -0.0001 + 4.02);
+    public static final Translation2d redReefCenter = new Translation2d(13.059902, -0.0001 + 4.02);
     public static final int autoAlignSectorCount = 6;
     public static final double autoAlignSectorRadius = 3; // TODO: change
+    public static final double autoAlignSectorOffset = 30;
 
     // TODO: actually do this
     public static final Pose2d[] leftAlignPoses = {
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
+        new Pose2d(new Translation2d(1.2816, -0.18).plus(blueReefCenter), new Rotation2d(Math.PI)),
+        new Pose2d(new Translation2d(0.796685, 1.0199).plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+        new Pose2d(new Translation2d(-0.484915, 1.1999).plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+        new Pose2d(new Translation2d(-1.2816, 0.18).plus(blueReefCenter), new Rotation2d(0)),
+        new Pose2d(new Translation2d(-0.796685, -1.0199).plus(blueReefCenter), new Rotation2d(Math.PI / 3)),
+        new Pose2d(new Translation2d(0.484915, -1.1999).plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+        new Pose2d(new Translation2d(1.2816, -0.18).plus(redReefCenter), new Rotation2d(Math.PI)),
+        new Pose2d(new Translation2d(0.796685, 1.0199).plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+        new Pose2d(new Translation2d(-0.484915, 1.1999).plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+        new Pose2d(new Translation2d(-1.2816, 0.18).plus(redReefCenter), new Rotation2d(0)),
+        new Pose2d(new Translation2d(-0.796685, -1.0199).plus(redReefCenter), new Rotation2d(Math.PI / 3)),
+        new Pose2d(new Translation2d(0.484915, -1.1999).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
     };
     public static final Pose2d[] rightAlignPoses = {
         new Pose2d(),
