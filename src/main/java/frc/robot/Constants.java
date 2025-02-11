@@ -31,7 +31,7 @@ public final class Constants {
     public static final boolean useClimber = false;
     public static final boolean useTrigger = false;
     public static final boolean usePoseEstimator = false;
-    public static final boolean useElevator = false;
+    public static final boolean useElevator = true;
   }
 
   public static class RobotConfigConstants {
@@ -90,14 +90,15 @@ public final class Constants {
     public static final double L3Position = 900;
     public static final double L2Position = 600;
     public static final double L1Position = 300;
-    public static final double ElevatorDownPosition = 0;
+    public static final double elevatorDownPosition = 0;
     public static final double bottomPosition = 0;
     // TODO: this might be right but should be checked with the other two
     public static final double kP = 0;// TODO: tune these
     public static final double kI = 0;
     public static final double kD = 0;
 
-    public static final double elevatorSpeed = 0.3;
+    public static final double elevatorUpSpeed = 0.4; // 0.6 or 0.7 and -0.4
+    public static final double elevatorDownSpeed = -0.4;
   }
 
   public static class ControllerConstants {
@@ -118,21 +119,21 @@ public final class Constants {
     public static final int fieldRelativeButton = useXbox ? 8 : 8;
     public static final int robotRelativeButton = useXbox ? 2 : 8;
     public static final int yuckButton = useXbox ? 4 : 2;
-    public static final int climberButton = useXbox ? 10 : 10;
-    public static final int intakeButton = useXbox ? 0 : 1;
+    public static final Trigger climberButton = useXbox ? m_driveJoystick.axisGreaterThan(2, 0.2)
+        : m_driveJoystick.axisGreaterThan(2, 0.2);
+    public static final int intakeButton = useXbox ? 2 : 2;
     public static final int stopIntakeButtton = 9;
     public static final int outtakeButton = useXbox ? 0 : 0;
     public static final Trigger outtakeTrigger = m_driveJoystick.button(outtakeButton);
     public static final int drivePointedToSpeakerButton = useXbox ? 6 : 0;
     public static final int drivePointedToNoteButton = useXbox ? 5 : 0;
     public static final int driveToNoteAxis = useXbox ? 2 : 0;
-    public static final int driveToAmpButton = 1;
     public static final int pointToCornerButton = 2;
 
-    public static final int L4Button = 9;
-    public static final int L3Button = 10;
-    public static final int ElevatorDownButton = 11;
-    public static final int elevatorUpButton = 13;
+    public static final Trigger elevatorL3Button = m_opJoystick.button(3);
+    public static final Trigger elevatorL4Button = m_opJoystick.button(4);
+    public static final int elevatorDownButton = 7;
+    public static final int elevatorUpButton = 8;
 
     public static double getRotation(CommandJoystick stick) {
       if (useXbox) {
