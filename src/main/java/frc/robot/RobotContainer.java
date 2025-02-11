@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.Constants.ClimberConstants;
@@ -46,13 +47,16 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   SendableChooser<Command> m_autoChooser;
-  final PoseEstimatorSubsystem m_poseEstimatorSubsystem = new PoseEstimatorSubsystem();
+  final PoseEstimatorSubsystem m_poseEstimatorSubsystem = SubsystemConstants.usePoseEstimator
+      ? new PoseEstimatorSubsystem()
+      : null;
   final IntakeSubsystem m_intakeSubsystem = SubsystemConstants.useIntake ? new IntakeSubsystem() : null;
   final LimelightSubsystem m_limelightSubsystem = new LimelightSubsystem(m_poseEstimatorSubsystem);
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
   final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
   final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
+  final OuttakeSubsystem m_outtakeSubsystem = new OuttakeSubsystem();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -89,7 +93,7 @@ public class RobotContainer {
      */
     ControllerConstants.m_driveJoystick.button(1).and(new Trigger(() -> {
       return m_intakeSubsystem.m_state == "empty";
-    })).whileTrue(new InstantCommand(m_intakeSubsystem::runIntake));// Intake
+    })).whileTrue(new InstantCommand(m_intakeSubsystem::doIntaking));// Intake
     ControllerConstants.m_driveJoystick.button(2).and(new Trigger(() -> {
       return m_intakeSubsystem.m_state == "intaking";
     })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));// StopIntake
@@ -99,42 +103,64 @@ public class RobotContainer {
     ControllerConstants.m_driveJoystick.button(4).and(new Trigger(() -> {
       return m_intakeSubsystem.m_state == "intaking";
     })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));
-    try {
-      PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
+    if (SubsystemConstants.useDrive) {
+      try {
+        PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
 
-      ControllerConstants.m_driveJoystick.button(5).whileTrue(new SequentialCommandGroup(new InstantCommand(() -> {
-        if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
-          m_driveSubsystem.resetPose(FlippingUtil.flipFieldPose(path.getStartingHolonomicPose().get()));
-        } else {
-          m_driveSubsystem.resetPose(path.getStartingHolonomicPose().get());
-        }
+        ControllerConstants.m_driveJoystick.button(5)
+            .whileTrue(new SequentialCommandGroup(new InstantCommand(() -> {
+              if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
+                m_driveSubsystem.resetPose(FlippingUtil.flipFieldPose(path.getStartingHolonomicPose().get()));
+              } else {
+                m_driveSubsystem.resetPose(path.getStartingHolonomicPose().get());
+              }
 
-      }),
-          (AutoBuilder.followPath(path))));
+            }),
+                (AutoBuilder.followPath(path))));
+      }
 
-    } catch (Exception e) {
-      DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
+      catch (Exception e) {
+        DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
+      }
     }
-    ControllerConstants.m_driveJoystick.button(6).whileTrue(new RunCommand(
-        () -> {
-          m_driveSubsystem.driveToPose(new Pose2d());
-        },
-        m_driveSubsystem));
+    if (SubsystemConstants.useDrive) {
+      ControllerConstants.m_driveJoystick.button(6).whileTrue(new RunCommand(
+          () -> {
+            m_driveSubsystem.driveToPose(new Pose2d());
+          },
+          m_driveSubsystem));
+    }
+    ControllerConstants.m_opJoystick.povUp().onTrue(
+        new InstantCommand(() -> m_elevatorSubsystem.GoToL4()));
+    ControllerConstants.m_opJoystick.povRight().onTrue(
+        new InstantCommand(() -> m_elevatorSubsystem.GoToL3()));
+    ControllerConstants.m_opJoystick.povDown().onTrue(
+        new InstantCommand(() -> m_elevatorSubsystem.GoToL2()));
+    ControllerConstants.m_opJoystick.povLeft().onTrue(
+        new InstantCommand(() -> m_elevatorSubsystem.GoToL1()));
+    ControllerConstants.m_opJoystick.button(9).onTrue(
+        new InstantCommand(() -> m_elevatorSubsystem.GoToElevatorDown()));
 
-    ControllerConstants.m_driveJoystick.button(7).whileTrue(m_elevatorSubsystem.GoToL4());
-    ControllerConstants.m_driveJoystick.button(8).whileTrue(m_elevatorSubsystem.GoToL3());
-    ControllerConstants.m_driveJoystick.button(9).whileTrue(m_elevatorSubsystem.ElevatorDown());
+    ControllerConstants.m_opJoystick.button(4).onTrue(
+        new InstantCommand(() -> m_elevatorSubsystem.L4ButtonIsPressed()));
+    ControllerConstants.m_opJoystick.button(2).onTrue(
+        new InstantCommand(() -> m_elevatorSubsystem.L3ButtonIsPressed()));
+    ControllerConstants.m_opJoystick.button(1).onTrue(
+        new InstantCommand(() -> m_elevatorSubsystem.L2ButtonIsPressed()));
+    ControllerConstants.m_opJoystick.button(3).onTrue(
+        new InstantCommand(() -> m_elevatorSubsystem.L1ButtonIsPressed()));
 
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
       ControllerConstants.m_driveJoystick.button(7)
           .onTrue(new IntakeFoldCommand(m_intakeSubsystem).withTimeout(ClimberConstants.foldRunTime));
     }
 
-    ControllerConstants.m_driveJoystick.button(8).whileTrue(new ClimberClimbCommand(m_climberSubsystem));
-    /*
-     * END TEST CODE
-     */
+    ControllerConstants.m_driveJoystick.button(8)
+        .whileTrue(new ClimberClimbCommand(m_climberSubsystem));
   }
+  /*
+   * END PRODUCTION CODE
+   */
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
