@@ -60,8 +60,8 @@ public class IntakeSubsystem extends SubsystemBase {
         m_table.putValue("state", NetworkTableValue.makeString(m_state));
     }
 
-    public boolean haveCoral() {
-        if (m_elevatorBeamBreak.beamBroken() || m_intakebeamBreak.beamBroken() || m_outtakeBeamBreak.beamBroken()) {
+    public static boolean intakeHasCoral() {
+        if (m_elevatorBeamBreak.beamBroken() || m_intakebeamBreak.beamBroken()) {
             return true;
         }
         return false;
@@ -73,6 +73,7 @@ public class IntakeSubsystem extends SubsystemBase {
         }
         return false;
     }
+
     public static boolean isEmpty() {
         if (!m_elevatorBeamBreak.beamBroken() && !m_intakebeamBreak.beamBroken() && !m_outtakeBeamBreak.beamBroken()) {
             return true;
