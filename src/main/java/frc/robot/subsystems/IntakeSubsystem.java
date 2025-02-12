@@ -29,31 +29,14 @@ public class IntakeSubsystem extends SubsystemBase {
         m_elevatorBeamBreak = new BeamBreak(2);
     }
 
-    public void doIntaking() {
-        if (isLoaded()) {
-            m_intakeMotor.set(0);
-            m_state = "loaded";
-        }
+    public void runIntake() {
         m_intakeMotor.set(IntakeConstants.intakeSpeed);
-        m_state = "intaking";
     }
 
     public void stopIntake() {
         m_intakeMotor.set(0);
-        if (m_fakeBeamBreak.getAsBoolean()) {// TODO: use beamBroken method once available
-            m_state = "shoot"; // TODO: Should this be outtaking?
-        }
         // LED (on intake motor?) red
         // LED (on shoot motor?) green
-    }
-
-    public void shoot() {
-        // TODO: use beamBroken method once available
-        if (m_state == "shoot" && m_fakeBeamBreak.getAsBoolean()) {
-            m_state = "empty";
-            // LED (on intake motor?) green
-            // LED (on shoot motor?) red
-        }
     }
 
     public void periodic() {
@@ -61,23 +44,14 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public static boolean intakeHasCoral() {
-        if (m_elevatorBeamBreak.beamBroken() || m_intakebeamBreak.beamBroken()) {
-            return true;
-        }
-        return false;
+        return m_elevatorBeamBreak.beamBroken() || m_intakebeamBreak.beamBroken();
     }
 
     public static boolean isLoaded() {
-        if (m_outtakeBeamBreak.beamBroken() && !m_elevatorBeamBreak.beamBroken()) {
-            return true;
-        }
-        return false;
+        return m_outtakeBeamBreak.beamBroken() && !m_elevatorBeamBreak.beamBroken();
     }
 
     public static boolean isEmpty() {
-        if (!m_elevatorBeamBreak.beamBroken() && !m_intakebeamBreak.beamBroken() && !m_outtakeBeamBreak.beamBroken()) {
-            return true;
-        }
-        return false;
+        return !m_elevatorBeamBreak.beamBroken() && !m_intakebeamBreak.beamBroken() && !m_outtakeBeamBreak.beamBroken();
     }
 }

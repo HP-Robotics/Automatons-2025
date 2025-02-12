@@ -130,47 +130,47 @@ public class RobotContainer {
 
       if (SubsystemConstants.useIntake) {
         // SETTING STATES
-        // Set state to intaking if intake, elevator, or outtake beam break are broken
-        ControllerConstants.m_driveJoystick.button(10)
-            .and(new Trigger(IntakeSubsystem::intakeHasCoral))
-            .whileTrue(new InstantCommand(() -> {
+        // Set state to intaking if intake or elevator beam break are broken
+        new Trigger(IntakeSubsystem::intakeHasCoral).and(new Trigger(() -> m_intakeSubsystem.m_state == "empty"))
+            .onTrue(new InstantCommand(() -> {
               m_intakeSubsystem.m_state = "intaking";
+            }));
+
+        // Set state to loaded if isLoaded (elevator beam break not broken and outtake
+        // beam break is broken)
+        // is true and previous state is intaking
+        new Trigger(() -> m_intakeSubsystem.m_state == "intaking")
+            .and(IntakeSubsystem::isLoaded)
+            .onTrue(new InstantCommand(() -> {
+              m_intakeSubsystem.m_state = "loaded";
             }));
 
         // Set state to outtaking if outtake button pressed and we are loaded
         ControllerConstants.m_driveJoystick.button(ControllerConstants.outtakeButton)
-            .and(new Trigger(IntakeSubsystem::isLoaded))
-            .whileTrue(new InstantCommand(() -> {
+            .and(new Trigger(() -> m_intakeSubsystem.m_state == "loaded"))
+            .onTrue(new InstantCommand(() -> {
               m_intakeSubsystem.m_state = "outtaking";
             }));
 
-        // When it becomes empty (no beam breaks are
-        // broken)
+        // When it becomes empty (no beam breaks are broken)
         new Trigger(IntakeSubsystem::isEmpty)
+            .and(() -> m_intakeSubsystem.m_state == "outtaking")
             .onTrue(new InstantCommand(() -> {
               m_intakeSubsystem.m_state = "empty";
             }))
             .onTrue(new InstantCommand(m_outtakeSubsystem::stopOuttake));
 
         // ACTIONS
-        // run intake if intake button pressed and state is empty; add beam break?
-        ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton)
-            .and(new Trigger(IntakeSubsystem::isLoaded).negate())
-            .whileTrue(new InstantCommand(m_intakeSubsystem::doIntaking))
-            .whileTrue(new InstantCommand(m_outtakeSubsystem::runOuttake));
+        // run intake if intake button pressed and state is empty or is intaking
+        (ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton)
+            .and(new Trigger(() -> m_intakeSubsystem.m_state == "empty")))
+            .or(new Trigger(() -> m_intakeSubsystem.m_state == "intaking"))
+            .whileTrue(new StartEndCommand(m_intakeSubsystem::runIntake, m_intakeSubsystem::stopIntake))
+            .whileTrue(new StartEndCommand(m_outtakeSubsystem::runOuttake, m_outtakeSubsystem::stopOuttake));
 
-        // StopIntake if a button is pressed and state is intaking?
-        new Trigger(IntakeSubsystem::isLoaded)
-            .onTrue(new InstantCommand(m_intakeSubsystem::stopIntake))
-            .onTrue(new InstantCommand(m_outtakeSubsystem::stopOuttake));
-
-        // Shoot if two buttons pressed and state is shoot
-        ControllerConstants.m_driveJoystick.button(3).and(new Trigger(IntakeSubsystem::isLoaded)
-            .whileTrue(new InstantCommand(m_intakeSubsystem::shoot)));
-
-        // Stop outtake (maybe necessary?) if button is pressed and intake is empty
-        ControllerConstants.m_driveJoystick.button(6)
-            .and(new Trigger(IntakeSubsystem::isEmpty));
+        // Shoot if outtaking and stop when done
+        new Trigger(() -> m_intakeSubsystem.m_state == "outtaking")
+            .whileTrue(new StartEndCommand(m_outtakeSubsystem::runOuttake, m_outtakeSubsystem::stopOuttake));
       }
     }
 

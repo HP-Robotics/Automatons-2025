@@ -28,22 +28,8 @@ public class OuttakeSubsystem extends SubsystemBase {
     m_table = NetworkTableInstance.getDefault().getTable("OuttakeSubsystem");
   }
 
-  public void loadOuttake() {
-    m_outtakeMotor.set(OuttakeConstants.loadSpeed);
-    if (IntakeSubsystem.isLoaded()) {
-      m_outtakeMotor.set(0);
-      m_state = "loaded";
-    }
-  }
-
   public void runOuttake() {
-    if (m_state == "loaded") {
-      m_outtakeMotor.set(OuttakeConstants.outtakeSpeed);
-      m_state = "shoot";
-    } else if (m_state != "loaded") {
-      m_outtakeMotor.set(0);
-      m_state = "empty";
-    }
+    m_outtakeMotor.set(OuttakeConstants.outtakeSpeed);
   }
 
   public void stopOuttake() {
@@ -53,13 +39,5 @@ public class OuttakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     m_table.putValue("state", NetworkTableValue.makeString(m_state));
-  }
-
-  public Command LoadOuttake() {
-    return new InstantCommand(this::loadOuttake);
-  }
-
-  public Command RunOuttake() {
-    return new InstantCommand(this::runOuttake);
   }
 }
