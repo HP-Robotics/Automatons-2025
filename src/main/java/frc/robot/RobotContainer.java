@@ -57,7 +57,9 @@ public class RobotContainer {
   final PoseEstimatorSubsystem m_poseEstimatorSubsystem = SubsystemConstants.usePoseEstimator
       ? new PoseEstimatorSubsystem()
       : null;
-  final IntakeSubsystem m_intakeSubsystem = SubsystemConstants.useIntake ? new IntakeSubsystem() : null;
+  final InNOutSubsystem m_inNOutSubsystem = SubsystemConstants.useIntake && SubsystemConstants.useOuttake
+      ? new InNOutSubsystem()
+      : null;
   final LimelightSubsystem m_limelightSubsystem = new LimelightSubsystem(m_poseEstimatorSubsystem);
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
@@ -131,46 +133,46 @@ public class RobotContainer {
       if (SubsystemConstants.useIntake) {
         // SETTING STATES
         // Set state to intaking if intake or elevator beam break are broken
-        new Trigger(IntakeSubsystem::intakeHasCoral).and(new Trigger(() -> m_intakeSubsystem.m_state == "empty"))
+        new Trigger(InNOutSubsystem::intakeHasCoral).and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
             .onTrue(new InstantCommand(() -> {
-              m_intakeSubsystem.m_state = "intaking";
+              m_inNOutSubsystem.m_state = "intaking";
             }));
 
         // Set state to loaded if isLoaded (elevator beam break not broken and outtake
         // beam break is broken)
         // is true and previous state is intaking
-        new Trigger(() -> m_intakeSubsystem.m_state == "intaking")
-            .and(IntakeSubsystem::isLoaded)
+        new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
+            .and(InNOutSubsystem::isLoaded)
             .onTrue(new InstantCommand(() -> {
-              m_intakeSubsystem.m_state = "loaded";
+              m_inNOutSubsystem.m_state = "loaded";
             }));
 
         // Set state to outtaking if outtake button pressed and we are loaded
         ControllerConstants.m_driveJoystick.button(ControllerConstants.outtakeButton)
-            .and(new Trigger(() -> m_intakeSubsystem.m_state == "loaded"))
+            .and(new Trigger(() -> m_inNOutSubsystem.m_state == "loaded"))
             .onTrue(new InstantCommand(() -> {
-              m_intakeSubsystem.m_state = "outtaking";
+              m_inNOutSubsystem.m_state = "outtaking";
             }));
 
         // When it becomes empty (no beam breaks are broken)
-        new Trigger(IntakeSubsystem::isEmpty)
-            .and(() -> m_intakeSubsystem.m_state == "outtaking")
+        new Trigger(InNOutSubsystem::isEmpty)
+            .and(() -> m_inNOutSubsystem.m_state == "outtaking")
             .onTrue(new InstantCommand(() -> {
-              m_intakeSubsystem.m_state = "empty";
+              m_inNOutSubsystem.m_state = "empty";
             }))
-            .onTrue(new InstantCommand(m_outtakeSubsystem::stopOuttake));
+            .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
 
         // ACTIONS
         // run intake if intake button pressed and state is empty or is intaking
         (ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton)
-            .and(new Trigger(() -> m_intakeSubsystem.m_state == "empty")))
-            .or(new Trigger(() -> m_intakeSubsystem.m_state == "intaking"))
-            .whileTrue(new StartEndCommand(m_intakeSubsystem::runIntake, m_intakeSubsystem::stopIntake))
-            .whileTrue(new StartEndCommand(m_outtakeSubsystem::runOuttake, m_outtakeSubsystem::stopOuttake));
+            .and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty")))
+            .or(new Trigger(() -> m_inNOutSubsystem.m_state == "intaking"))
+            .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
+            .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
 
         // Shoot if outtaking and stop when done
-        new Trigger(() -> m_intakeSubsystem.m_state == "outtaking")
-            .whileTrue(new StartEndCommand(m_outtakeSubsystem::runOuttake, m_outtakeSubsystem::stopOuttake));
+        new Trigger(() -> m_inNOutSubsystem.m_state == "outtaking")
+            .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
       }
     }
 
