@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.055737704918034,
-        "y": 6.146823770491803
+        "x": 8.040568848466727,
+        "y": 6.496778858940768
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.372438524590166,
-        "y": 5.595389344262296
+        "x": 7.468500000000001,
+        "y": 5.82875
       },
       "isLocked": false,
       "linkedName": "Middle Cage"
@@ -20,8 +20,8 @@
         "y": 4.001024590163935
       },
       "prevControl": {
-        "x": 6.149692622950819,
-        "y": 4.168852459016393
+        "x": 6.162000000000001,
+        "y": 4.395499999999999
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 179.0451587461278
+    "rotation": -1.9749340108819082
   },
   "reversed": false,
   "folder": "Center to Reef",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 179.06080905426435
+    "rotation": 1.2188752351313918
   },
   "useDefaultConstraints": true
 }

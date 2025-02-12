@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.commands.FollowPathCommand;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -41,6 +43,7 @@ public class Robot extends TimedRobot {
         m_robotContainer.m_driveSubsystem.updateOdometry();
       }, 1.0 / DriveConstants.odometryUpdateFrequency);
       m_robotContainer.m_driveSubsystem.startPoseEstimator(new Pose2d());
+      FollowPathCommand.warmupCommand().schedule();
     }
   }
 

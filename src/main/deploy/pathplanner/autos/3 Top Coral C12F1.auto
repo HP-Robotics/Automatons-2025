@@ -1,0 +1,49 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Cage To C1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "C1 to Upper Feeder"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Upper Feeder to F1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "F1 to Upper Feeder"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Upper Feeder to F1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "F1 to Upper Feeder"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

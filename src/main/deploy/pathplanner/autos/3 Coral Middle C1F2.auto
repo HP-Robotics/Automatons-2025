@@ -7,37 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Cage to C2"
+            "pathName": "Top Cage to C1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "C2 to Lower Feeder"
+            "pathName": "C1 to Upper Feeder"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Lower Feeder to F3"
+            "pathName": "Upper Feeder to F2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "F3 to Lower Feeder"
+            "pathName": "F2 to Upper Feeder"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Lower Feeder to F3"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "F3 to Lower Feeder"
+            "pathName": "Upper Feeder to F2"
           }
         }
       ]

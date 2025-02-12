@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4095286885245897,
-        "y": 6.470491803278689
+        "x": 1.9694999999999998,
+        "y": 6.25775
       },
       "isLocked": false,
       "linkedName": "Upper Feeder"
@@ -20,8 +20,8 @@
         "y": 4.013012295081967
       },
       "prevControl": {
-        "x": 3.152766393442623,
-        "y": 4.972028688524588
+        "x": 2.6129999999999995,
+        "y": 4.960999999999999
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -177.70938995736154
   },
   "reversed": false,
   "folder": "Feeder to Reef",

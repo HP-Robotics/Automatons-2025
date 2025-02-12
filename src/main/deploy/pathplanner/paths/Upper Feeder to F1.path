@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 3.8025,
-        "y": 5.26325
+        "x": 3.812090163934426,
+        "y": 5.127868852459017
       },
       "prevControl": {
-        "x": 2.5252499999999998,
-        "y": 5.7605
+        "x": 2.9932500000000006,
+        "y": 5.8775
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -60.832386620422206
+    "rotation": 117.78373925183561
   },
   "reversed": false,
   "folder": "Feeder to Reef",

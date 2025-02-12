@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.22469262295082,
-        "y": 1.867213114754098
+        "x": 3.0517499999999997,
+        "y": 2.0067499999999994
       },
       "isLocked": false,
       "linkedName": "F3"
@@ -48,7 +48,7 @@
   "folder": "Reef to Feeder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 60.7247457227474
+    "rotation": -120.25643716352927
   },
   "useDefaultConstraints": true
 }

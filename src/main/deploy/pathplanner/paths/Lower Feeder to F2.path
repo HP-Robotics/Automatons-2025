@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.781147540983606,
-        "y": 2.2388319672131125
+        "x": 2.6372950819672134,
+        "y": 2.5505122950819685
       },
       "isLocked": false,
       "linkedName": "Lower Feeder"
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": "Feeder to Reef",

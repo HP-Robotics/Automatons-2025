@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.8025,
-        "y": 5.26325
+        "x": 3.812090163934426,
+        "y": 5.127868852459017
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.1157500000000002,
-        "y": 6.2675
+        "x": 2.4277500000000005,
+        "y": 6.3260000000000005
       },
       "isLocked": false,
       "linkedName": "F1"
@@ -20,8 +20,8 @@
         "y": 7.213729508196722
       },
       "prevControl": {
-        "x": 1.9109999999999998,
-        "y": 6.550729508196721
+        "x": 2.0669999999999997,
+        "y": 6.66725
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": "Reef to Feeder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -60.832386620422206
+    "rotation": 118.49563861824504
   },
   "useDefaultConstraints": true
 }

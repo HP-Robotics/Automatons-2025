@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.797028688524589,
-        "y": 2.3706967213114747
+        "x": 6.545286885245901,
+        "y": 2.6703893442622952
       },
       "isLocked": false,
       "linkedName": "C2"
@@ -20,8 +20,8 @@
         "y": 0.692418032786884
       },
       "prevControl": {
-        "x": 3.7761270491803263,
-        "y": 1.8911885245901647
+        "x": 4.5553278688524586,
+        "y": 2.4066598360655735
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": "Reef to Feeder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 179.0451587461278
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }
