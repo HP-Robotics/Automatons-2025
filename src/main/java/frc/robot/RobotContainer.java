@@ -5,7 +5,6 @@
 package frc.robot;
 
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.OuttakeSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.Constants.ClimberConstants;
@@ -17,12 +16,13 @@ import frc.robot.commands.ClimberClimbCommand;
 import frc.robot.commands.IntakeFoldCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.InNOutSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FlippingUtil;
 
@@ -65,7 +65,6 @@ public class RobotContainer {
       : null;
   final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
   final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
-  final OuttakeSubsystem m_outtakeSubsystem = SubsystemConstants.useOuttake ? new OuttakeSubsystem() : null;
 
   BeamBreak m_intakeBeamBreak = new BeamBreak(0);
   TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
@@ -97,6 +96,14 @@ public class RobotContainer {
     if (SubsystemConstants.useDrive) {
       m_driveSubsystem.resetOffsets();
     }
+  }
+
+  private void configureNamedCommands() {
+    NamedCommands.registerCommand("intake coral", m_inNOutSubsystem.IntakeCoral());
+    NamedCommands.registerCommand("outtake coral", m_inNOutSubsystem.OuttakeCoral());
+    NamedCommands.registerCommand("set elevator level", m_elevatorSubsystem.SetPosition(1200));
+    // TODO: this is just a random number, make it take a position based on the auto
+    // somehow
   }
 
   private void configureBindings() {
@@ -184,13 +191,25 @@ public class RobotContainer {
           m_driveSubsystem));
     }
     ControllerConstants.m_opJoystick.povUp().onTrue(
-        new InstantCommand(() -> m_elevatorSubsystem.GoToL4()));
+        new InstantCommand(() -> {
+          m_elevatorSubsystem.GoToL4();
+          m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L4Position;
+        }));
     ControllerConstants.m_opJoystick.povRight().onTrue(
-        new InstantCommand(() -> m_elevatorSubsystem.GoToL3()));
+        new InstantCommand(() -> {
+          m_elevatorSubsystem.GoToL3();
+          m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L3Position;
+        }));
     ControllerConstants.m_opJoystick.povDown().onTrue(
-        new InstantCommand(() -> m_elevatorSubsystem.GoToL2()));
+        new InstantCommand(() -> {
+          m_elevatorSubsystem.GoToL2();
+          m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L2Position;
+        }));
     ControllerConstants.m_opJoystick.povLeft().onTrue(
-        new InstantCommand(() -> m_elevatorSubsystem.GoToL1()));
+        new InstantCommand(() -> {
+          m_elevatorSubsystem.GoToL1();
+          m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L2Position;
+        }));
     ControllerConstants.m_opJoystick.button(9).onTrue(
         new InstantCommand(() -> m_elevatorSubsystem.GoToElevatorDown()));
 
@@ -205,7 +224,7 @@ public class RobotContainer {
 
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
       ControllerConstants.m_driveJoystick.button(7)
-          .onTrue(new IntakeFoldCommand(m_intakeSubsystem).withTimeout(ClimberConstants.foldRunTime));
+          .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
     }
 
     ControllerConstants.m_driveJoystick.button(1)
