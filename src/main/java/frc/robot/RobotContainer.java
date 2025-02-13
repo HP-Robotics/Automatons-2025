@@ -111,7 +111,7 @@ public class RobotContainer {
     if (SubsystemConstants.useIntake) {
       // SETTING STATES
       // Set state to intaking if intake or elevator beam break are broken
-      new Trigger(InNOutSubsystem::intakeHasCoral).and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
+      new Trigger(m_inNOutSubsystem::intakeHasCoral).and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "intaking";
           }));
@@ -120,7 +120,7 @@ public class RobotContainer {
       // beam break is broken)
       // is true and previous state is intaking
       new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
-          .and(InNOutSubsystem::isLoaded)
+          .and(m_inNOutSubsystem::isLoaded)
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "loaded";
           }));
@@ -133,7 +133,7 @@ public class RobotContainer {
           }));
 
       // When it becomes empty (no beam breaks are broken)
-      new Trigger(InNOutSubsystem::isEmpty)
+      new Trigger(m_inNOutSubsystem::isEmpty)
           .and(() -> m_inNOutSubsystem.m_state == "outtaking")
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "empty";

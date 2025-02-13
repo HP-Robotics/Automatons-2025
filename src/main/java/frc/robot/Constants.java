@@ -50,8 +50,8 @@ public final class Constants {
     public static final int BRTurningMotorID = 21;
     public static final int BLTurningMotorID = 25;
 
-    public static final int IntakeMotorID = 31;
-    public static final int IntakeFoldMotorID = 32;
+    public static final int intakeMotorID = 31;
+    public static final int intakeFoldMotorID = 32;
 
     public static final int outtakeMotorID = 41;
 
@@ -81,6 +81,9 @@ public final class Constants {
     public static final int FRAbsEncoder = 10;
     public static final int BRAbsEncoder = 13;
     public static final int BLAbsEncoder = 11;
+    public static final int intakeBeamBreakID = 0;
+    public static final int outtakeBeamBreakID = 1;
+    public static final int elevatorBeamBreakID = 2;
   }
 
   public static class ElevatorConstants {
