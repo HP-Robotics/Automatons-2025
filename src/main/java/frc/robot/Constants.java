@@ -253,7 +253,7 @@ public final class Constants {
     public static final Matrix<N3, N1> statesStandardDev = VecBuilder.fill(0.001, 0.001, 0.005);
     public static final double visionXStandardDev = 0.0005; // TODO: adjust with framerate
     public static final double visionYStandardDev = 0.0005;
-    public static final double visionHeadingStandardDev = 0.05;
+    public static final double visionHeadingStandardDev = 0.5;
 
     public static final double maxAcceptableSkew = Math.PI / 3;
     public static final double maxAcceptableDistance = 5.0;

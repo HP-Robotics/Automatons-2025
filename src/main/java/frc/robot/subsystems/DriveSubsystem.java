@@ -42,6 +42,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -106,6 +107,12 @@ public class DriveSubsystem extends SubsystemBase {
 
   StructPublisher<Pose2d> m_drivePublisher;
   StructPublisher<Pose2d> m_autoAlignPublisher;
+  StructPublisher<Translation2d> joystickTransPub;
+  StructPublisher<Translation2d> robotToReefPub;
+
+  public Translation2d joystickTrans;
+  public Translation2d robotToReef;
+
   private double m_gyroOffset;
   RobotConfig m_config;
 
@@ -223,6 +230,10 @@ public class DriveSubsystem extends SubsystemBase {
     m_previousSetpoint = new SwerveSetpoint(getRobotRelativeSpeeds(), m_swerveModuleStates,
         DriveFeedforwards.zeros(m_config.numModules));
 
+    joystickTransPub = m_driveTrainTable.getStructTopic("Joystick Translation", Translation2d.struct).publish();
+
+    robotToReefPub = m_driveTrainTable.getStructTopic("Robot To Reef", Translation2d.struct).publish();
+
   }
 
   public ChassisSpeeds getRobotRelativeSpeeds() {
@@ -274,6 +285,17 @@ public class DriveSubsystem extends SubsystemBase {
     m_driveTrainTable.putValue("Pigeon Pitch", NetworkTableValue.makeDouble(m_pGyroPitch.getValueAsDouble()));
     m_driveTrainTable.putValue("Pigeon Yaw", NetworkTableValue.makeDouble(m_pGyroYaw.getValueAsDouble()));
     m_driveTrainTable.putValue("Pigeon Roll", NetworkTableValue.makeDouble(m_pGyroRoll.getValueAsDouble()));
+
+    joystickTrans = new Translation2d(ControllerConstants.m_driveJoystick.getRawAxis(1),
+        ControllerConstants.m_driveJoystick.getRawAxis(0));
+    robotToReef = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
+        ? DriveConstants.redReefCenter
+        : DriveConstants.blueReefCenter)
+        .minus(m_poseEstimator.getPose().getTranslation());
+
+    joystickTransPub.set(joystickTrans);
+    robotToReefPub.set(robotToReef);
+
   }
 
   /**
@@ -341,11 +363,17 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void driveToPose(Pose2d target) {
     TrapezoidProfile.State m_targetX = m_xProfile.calculate(TimedRobot.kDefaultPeriod,
-        new TrapezoidProfile.State(m_poseEstimator.getPose().getX(), -1 * getFieldRelativeSpeeds().vxMetersPerSecond),
+        new TrapezoidProfile.State(m_poseEstimator.getPose().getX(), 1 * getFieldRelativeSpeeds().vxMetersPerSecond), // TODO:
+                                                                                                                      // alliance
+                                                                                                                      // color
+                                                                                                                      // check
         new TrapezoidProfile.State(target.getX(), 0.0));
 
     TrapezoidProfile.State m_targetY = m_yProfile.calculate(TimedRobot.kDefaultPeriod,
-        new TrapezoidProfile.State(m_poseEstimator.getPose().getY(), -1 * getFieldRelativeSpeeds().vyMetersPerSecond),
+        new TrapezoidProfile.State(m_poseEstimator.getPose().getY(), 1 * getFieldRelativeSpeeds().vyMetersPerSecond), // TODO:
+                                                                                                                      // alliance
+                                                                                                                      // color
+                                                                                                                      // check
         new TrapezoidProfile.State(target.getY(), 0.0));
 
     double rot = m_pidRotation.apply(target.getRotation());
@@ -353,8 +381,8 @@ public class DriveSubsystem extends SubsystemBase {
     double y = m_pidY.apply(m_targetY.position);
 
     drive(
-        MathUtil.isNear(0, 1, 0.07) ? 0 : -1 * m_targetX.velocity, // x * 1 * DriveConstants.kMaxSpeed,
-        MathUtil.isNear(0, 1, 0.07) ? 0 : -1 * m_targetY.velocity, // y * 1 * DriveConstants.kMaxSpeed,
+        MathUtil.isNear(0, 1, 0.07) ? 0 : 1 * m_targetX.velocity, // x * 1 * DriveConstants.kMaxSpeed,
+        MathUtil.isNear(0, 1, 0.07) ? 0 : 1 * m_targetY.velocity, // y * 1 * DriveConstants.kMaxSpeed,
         rot * DriveConstants.kMaxAngularSpeed,
         true);
 
@@ -528,6 +556,11 @@ public class DriveSubsystem extends SubsystemBase {
 
   public boolean isNearTargetAngle(double angle, double targetAngle, double tolerance) {
     return Math.abs(angle - targetAngle) <= tolerance;
+  }
+
+  public boolean isNearTargetAngle(Translation2d a, Translation2d b, double tolerance) {
+    return Math.abs(Math.acos(a.getX() * b.getX() + a.getY() * b.getY()
+        / (a.getNorm() * b.getNorm()))) <= tolerance;
   }
 
   /**

@@ -8,6 +8,9 @@ import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.NetworkTableValue;
+import edu.wpi.first.networktables.StructPublisher;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.DriveConstants;
@@ -124,17 +127,30 @@ public class RobotContainer {
     } catch (Exception e) {
       DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
     }
-    ControllerConstants.m_driveJoystick.button(5)
-        .and(new Trigger(() -> {
-          return m_driveSubsystem.m_sector.isPresent();
-        }))
-        .whileTrue(new RunCommand(
-            () -> {
-              // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
-              // new Rotation2d(Math.PI)));
-              m_driveSubsystem.driveToPose(DriveConstants.leftAlignPoses[m_driveSubsystem.m_sector.get()]);
-            },
-            m_driveSubsystem));
+    ControllerConstants.m_driveJoystick.button(5).whileTrue(new RunCommand(
+        () -> {
+          // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
+          // new Rotation2d(Math.PI)));
+
+          if (m_driveSubsystem.m_sector.isPresent()
+              && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans, m_driveSubsystem.robotToReef,
+                  Math.PI / 4)
+                  || ControllerConstants.m_driveJoystick.getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
+            m_driveSubsystem.driveToPose(DriveConstants.leftAlignPoses[m_driveSubsystem.m_sector.get()]);
+          } else {
+            m_driveSubsystem.drivePointedTowardsAngle(
+                ControllerConstants.m_driveJoystick,
+                Rotation2d.fromDegrees(m_driveSubsystem.getAngleBetweenPoses(m_poseEstimatorSubsystem.getPose(),
+                    new Pose2d(
+                        DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
+                            ? DriveConstants.redReefCenter
+                            : DriveConstants.blueReefCenter,
+                        new Rotation2d()))));
+          }
+          m_driveSubsystem.m_driveTrainTable.putValue("Joystick Degrees",
+              NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
+        },
+        m_driveSubsystem));
     ControllerConstants.m_driveJoystick.button(6)
         .and(new Trigger(() -> {
           return m_driveSubsystem.m_sector.isPresent();
