@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": "Feeder to Reef",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -125.1939072401029
+    "rotation": 54.80599999999998
   },
   "useDefaultConstraints": true
 }

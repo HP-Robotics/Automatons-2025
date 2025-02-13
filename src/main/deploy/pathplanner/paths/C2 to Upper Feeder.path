@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.964856557375976,
-        "y": 5.367622950826567
+        "x": 6.659249999999999,
+        "y": 5.16575
       },
       "isLocked": false,
       "linkedName": "C2"
@@ -20,8 +20,8 @@
         "y": 7.213729508196722
       },
       "prevControl": {
-        "x": 3.476434426229507,
-        "y": 6.254713114754098
+        "x": 4.3485000000000005,
+        "y": 5.75075
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 126.15818543980839
+    "rotation": -53.841999999999985
   },
   "reversed": false,
   "folder": "Reef to Feeder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
