@@ -1,9 +1,11 @@
 {
-  "robotWidth": 0.9,
-  "robotLength": 0.9,
+  "robotWidth": 0.845,
+  "robotLength": 0.845,
   "holonomicMode": true,
   "pathFolders": [
-    "F1 Three-piece"
+    "Reef to Feeder",
+    "Feeder to Reef",
+    "Center to Reef"
   ],
   "autoFolders": [],
   "defaultMaxVel": 5.0,

@@ -24,11 +24,12 @@ public final class Constants {
   public static class SubsystemConstants {
     public static final boolean useDrive = true;
     public static final boolean useIntake = false;
+    public static final boolean useOuttake = false;
     public static final boolean useDataManager = false;
-    public static final boolean useLimelight = true;
+    public static final boolean useLimelight = false;
     public static final boolean useClimber = false;
-    public static final boolean usePoseEstimator = false;
-    public static final boolean useElevator = true;
+    public static final boolean usePoseEstimator = true;
+    public static final boolean useElevator = false;
   }
 
   public static class RobotConfigConstants {

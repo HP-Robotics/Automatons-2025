@@ -69,7 +69,7 @@ public class RobotContainer {
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
   final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
-  final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
+  final ElevatorSubsystem m_elevatorSubsystem = SubsystemConstants.useElevator ? new ElevatorSubsystem() : null;
   final OuttakeSubsystem m_outtakeSubsystem = SubsystemConstants.useOuttake ? new OuttakeSubsystem() : null;
 
   BeamBreak m_intakeBeamBreak = new BeamBreak(0);
@@ -111,7 +111,7 @@ public class RobotContainer {
     if (SubsystemConstants.useIntake) {
       ControllerConstants.m_driveJoystick.button(1).and(new Trigger(() -> {
         return m_intakeSubsystem.m_state == "empty";
-      })).whileTrue(new InstantCommand(m_intakeSubsystem::runIntake));// Intake
+      })).whileTrue(new InstantCommand(m_intakeSubsystem::doIntaking));// Intake
       ControllerConstants.m_driveJoystick.button(2).and(new Trigger(() -> {
         return m_intakeSubsystem.m_state == "intaking";
       })).whileTrue(new InstantCommand(m_intakeSubsystem::stopIntake));// StopIntake

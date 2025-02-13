@@ -62,8 +62,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
     }
 
-    // TODO: Put elevatorPreset in shuffleboard (That might be done?)
-
     public void L4ButtonIsPressed() {
         targetRotation = Constants.ElevatorConstants.L4Position;
         elevatorPreset = "Elevator to L4";

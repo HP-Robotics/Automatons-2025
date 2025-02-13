@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bottom Cage to C2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "C2 to Lower Feeder"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Lower Feeder to F3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "F3 to Lower Feeder"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
