@@ -133,6 +133,8 @@ public final class Constants {
     public static final int elevatorDownButton = 7;
     public static final int elevatorUpButton = 8;
 
+    public static final int leftAutoAlignButton = 5;
+
     public static double getRotation(CommandJoystick stick) {
       if (useXbox) {
         return stick.getRawAxis(4);
@@ -220,6 +222,7 @@ public final class Constants {
     public static final int autoAlignSectorCount = 6;
     public static final double autoAlignSectorRadius = 3; // TODO: change
     public static final double autoAlignSectorOffset = 30;
+    public static final double autoAlignTolerance = Math.PI / 4;
 
     // TODO: actually do this
     public static final Pose2d[] leftAlignPoses = {

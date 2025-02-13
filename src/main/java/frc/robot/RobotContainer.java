@@ -57,7 +57,9 @@ public class RobotContainer {
   final InNOutSubsystem m_inNOutSubsystem = SubsystemConstants.useIntake && SubsystemConstants.useOuttake
       ? new InNOutSubsystem()
       : null;
-  final LimelightSubsystem m_limelightSubsystem = new LimelightSubsystem(m_poseEstimatorSubsystem);
+  final LimelightSubsystem m_limelightSubsystem = SubsystemConstants.useLimelight
+      ? new LimelightSubsystem(m_poseEstimatorSubsystem)
+      : null;
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
   final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
@@ -96,7 +98,8 @@ public class RobotContainer {
   }
 
   private void configureNamedCommands() {
-    NamedCommands.registerCommand("intake coral", m_inNOutSubsystem.IntakeCoral());
+    NamedCommands.registerCommand("intake coral", m_inNOutSubsystem.IntakeCoral()); // TODO: pathplanner needs to stop
+                                                                                    // the StartEnd command
     NamedCommands.registerCommand("outtake coral", m_inNOutSubsystem.OuttakeCoral());
     NamedCommands.registerCommand("set elevator level", m_elevatorSubsystem.SetPosition(1200));
     // TODO: this is just a random number, make it take a position based on the auto
@@ -113,7 +116,7 @@ public class RobotContainer {
       // Set state to intaking if intake or elevator beam break are broken
       new Trigger(InNOutSubsystem::intakeHasCoral).and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
           .onTrue(new InstantCommand(() -> {
-            m_inNOutSubsystem.m_state = "intaking";
+            m_inNOutSubsystem.m_state = "intaking"; // TODO: Make sure elevator is at bottom before intaking
           }));
 
       // Set state to loaded if isLoaded (elevator beam break not broken and outtake
@@ -137,14 +140,13 @@ public class RobotContainer {
           .and(() -> m_inNOutSubsystem.m_state == "outtaking")
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "empty";
-          }))
-          .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
+          }));
 
       // ACTIONS
       // run intake if intake button pressed and state is empty or is intaking
-      (ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton)
-          .and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty")))
-          .or(new Trigger(() -> m_inNOutSubsystem.m_state == "intaking"))
+      new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
+          .or(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton)
+              .and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty")))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
 
@@ -153,13 +155,26 @@ public class RobotContainer {
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
     }
 
-    ControllerConstants.m_driveJoystick.button(5).whileTrue(new RunCommand(() -> {
+    ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAutoAlignButton).whileTrue(new RunCommand(() -> { // TODO:
+                                                                                                                         // add
+                                                                                                                         // auto
+                                                                                                                         // align
+                                                                                                                         // to
+                                                                                                                         // the
+                                                                                                                         // feeder
+                                                                                                                         // station
+                                                                                                                         // if
+                                                                                                                         // robot
+                                                                                                                         // doesn't
+                                                                                                                         // have
+                                                                                                                         // a
+                                                                                                                         // coral
       // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
       // new Rotation2d(Math.PI)));
 
       if (m_driveSubsystem.m_sector.isPresent()
           && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans, m_driveSubsystem.robotToReef,
-              Math.PI / 4)
+              DriveConstants.autoAlignTolerance)
               || ControllerConstants.m_driveJoystick.getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
         m_driveSubsystem.driveToPose(DriveConstants.leftAlignPoses[m_driveSubsystem.m_sector.get()]);
       } else {
@@ -201,7 +216,9 @@ public class RobotContainer {
           },
           m_driveSubsystem));
     }
-    ControllerConstants.m_opJoystick.povUp().onTrue(new InstantCommand(() -> {
+    ControllerConstants.m_opJoystick.povUp().onTrue(new InstantCommand(() -> { // don't let us go up if we have coral
+                                                                               // breaking the elevator beam break (?)
+                                                                               // consider other conditions
       m_elevatorSubsystem.GoToL4();
       m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L4Position;
     }));
