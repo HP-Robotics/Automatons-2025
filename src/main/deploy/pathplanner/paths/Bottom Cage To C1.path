@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.360450819672133,
-        "y": 4.792213114754098
+        "x": 7.360450663820783,
+        "y": 4.792210854856021
       },
       "isLocked": false,
       "linkedName": "Bottom Cage"
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 60.10109816138547
+    "rotation": -119.99999999999999
   },
   "reversed": false,
   "folder": "Center to Reef",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -1.7357045889285174
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
