@@ -5,9 +5,8 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.InNOutSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.OuttakeSubsystem;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.path.PathPlannerPath;
