@@ -22,15 +22,16 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public final class Constants {
 
   public static class SubsystemConstants {
-    public static final boolean useDrive = false;
-    public static final boolean useIntake = true;
-    public static final boolean useOuttake = true;
+    public static final boolean useDrive = true;
+    public static final boolean useIntake = false;
+    public static final boolean useOuttake = false;
     public static final boolean useDataManager = false;
     public static final boolean useLimelight = false;
     public static final boolean usePivot = false;
-    public static final boolean useClimber = true;
+    public static final boolean useClimber = false;
     public static final boolean useTrigger = false;
-    public static final boolean usePoseEstimator = false;
+    public static final boolean usePoseEstimator = true;
+    public static final boolean useElevator = false;
   }
 
   public static class RobotConfigConstants {
