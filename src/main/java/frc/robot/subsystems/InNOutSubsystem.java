@@ -4,17 +4,25 @@ import frc.robot.BeamBreak;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.IDConstants;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.OuttakeConstants;
+
+import java.time.Instant;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-public class IntakeSubsystem extends SubsystemBase {
+public class InNOutSubsystem extends SubsystemBase {
     TalonFX m_intakeMotor = new TalonFX(IDConstants.IntakeMotorID);
+    TalonFX m_outtakeMotor = new TalonFX(IDConstants.outtakeMotorID);
     public TalonFX m_intakeFoldMotor = new TalonFX(IDConstants.IntakeFoldMotorID);
     static BeamBreak m_intakebeamBreak = new BeamBreak(0); // Is in robot TODO: Find channel id and remove fakeBeamBreak
     Trigger m_fakeBeamBreak = ControllerConstants.m_driveJoystick.button(4);
@@ -23,37 +31,28 @@ public class IntakeSubsystem extends SubsystemBase {
     static BeamBreak m_outtakeBeamBreak; // Checks to see if can score
     static BeamBreak m_elevatorBeamBreak; // Make sure coral doesn't block elevator
 
-    public IntakeSubsystem() {
-        m_table = NetworkTableInstance.getDefault().getTable("IntakeSubsystem");
+    public InNOutSubsystem() {
+        m_table = NetworkTableInstance.getDefault().getTable("InNOutSubsystem");
         m_outtakeBeamBreak = new BeamBreak(1); // TODO: find the real channel IDs
         m_elevatorBeamBreak = new BeamBreak(2);
     }
 
-    public void doIntaking() {
-        if (isLoaded()) {
-            m_intakeMotor.set(0);
-            m_state = "loaded";
-        }
+    public void runIntake() {
         m_intakeMotor.set(IntakeConstants.intakeSpeed);
-        m_state = "intaking";
+    }
+
+    public void runOuttake() {
+        m_outtakeMotor.set(OuttakeConstants.outtakeSpeed);
     }
 
     public void stopIntake() {
         m_intakeMotor.set(0);
-        if (m_fakeBeamBreak.getAsBoolean()) {// TODO: use beamBroken method once available
-            m_state = "shoot"; // TODO: Should this be outtaking?
-        }
         // LED (on intake motor?) red
         // LED (on shoot motor?) green
     }
 
-    public void shoot() {
-        // TODO: use beamBroken method once available
-        if (m_state == "shoot" && m_fakeBeamBreak.getAsBoolean()) {
-            m_state = "empty";
-            // LED (on intake motor?) green
-            // LED (on shoot motor?) red
-        }
+    public void stopOuttake() {
+        m_outtakeMotor.set(0);
     }
 
     public void periodic() {
@@ -61,23 +60,24 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public static boolean intakeHasCoral() {
-        if (m_elevatorBeamBreak.beamBroken() || m_intakebeamBreak.beamBroken()) {
-            return true;
-        }
-        return false;
+        return m_elevatorBeamBreak.beamBroken() || m_intakebeamBreak.beamBroken();
     }
 
     public static boolean isLoaded() {
-        if (m_outtakeBeamBreak.beamBroken() && !m_elevatorBeamBreak.beamBroken()) {
-            return true;
-        }
-        return false;
+        return m_outtakeBeamBreak.beamBroken() && !m_elevatorBeamBreak.beamBroken();
     }
 
     public static boolean isEmpty() {
-        if (!m_elevatorBeamBreak.beamBroken() && !m_intakebeamBreak.beamBroken() && !m_outtakeBeamBreak.beamBroken()) {
-            return true;
-        }
-        return false;
+        return !m_elevatorBeamBreak.beamBroken() && !m_intakebeamBreak.beamBroken() && !m_outtakeBeamBreak.beamBroken();
+    }
+
+    public Command IntakeCoral() {
+        return new ParallelCommandGroup(
+                new StartEndCommand(this::runIntake, this::stopIntake),
+                new StartEndCommand(this::runOuttake, this::stopOuttake));
+    }
+
+    public Command OuttakeCoral() {
+        return new StartEndCommand(this::runOuttake, this::stopOuttake);
     }
 }
