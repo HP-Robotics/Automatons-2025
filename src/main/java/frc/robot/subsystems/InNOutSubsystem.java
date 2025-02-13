@@ -58,6 +58,9 @@ public class InNOutSubsystem extends SubsystemBase {
 
     public void periodic() {
         m_table.putValue("state", NetworkTableValue.makeString(m_state));
+        m_table.putValue("Intake Beam Broken", NetworkTableValue.makeBoolean(m_intakeBeamBreak.beamBroken()));
+        m_table.putValue("Outtake Beam Broken", NetworkTableValue.makeBoolean(m_outtakeBeamBreak.beamBroken()));
+        m_table.putValue("Elevator Beam Broken", NetworkTableValue.makeBoolean(m_elevatorBeamBreak.beamBroken()));
     }
 
     public boolean intakeHasCoral() {
