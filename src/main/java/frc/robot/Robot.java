@@ -5,6 +5,9 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -40,7 +43,8 @@ public class Robot extends TimedRobot {
       addPeriodic(() -> {
         m_robotContainer.m_driveSubsystem.updateOdometry();
       }, 1.0 / DriveConstants.odometryUpdateFrequency);
-      m_robotContainer.m_driveSubsystem.startPoseEstimator(new Pose2d());
+      m_robotContainer.m_driveSubsystem.startPoseEstimator(new Pose2d(0, 0, new Rotation2d(
+          DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red ? Math.PI : 0)));
     }
   }
 

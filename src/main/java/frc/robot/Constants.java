@@ -22,14 +22,11 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public final class Constants {
 
   public static class SubsystemConstants {
-    public static final boolean useDrive = false;
+    public static final boolean useDrive = true;
     public static final boolean useIntake = false;
-    public static final boolean useOuttake = false;
     public static final boolean useDataManager = false;
-    public static final boolean useLimelight = false;
-    public static final boolean usePivot = false;
+    public static final boolean useLimelight = true;
     public static final boolean useClimber = false;
-    public static final boolean useTrigger = false;
     public static final boolean usePoseEstimator = false;
     public static final boolean useElevator = true;
   }
@@ -67,7 +64,7 @@ public final class Constants {
 
   public static class AutoConstants {
     public static final double kMaxSpeedMetersPerSecond = 5.0; // TODO: Measure with krakens
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 3.6; // 3
     public static final double kMaxAngularSpeedRadiansPerSecond = 8.37758; // 480 degrees in radians
     public static final double kMaxAngularAcceleration = 11.1701; // 640 degrees in radians
     public static final double kFastAutoVelocity = 4.5;
@@ -179,13 +176,13 @@ public final class Constants {
     public static final double XControllerkP = 6.5;
     public static final double XControllerkI = 0.03;
     public static final double XControllerkD = 1.3;
-    public static final double XControllerTolerance = 0.01;
+    public static final double XControllerTolerance = 0.00; // 0.01
     public static final double XControllerIZone = 0.5;
 
     public static final double YControllerkP = 6.5;
     public static final double YControllerkI = 0.03;
     public static final double YControllerkD = 1.3;
-    public static final double YControllerTolerance = 0.01;
+    public static final double YControllerTolerance = 0.00; // 0.01
     public static final double YControllerIZone = 0.5;
 
     public static final double rotationControllerkP = 2;
@@ -217,11 +214,41 @@ public final class Constants {
     public static final double odometryUpdateFrequency = 250;
 
     // TODO: put actual values TODO: consider a field constants? doesn't go in drive
-    public static final Translation2d blueReefCenter = new Translation2d();
-    public static final Translation2d redReefCenter = new Translation2d();
-    public static final int autoAlignSectorCount = 12;
+    public static final Translation2d blueReefCenter = new Translation2d(4.490323, -0.0001 + 4.02);
+    public static final Translation2d redReefCenter = new Translation2d(13.059902, -0.0001 + 4.02);
+    public static final int autoAlignSectorCount = 6;
     public static final double autoAlignSectorRadius = 3; // TODO: change
+    public static final double autoAlignSectorOffset = 30;
 
+    // TODO: actually do this
+    public static final Pose2d[] leftAlignPoses = {
+        new Pose2d(new Translation2d(1.2816, -0.18).plus(blueReefCenter), new Rotation2d(Math.PI)),
+        new Pose2d(new Translation2d(0.796685, 1.0199).plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+        new Pose2d(new Translation2d(-0.484915, 1.1999).plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+        new Pose2d(new Translation2d(-1.2816, 0.18).plus(blueReefCenter), new Rotation2d(0)),
+        new Pose2d(new Translation2d(-0.796685, -1.0199).plus(blueReefCenter), new Rotation2d(Math.PI / 3)),
+        new Pose2d(new Translation2d(0.484915, -1.1999).plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+        new Pose2d(new Translation2d(1.2816, -0.18).plus(redReefCenter), new Rotation2d(Math.PI)),
+        new Pose2d(new Translation2d(0.796685, 1.0199).plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+        new Pose2d(new Translation2d(-0.484915, 1.1999).plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+        new Pose2d(new Translation2d(-1.2816, 0.18).plus(redReefCenter), new Rotation2d(0)),
+        new Pose2d(new Translation2d(-0.796685, -1.0199).plus(redReefCenter), new Rotation2d(Math.PI / 3)),
+        new Pose2d(new Translation2d(0.484915, -1.1999).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+    };
+    public static final Pose2d[] rightAlignPoses = {
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+    };
   }
 
   public static class ClimberConstants {
@@ -236,9 +263,9 @@ public final class Constants {
   public static class PoseEstimatorConstants {
     // TODO: this is all pasted from last year; PLEASE DON'T USE, FIND REAL VALUES
     public static final Matrix<N3, N1> statesStandardDev = VecBuilder.fill(0.001, 0.001, 0.005);
-    public static final double visionXStandardDev = 0.005; // TODO: adjust with framerate
-    public static final double visionYStandardDev = 0.005;
-    public static final double visionHeadingStandardDev = 0.05;
+    public static final double visionXStandardDev = 0.0005; // TODO: adjust with framerate
+    public static final double visionYStandardDev = 0.0005;
+    public static final double visionHeadingStandardDev = 0.5;
 
     public static final double maxAcceptableSkew = Math.PI / 3;
     public static final double maxAcceptableDistance = 5.0;
@@ -252,30 +279,31 @@ public final class Constants {
   public static class LimelightConstants {
     public static final double inToM = 0.0254;
     public static final Pose2d aprilTagList[] = { // 0 is empty, april tag number is that number in list
-        // TODO: update rotations/positions to have a blue origin (only 7 is correct)
+        // TODO: update rotation for coral stations
+        // 4, 5, 14, and 15 aren't updated and shouldn't be because they're weird
         new Pose2d(),
-        new Pose2d(7.923198, -3.37068, new Rotation2d(Math.PI * 2 / 3)), // 1
-        new Pose2d(7.923198, 3.37068, new Rotation2d(Math.PI * 2 / 3)), // 2
-        new Pose2d(2.78681, 4.02961, new Rotation2d(Math.PI)), // 3
-        new Pose2d(0.50208, 2.111656, new Rotation2d(Math.PI)), // 4
-        new Pose2d(0.50208, -2.111094, new Rotation2d(Math.PI * 3 / 2)), // 5
-        new Pose2d(4.700446, -0.719682, new Rotation2d(Math.PI * 3 / 2)), // 6
-        new Pose2d(5.116498 + 8.775, 4.0199, new Rotation2d(0)), // 7
-        new Pose2d(4.700446, 0.719482, new Rotation2d(0)), // 8
-        new Pose2d(3.869358, 0.719482, new Rotation2d(Math.PI / 3)), // 9
-        new Pose2d(3.453306, -0.0001, new Rotation2d(Math.PI / 3)), // 10
-        new Pose2d(3.869358, -0.719682, new Rotation2d(Math.PI * 5 / 3)), // 11
-        new Pose2d(-7.922846, -3.37068, new Rotation2d(Math.PI / 3)), // 12
-        new Pose2d(-7.922846, 3.37048, new Rotation2d(Math.PI)), // 13
-        new Pose2d(-0.501728, 2.111656, new Rotation2d(0)), // 14
-        new Pose2d(-0.501728, -2.111094, new Rotation2d(Math.PI * 2 / 3)), // 15
-        new Pose2d(-2.786458, -4.02981, new Rotation2d(Math.PI * 4 / 3)), // 16
-        new Pose2d(-4.700094, 0.719682, new Rotation2d(Math.PI * 4 / 3)), // 17
-        new Pose2d(-5.1164, -0.00001, new Rotation2d(Math.PI * 4 / 3)), // 18
-        new Pose2d(-4.700094, 0.719482, new Rotation2d(Math.PI * 4 / 3)), // 19
-        new Pose2d(-3.86926, 0.719482, new Rotation2d(Math.PI * 4 / 3)), // 20
-        new Pose2d(-3.452954, -0.0001, new Rotation2d(Math.PI * 4 / 3)), // 21
-        new Pose2d(-3.86926, -0.719682, new Rotation2d(Math.PI * 4 / 3)) // 22
+        new Pose2d(7.923198 + 8.775, -3.37068 + 4.02, new Rotation2d(Math.PI * 2 / 3)), // 1
+        new Pose2d(7.923198 + 8.775, 3.37068 + 4.02, new Rotation2d(Math.PI * 2 / 3)), // 2
+        new Pose2d(2.78681 + 8.775, 4.02961 + 4.02, new Rotation2d(Math.PI * 3 / 2)), // 3
+        new Pose2d(0.50208 + 8.775, 2.111656 + 4.02, new Rotation2d(Math.PI)), // 4
+        new Pose2d(0.50208 + 8.775, -2.111094 + 4.02, new Rotation2d(Math.PI * 3 / 2)), // 5
+        new Pose2d(4.700446 + 8.775, -0.719682 + 4.02, new Rotation2d(Math.PI * 5 / 2)), // 6
+        new Pose2d(5.116498 + 8.775, -0.0001 + 4.02, new Rotation2d(0)), // 7
+        new Pose2d(4.700446 + 8.775, 0.719482 + 4.02, new Rotation2d(Math.PI / 3)), // 8
+        new Pose2d(3.869358 + 8.775, 0.719482 + 4.02, new Rotation2d(Math.PI * 2 / 3)), // 9
+        new Pose2d(3.453306 + 8.775, -0.0001 + 4.02, new Rotation2d(Math.PI)), // 10
+        new Pose2d(3.869358 + 8.775, -0.719682 + 4.02, new Rotation2d(Math.PI * 4 / 3)), // 11
+        new Pose2d(-7.922846 + 8.775, -3.37068 + 4.02, new Rotation2d(Math.PI / 3)), // 12
+        new Pose2d(-7.922846 + 8.775, 3.37048 + 4.02, new Rotation2d(Math.PI)), // 13
+        new Pose2d(-0.501728 + 8.775, 2.111656 + 4.02, new Rotation2d(0)), // 14
+        new Pose2d(-0.501728 + 8.775, -2.111094 + 4.02, new Rotation2d(Math.PI * 2 / 3)), // 15
+        new Pose2d(-2.786458 + 8.775, -4.02981 + 4.02, new Rotation2d(Math.PI / 2)), // 16
+        new Pose2d(-4.700094 + 8.775, 0.719682 + 4.02, new Rotation2d(Math.PI * 4 / 3)), // 17
+        new Pose2d(-5.1164 + 8.775, -0.00001 + 4.02, new Rotation2d(Math.PI)), // 18
+        new Pose2d(-4.700094 + 8.775, 0.719482 + 4.02, new Rotation2d(Math.PI * 2 / 3)), // 19
+        new Pose2d(-3.86926 + 8.775, 0.719482 + 4.02, new Rotation2d(Math.PI / 3)), // 20
+        new Pose2d(-3.452954 + 8.775, -0.0001 + 4.02, new Rotation2d(0)), // 21
+        new Pose2d(-3.86926 + 8.775, -0.719682 + 4.02, new Rotation2d(Math.PI * 5 / 3)) // 22
     };
   }
 
