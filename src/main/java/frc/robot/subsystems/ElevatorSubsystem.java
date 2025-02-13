@@ -27,9 +27,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
     TalonFX m_elevatorMotor2 = new TalonFX(IDConstants.ElevatorMotor2ID);
     Slot0Configs m_PIDValues = new Slot0Configs();
-    public double targetRotation = 0;
-    public String elevatorPreset = "Empty";
-    public double targetPosition = 0; // TODO: find real value
+    public double m_targetRotation = 0;
+    public String m_elevatorPreset = "Empty";
+    public double m_targetPosition = 0; // TODO: find real value
     public double m_offset = 0;
     StatusSignal m_bottomLimit = m_elevatorMotor1.getReverseLimit();
     NetworkTable m_table;
@@ -49,11 +49,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void elevatorDown() {
-        // m_elevatorMotor1.setControl(new
-        // PositionDutyCycle(ElevatorConstants.ElevatorDownPosition));
-        // m_elevatorMotor2.setControl(new
-        // PositionDutyCycle(ElevatorConstants.ElevatorDownPosition));
-        // resetMotorEncoders();
+        m_elevatorMotor1.setControl(new
+        PositionDutyCycle(ElevatorConstants.elevatorDownPosition));
+        resetMotorEncoders();
     }
 
     public void resetMotorEncoders() {
@@ -63,72 +61,64 @@ public class ElevatorSubsystem extends SubsystemBase {
             // (ClimberConstants.topLeftPosition - m_offset));
             // climbMotorLeft.setSoftLimit(SoftLimitDirection.kReverse,
             // (float) (ClimberConstants.bottomPosition - m_offset));
+            // TODO: find these numbers
         }
     }
 
     public void L4ButtonIsPressed() {
-        targetRotation = Constants.ElevatorConstants.L4Position;
-        elevatorPreset = "Elevator to L4";
+        m_targetRotation = Constants.ElevatorConstants.L4Position;
+        m_elevatorPreset = "Elevator to L4";
     }
 
     public void L3ButtonIsPressed() {
-        targetRotation = Constants.ElevatorConstants.L3Position;
-        elevatorPreset = "Elevator to L3";
+        m_targetRotation = Constants.ElevatorConstants.L3Position;
+        m_elevatorPreset = "Elevator to L3";
     }
 
     public void L2ButtonIsPressed() {
-        targetRotation = Constants.ElevatorConstants.L2Position;
-        elevatorPreset = "Elevator to L2";
+        m_targetRotation = Constants.ElevatorConstants.L2Position;
+        m_elevatorPreset = "Elevator to L2";
     }
 
     public void L1ButtonIsPressed() {
-        targetRotation = Constants.ElevatorConstants.L1Position;
-        elevatorPreset = "Elevator to L1";
+        m_targetRotation = Constants.ElevatorConstants.L1Position;
+        m_elevatorPreset = "Elevator to L1";
     }
 
-    public void GoToL4() {
-        // m_elevatorMotor1.setPosition(Constants.ElevatorConstants.L4Position +
-        // m_offset);
+    public void goToL4() {
+        m_elevatorMotor1.setPosition(ElevatorConstants.L4Position + m_offset);
     }
 
-    public void GoToL3() {
-        // m_elevatorMotor1.setPosition(Constants.ElevatorConstants.L3Position +
-        // m_offset);
+    public void goToL3() {
+        m_elevatorMotor1.setPosition(ElevatorConstants.L3Position + m_offset);
     }
 
-    public void GoToL2() {
-        // m_elevatorMotor1.setPosition(Constants.ElevatorConstants.L2Position +
-        // m_offset);
+    public void goToL2() {
+        m_elevatorMotor1.setPosition(ElevatorConstants.L2Position + m_offset);
     }
 
-    public void GoToL1() {
-        // m_elevatorMotor1.setPosition(Constants.ElevatorConstants.L1Position +
-        // m_offset);
+    public void goToL1() {
+        m_elevatorMotor1.setPosition(ElevatorConstants.L1Position + m_offset);
     }
 
-    public void GoToTarget() {
-        // m_elevatorMotor1.setPosition(Constants.ElevatorConstants.L1Position +
-        // m_offset);
+    public void goToTarget() {
+        m_elevatorMotor1.setPosition(m_targetRotation + m_offset);
     }
 
-    public void GoToElevatorDown() {
-        // m_elevatorMotor1.setPosition(targetRotation + m_offset);
+    public void goToElevatorDown() {
+        m_elevatorMotor1.setPosition(ElevatorConstants.elevatorDownPosition + m_offset);
     }
 
     public boolean atBottom() {
-        if (m_bottomLimit.getValue() == ReverseLimitValue.ClosedToGround) {
-            return true;
-        } else {
-            return false;
-        }
+        return (m_bottomLimit.getValue() == ReverseLimitValue.ClosedToGround);
     }
 
     public Command SetPosition(double position) {
-        return new InstantCommand(() -> m_elevatorMotor1.setPosition(position));
+        return new InstantCommand(() -> m_elevatorMotor1.setPosition(position + m_offset));
     }
 
     @Override
     public void periodic() {
-        m_table.putValue("state", NetworkTableValue.makeString(elevatorPreset));
+        m_table.putValue("state", NetworkTableValue.makeString(m_elevatorPreset));
     }
 }

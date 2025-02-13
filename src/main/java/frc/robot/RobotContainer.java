@@ -202,22 +202,22 @@ public class RobotContainer {
           m_driveSubsystem));
     }
     ControllerConstants.m_opJoystick.povUp().onTrue(new InstantCommand(() -> {
-      m_elevatorSubsystem.GoToL4();
-      m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L4Position;
+      m_elevatorSubsystem.goToL4();
+      m_elevatorSubsystem.m_targetPosition = Constants.ElevatorConstants.L4Position;
     }));
     ControllerConstants.m_opJoystick.povRight().onTrue(new InstantCommand(() -> {
-      m_elevatorSubsystem.GoToL3();
-      m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L3Position;
+      m_elevatorSubsystem.goToL3();
+      m_elevatorSubsystem.m_targetPosition = Constants.ElevatorConstants.L3Position;
     }));
     ControllerConstants.m_opJoystick.povDown().onTrue(new InstantCommand(() -> {
-      m_elevatorSubsystem.GoToL2();
-      m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L2Position;
+      m_elevatorSubsystem.goToL2();
+      m_elevatorSubsystem.m_targetPosition = Constants.ElevatorConstants.L2Position;
     }));
     ControllerConstants.m_opJoystick.povLeft().onTrue(new InstantCommand(() -> {
-      m_elevatorSubsystem.GoToL1();
-      m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L2Position;
+      m_elevatorSubsystem.goToL1();
+      m_elevatorSubsystem.m_targetPosition = Constants.ElevatorConstants.L2Position;
     }));
-    ControllerConstants.m_opJoystick.button(9).onTrue(new InstantCommand(() -> m_elevatorSubsystem.GoToElevatorDown()));
+    ControllerConstants.m_opJoystick.button(9).onTrue(new InstantCommand(() -> m_elevatorSubsystem.goToElevatorDown()));
 
     ControllerConstants.m_opJoystick.button(4)
         .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L4ButtonIsPressed()));
