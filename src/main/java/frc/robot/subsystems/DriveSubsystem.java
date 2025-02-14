@@ -362,18 +362,17 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void driveToPose(Pose2d target) {
+    int allianceVelocityMultiplier = DriverStation.getAlliance().isPresent()
+        && DriverStation.getAlliance().get() == Alliance.Red ? -1 : 1; // TODO: Consider renaming
+
     TrapezoidProfile.State m_targetX = m_xProfile.calculate(TimedRobot.kDefaultPeriod,
-        new TrapezoidProfile.State(m_poseEstimator.getPose().getX(), 1 * getFieldRelativeSpeeds().vxMetersPerSecond), // TODO:
-                                                                                                                      // alliance
-                                                                                                                      // color
-                                                                                                                      // check
+        new TrapezoidProfile.State(m_poseEstimator.getPose().getX(),
+            allianceVelocityMultiplier * getFieldRelativeSpeeds().vxMetersPerSecond),
         new TrapezoidProfile.State(target.getX(), 0.0));
 
     TrapezoidProfile.State m_targetY = m_yProfile.calculate(TimedRobot.kDefaultPeriod,
-        new TrapezoidProfile.State(m_poseEstimator.getPose().getY(), 1 * getFieldRelativeSpeeds().vyMetersPerSecond), // TODO:
-                                                                                                                      // alliance
-                                                                                                                      // color
-                                                                                                                      // check
+        new TrapezoidProfile.State(m_poseEstimator.getPose().getY(),
+            allianceVelocityMultiplier * getFieldRelativeSpeeds().vyMetersPerSecond),
         new TrapezoidProfile.State(target.getY(), 0.0));
 
     double rot = m_pidRotation.apply(target.getRotation());
@@ -381,8 +380,8 @@ public class DriveSubsystem extends SubsystemBase {
     double y = m_pidY.apply(m_targetY.position);
 
     drive(
-        MathUtil.isNear(0, 1, 0.07) ? 0 : 1 * m_targetX.velocity, // x * 1 * DriveConstants.kMaxSpeed,
-        MathUtil.isNear(0, 1, 0.07) ? 0 : 1 * m_targetY.velocity, // y * 1 * DriveConstants.kMaxSpeed,
+        allianceVelocityMultiplier * m_targetX.velocity, // x * 1 * DriveConstants.kMaxSpeed,
+        allianceVelocityMultiplier * m_targetY.velocity, // y * 1 * DriveConstants.kMaxSpeed,
         rot * DriveConstants.kMaxAngularSpeed,
         true);
 
