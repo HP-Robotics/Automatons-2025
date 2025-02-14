@@ -107,6 +107,11 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+    // TEST CODE
+
+    ControllerConstants.m_driveJoystick.povUp().whileTrue(
+        new StartEndCommand(m_elevatorSubsystem::GoToTarget, () -> m_elevatorMotor1.setControl(new DutyCycleOut(0)),
+            m_elevatorSubsystem));
     /*
      * PRODUCTION CODE
      */
@@ -114,7 +119,7 @@ public class RobotContainer {
     if (SubsystemConstants.useIntake) {
       // SETTING STATES
       // Set state to intaking if intake or elevator beam break are broken
-      new Trigger(InNOutSubsystem::intakeHasCoral).and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
+      new Trigger(m_inNOutSubsystem::intakeHasCoral).and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "intaking"; // TODO: Make sure elevator is at bottom before intaking
           }));
@@ -123,7 +128,7 @@ public class RobotContainer {
       // beam break is broken)
       // is true and previous state is intaking
       new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
-          .and(InNOutSubsystem::isLoaded)
+          .and(m_inNOutSubsystem::isLoaded)
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "loaded";
           }));
@@ -136,7 +141,7 @@ public class RobotContainer {
           }));
 
       // When it becomes empty (no beam breaks are broken)
-      new Trigger(InNOutSubsystem::isEmpty)
+      new Trigger(m_inNOutSubsystem::isEmpty)
           .and(() -> m_inNOutSubsystem.m_state == "outtaking")
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "empty";
@@ -155,29 +160,53 @@ public class RobotContainer {
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
     }
 
-    ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAutoAlignButton).whileTrue(new RunCommand(() -> { // TODO:
-                                                                                                                         // add
-                                                                                                                         // auto
-                                                                                                                         // align
-                                                                                                                         // to
-                                                                                                                         // the
-                                                                                                                         // feeder
-                                                                                                                         // station
-                                                                                                                         // if
-                                                                                                                         // robot
-                                                                                                                         // doesn't
-                                                                                                                         // have
-                                                                                                                         // a
-                                                                                                                         // coral
-      // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
-      // new Rotation2d(Math.PI)));
+    if (SubsystemConstants.useDrive) {
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAutoAlignButton)
+          .whileTrue(new RunCommand(() -> { // TODO:
+                                            // add
+                                            // auto
+                                            // align
+                                            // to
+                                            // the
+                                            // feeder
+                                            // station
+                                            // if
+                                            // robot
+                                            // doesn't
+                                            // have
+                                            // a
+                                            // coral
+            // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
+            // new Rotation2d(Math.PI)));
 
-      if (m_driveSubsystem.m_sector.isPresent()
-          && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans, m_driveSubsystem.robotToReef,
-              DriveConstants.autoAlignTolerance)
-              || ControllerConstants.m_driveJoystick.getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
-        m_driveSubsystem.driveToPose(DriveConstants.leftAlignPoses[m_driveSubsystem.m_sector.get()]);
-      } else {
+            if (m_driveSubsystem.m_sector.isPresent()
+                && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans, m_driveSubsystem.robotToReef,
+                    DriveConstants.autoAlignTolerance)
+                    || ControllerConstants.m_driveJoystick
+                        .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
+              m_driveSubsystem.driveToPose(DriveConstants.leftAlignPoses[m_driveSubsystem.m_sector.get()]);
+            } else {
+              m_driveSubsystem.drivePointedTowardsAngle(
+                  ControllerConstants.m_driveJoystick,
+                  Rotation2d.fromDegrees(m_driveSubsystem.getAngleBetweenPoses(m_poseEstimatorSubsystem.getPose(),
+                      new Pose2d(
+                          DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
+                              ? DriveConstants.redReefCenter
+                              : DriveConstants.blueReefCenter,
+                          new Rotation2d()))));
+            }
+            m_driveSubsystem.m_driveTrainTable.putValue("Joystick Degrees",
+                NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
+          }, m_driveSubsystem));
+      ControllerConstants.m_driveJoystick.button(6).and(new Trigger(() -> {
+        return m_driveSubsystem.m_sector.isPresent();
+      })).whileTrue(new RunCommand(() -> {
+        // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
+        // new Rotation2d(Math.PI)));
+        m_driveSubsystem.driveToPose(DriveConstants.rightAlignPoses[m_driveSubsystem.m_sector.get()]);
+      }, m_driveSubsystem));
+
+      ControllerConstants.m_driveJoystick.button(1).whileTrue(new RunCommand(() -> {
         m_driveSubsystem.drivePointedTowardsAngle(
             ControllerConstants.m_driveJoystick,
             Rotation2d.fromDegrees(m_driveSubsystem.getAngleBetweenPoses(m_poseEstimatorSubsystem.getPose(),
@@ -186,87 +215,72 @@ public class RobotContainer {
                         ? DriveConstants.redReefCenter
                         : DriveConstants.blueReefCenter,
                     new Rotation2d()))));
+      }, m_driveSubsystem));
+
+      if (SubsystemConstants.useDrive) {
+        ControllerConstants.m_driveJoystick.button(6).whileTrue(new RunCommand(
+            () -> {
+              m_driveSubsystem.driveToPose(new Pose2d());
+            },
+            m_driveSubsystem));
       }
-      m_driveSubsystem.m_driveTrainTable.putValue("Joystick Degrees",
-          NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
-    }, m_driveSubsystem));
-    ControllerConstants.m_driveJoystick.button(6).and(new Trigger(() -> {
-      return m_driveSubsystem.m_sector.isPresent();
-    })).whileTrue(new RunCommand(() -> {
-      // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
-      // new Rotation2d(Math.PI)));
-      m_driveSubsystem.driveToPose(DriveConstants.rightAlignPoses[m_driveSubsystem.m_sector.get()]);
-    }, m_driveSubsystem));
-
-    ControllerConstants.m_driveJoystick.button(1).whileTrue(new RunCommand(() -> {
-      m_driveSubsystem.drivePointedTowardsAngle(
-          ControllerConstants.m_driveJoystick,
-          Rotation2d.fromDegrees(m_driveSubsystem.getAngleBetweenPoses(m_poseEstimatorSubsystem.getPose(),
-              new Pose2d(
-                  DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
-                      ? DriveConstants.redReefCenter
-                      : DriveConstants.blueReefCenter,
-                  new Rotation2d()))));
-    }, m_driveSubsystem));
-
-    if (SubsystemConstants.useDrive) {
-      ControllerConstants.m_driveJoystick.button(6).whileTrue(new RunCommand(
-          () -> {
-            m_driveSubsystem.driveToPose(new Pose2d());
-          },
-          m_driveSubsystem));
     }
-    ControllerConstants.m_opJoystick.povUp().onTrue(new InstantCommand(() -> { // don't let us go up if we have coral
-                                                                               // breaking the elevator beam break (?)
-                                                                               // consider other conditions
-      m_elevatorSubsystem.GoToL4();
-      m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L4Position;
-    }));
-    ControllerConstants.m_opJoystick.povRight().onTrue(new InstantCommand(() -> {
-      m_elevatorSubsystem.GoToL3();
-      m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L3Position;
-    }));
-    ControllerConstants.m_opJoystick.povDown().onTrue(new InstantCommand(() -> {
-      m_elevatorSubsystem.GoToL2();
-      m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L2Position;
-    }));
-    ControllerConstants.m_opJoystick.povLeft().onTrue(new InstantCommand(() -> {
-      m_elevatorSubsystem.GoToL1();
-      m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L2Position;
-    }));
-    ControllerConstants.m_opJoystick.button(9).onTrue(new InstantCommand(() -> m_elevatorSubsystem.GoToElevatorDown()));
-
-    ControllerConstants.m_opJoystick.button(4)
-        .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L4ButtonIsPressed()));
-    ControllerConstants.m_opJoystick.button(2)
-        .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L3ButtonIsPressed()));
-    ControllerConstants.m_opJoystick.button(1)
-        .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L2ButtonIsPressed()));
-    ControllerConstants.m_opJoystick.button(3)
-        .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L1ButtonIsPressed()));
-
-    if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
-      ControllerConstants.m_driveJoystick.button(7)
-          .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
-    }
-
-    ControllerConstants.m_driveJoystick.button(1).whileTrue(new ClimberClimbCommand(m_climberSubsystem));
-
     if (SubsystemConstants.useElevator) {
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.elevatorUpButton)
-          .whileTrue(new StartEndCommand(() -> {
-            m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorUpSpeed));
-          }, () -> {
-            m_elevatorMotor1.setControl(new DutyCycleOut(0));
-          }, m_elevatorSubsystem));
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.elevatorDownButton)
-          .whileTrue(new StartEndCommand(() -> {
-            m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorDownSpeed));
-          },
-              () -> {
-                m_elevatorMotor1.setControl(new DutyCycleOut(0));
-              },
-              m_elevatorSubsystem));
+      // ControllerConstants.m_opJoystick.povUp().onTrue(new InstantCommand(() -> { //
+      // don't let us go up if we have coral
+      // // breaking the elevator beam break (?)
+      // // consider other conditions
+      // m_elevatorSubsystem.GoToL4();
+      // m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L4Position;
+      // }));
+      ControllerConstants.m_opJoystick.povRight().onTrue(new InstantCommand(() -> {
+        m_elevatorSubsystem.GoToL3();
+        m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L3Position;
+      }));
+      ControllerConstants.m_opJoystick.povDown().onTrue(new InstantCommand(() -> {
+        m_elevatorSubsystem.GoToL2();
+        m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L2Position;
+      }));
+      ControllerConstants.m_opJoystick.povLeft().onTrue(new InstantCommand(() -> {
+        m_elevatorSubsystem.GoToL1();
+        m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L2Position;
+      }));
+      ControllerConstants.m_opJoystick.button(9)
+          .onTrue(new InstantCommand(() -> m_elevatorSubsystem.GoToElevatorDown()));
+
+      ControllerConstants.m_opJoystick.button(4)
+          .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L4ButtonIsPressed()));
+      ControllerConstants.m_opJoystick.button(2)
+          .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L3ButtonIsPressed()));
+      ControllerConstants.m_opJoystick.button(1)
+          .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L2ButtonIsPressed()));
+      ControllerConstants.m_opJoystick.button(3)
+          .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L1ButtonIsPressed()));
+
+      if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
+        ControllerConstants.m_driveJoystick.button(7)
+            .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
+      }
+
+      ControllerConstants.m_driveJoystick.button(1).whileTrue(new ClimberClimbCommand(m_climberSubsystem));
+
+      if (SubsystemConstants.useElevator) {
+        ControllerConstants.m_driveJoystick.button(ControllerConstants.elevatorUpButton)
+            .whileTrue(new StartEndCommand(() -> {
+              m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorUpSpeed));
+            }, () -> {
+              m_elevatorMotor1.setControl(new DutyCycleOut(0));
+            }, m_elevatorSubsystem));
+        ControllerConstants.m_driveJoystick.button(ControllerConstants.elevatorDownButton)
+            .whileTrue(new StartEndCommand(() -> {
+              m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorDownSpeed));
+            },
+                () -> {
+                  m_elevatorMotor1.setControl(new DutyCycleOut(0));
+                },
+                m_elevatorSubsystem));
+      }
+
     }
   }
 

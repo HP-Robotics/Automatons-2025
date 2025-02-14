@@ -24,17 +24,19 @@ public class InNOutSubsystem extends SubsystemBase {
     TalonFX m_intakeMotor = new TalonFX(IDConstants.IntakeMotorID);
     TalonFX m_outtakeMotor = new TalonFX(IDConstants.outtakeMotorID);
     public TalonFX m_intakeFoldMotor = new TalonFX(IDConstants.IntakeFoldMotorID);
-    static BeamBreak m_intakebeamBreak = new BeamBreak(0); // Is in robot TODO: Find channel id and remove fakeBeamBreak
     Trigger m_fakeBeamBreak = ControllerConstants.m_driveJoystick.button(4);
     public String m_state = "empty";
     NetworkTable m_table;
-    static BeamBreak m_outtakeBeamBreak; // Checks to see if can score
-    static BeamBreak m_elevatorBeamBreak; // Make sure coral doesn't block elevator
+    BeamBreak m_intakeBeamBreak;
+    BeamBreak m_outtakeBeamBreak; // Checks to see if can score
+    BeamBreak m_elevatorBeamBreak; // Make sure coral doesn't block elevator
 
     public InNOutSubsystem() {
         m_table = NetworkTableInstance.getDefault().getTable("InNOutSubsystem");
         m_outtakeBeamBreak = new BeamBreak(1); // TODO: find the real channel IDs
         m_elevatorBeamBreak = new BeamBreak(2);
+        m_intakeBeamBreak = new BeamBreak(0); // Is in robot TODO: Find channel id and remove fakeBeamBreak
+
     }
 
     public void runIntake() {
@@ -59,16 +61,16 @@ public class InNOutSubsystem extends SubsystemBase {
         m_table.putValue("state", NetworkTableValue.makeString(m_state));
     }
 
-    public static boolean intakeHasCoral() {
-        return m_elevatorBeamBreak.beamBroken() || m_intakebeamBreak.beamBroken();
+    public boolean intakeHasCoral() {
+        return m_elevatorBeamBreak.beamBroken() || m_intakeBeamBreak.beamBroken();
     }
 
-    public static boolean isLoaded() {
+    public boolean isLoaded() {
         return m_outtakeBeamBreak.beamBroken() && !m_elevatorBeamBreak.beamBroken();
     }
 
-    public static boolean isEmpty() {
-        return !m_elevatorBeamBreak.beamBroken() && !m_intakebeamBreak.beamBroken() && !m_outtakeBeamBreak.beamBroken();
+    public boolean isEmpty() {
+        return !m_elevatorBeamBreak.beamBroken() && !m_intakeBeamBreak.beamBroken() && !m_outtakeBeamBreak.beamBroken();
     }
 
     public Command IntakeCoral() {
