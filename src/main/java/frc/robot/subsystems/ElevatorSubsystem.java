@@ -4,10 +4,15 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.ForwardLimitValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.ReverseLimitValue;
 
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
@@ -22,24 +27,63 @@ public class ElevatorSubsystem extends SubsystemBase {
     TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
     TalonFX m_elevatorMotor2 = new TalonFX(IDConstants.ElevatorMotor2ID);
     Slot0Configs m_PIDValues = new Slot0Configs();
-    public double targetRotation = 0;
+    public double m_targetRotation = 0;
     public String elevatorPreset = "Empty";
     public double targetPosition = 0; // TODO: find real value
     public double m_offset = 0;
     StatusSignal<ReverseLimitValue> m_bottomLimit = m_elevatorMotor1.getReverseLimit();
     NetworkTable m_table;
+    TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
+    final DoubleSubscriber kPSub;
+    final DoubleSubscriber kISub;
+    final DoubleSubscriber kDSub;
+    final DoubleSubscriber kGSub;
+    final DoubleSubscriber setpointSub;
+    final DoubleSubscriber kASub;
+    final DoubleSubscriber kSSub;
+    final DoubleSubscriber kVSub;
 
     public ElevatorSubsystem() {
         m_table = NetworkTableInstance.getDefault().getTable("ElevatorSubsystem");
 
-        TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
         elevatorConfig.Slot0.kP = ElevatorConstants.kP;
         elevatorConfig.Slot0.kI = ElevatorConstants.kI;
         elevatorConfig.Slot0.kD = ElevatorConstants.kD;
+        elevatorConfig.Slot0.kS = ElevatorConstants.kS;
+        elevatorConfig.Slot0.kV = ElevatorConstants.kV;
+        elevatorConfig.Slot0.kA = ElevatorConstants.kA;
+        elevatorConfig.Slot0.kG = ElevatorConstants.kG;
+        elevatorConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         elevatorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+        // set Motion Magic settings
+        elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = ElevatorConstants.motionMagicCruiseVelocity; // Target
+                                                                                                            // cruise
+                                                                                                            // velocity
+                                                                                                            // of 80 rps
+        elevatorConfig.MotionMagic.MotionMagicAcceleration = ElevatorConstants.motionMagicAcceleration; // Target
+                                                                                                        // acceleration
+                                                                                                        // of 160 rps/s
+                                                                                                        // (0.5 seconds)
+        elevatorConfig.MotionMagic.MotionMagicJerk = ElevatorConstants.motionMagicJerk; // Target jerk of 1600 rps/s/s
+                                                                                        // (0.1 seconds)
+
         m_elevatorMotor1.getConfigurator().apply(elevatorConfig);
         m_elevatorMotor2.getConfigurator().apply(elevatorConfig);
         m_elevatorMotor2.setControl(new Follower(m_elevatorMotor1.getDeviceID(), true));
+
+        m_table.putValue("kP", NetworkTableValue.makeDouble(elevatorConfig.Slot0.kP));
+        m_table.putValue("kI", NetworkTableValue.makeDouble(elevatorConfig.Slot0.kI));
+        m_table.putValue("kD", NetworkTableValue.makeDouble(elevatorConfig.Slot0.kD));
+
+        kPSub = m_table.getDoubleTopic("kP").subscribe(ElevatorConstants.kP);
+        kISub = m_table.getDoubleTopic("kI").subscribe(ElevatorConstants.kI);
+        kDSub = m_table.getDoubleTopic("kD").subscribe(ElevatorConstants.kD);
+        kGSub = m_table.getDoubleTopic("kG").subscribe(ElevatorConstants.kG);
+        kASub = m_table.getDoubleTopic("kA").subscribe(ElevatorConstants.kA);
+        kVSub = m_table.getDoubleTopic("kV").subscribe(ElevatorConstants.kV);
+        kSSub = m_table.getDoubleTopic("kS").subscribe(ElevatorConstants.kS);
+        setpointSub = m_table.getDoubleTopic("setpoint").subscribe(0);
 
     }
 
@@ -62,22 +106,22 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void L4ButtonIsPressed() {
-        targetRotation = Constants.ElevatorConstants.L4Position;
+        m_targetRotation = Constants.ElevatorConstants.L4Position;
         elevatorPreset = "Elevator to L4";
     }
 
     public void L3ButtonIsPressed() {
-        targetRotation = Constants.ElevatorConstants.L3Position;
+        m_targetRotation = Constants.ElevatorConstants.L3Position;
         elevatorPreset = "Elevator to L3";
     }
 
     public void L2ButtonIsPressed() {
-        targetRotation = Constants.ElevatorConstants.L2Position;
+        m_targetRotation = Constants.ElevatorConstants.L2Position;
         elevatorPreset = "Elevator to L2";
     }
 
     public void L1ButtonIsPressed() {
-        targetRotation = Constants.ElevatorConstants.L1Position;
+        m_targetRotation = Constants.ElevatorConstants.L1Position;
         elevatorPreset = "Elevator to L1";
     }
 
@@ -102,8 +146,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void GoToTarget() {
-        // m_elevatorMotor1.setPosition(Constants.ElevatorConstants.L1Position +
-        // m_offset);
+        // m_elevatorMotor1.setPosition(m_targetRotation); // + m_offset
+        // create a Motion Magic request, voltage output
+        m_elevatorMotor1.setControl(new MotionMagicVoltage(m_targetRotation));
     }
 
     public void GoToElevatorDown() {
@@ -124,6 +169,64 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        boolean doUpdate = false;
+        for (double iterVal : kPSub.readQueueValues()) {
+            elevatorConfig.Slot0.kP = iterVal;
+            doUpdate = true;
+        }
+        for (double iterVal : kISub.readQueueValues()) {
+            elevatorConfig.Slot0.kI = iterVal;
+            doUpdate = true;
+        }
+        for (double iterVal : kDSub.readQueueValues()) {
+            elevatorConfig.Slot0.kD = iterVal;
+            doUpdate = true;
+        }
+        for (double iterVal : kASub.readQueueValues()) {
+            elevatorConfig.Slot0.kA = iterVal;
+            doUpdate = true;
+        }
+        for (double iterVal : kGSub.readQueueValues()) {
+            elevatorConfig.Slot0.kG = iterVal;
+            doUpdate = true;
+        }
+        for (double iterVal : kVSub.readQueueValues()) {
+            elevatorConfig.Slot0.kV = iterVal;
+            doUpdate = true;
+        }
+        for (double iterVal : kSSub.readQueueValues()) {
+            elevatorConfig.Slot0.kS = iterVal;
+            doUpdate = true;
+        }
+        for (double iterVal : setpointSub.readQueueValues()) {
+            m_targetRotation = iterVal;
+            doUpdate = true;
+        }
+        if (doUpdate) {
+            m_elevatorMotor1.getConfigurator().apply(elevatorConfig);
+            m_elevatorMotor2.getConfigurator().apply(elevatorConfig);
+
+        }
         m_table.putValue("state", NetworkTableValue.makeString(elevatorPreset));
+        m_table.putValue("offset", NetworkTableValue.makeDouble(m_offset));
+        m_table.putValue("motor1position",
+                NetworkTableValue.makeDouble(m_elevatorMotor1.getRotorPosition().getValueAsDouble()));
+        m_table.putValue("motor2position",
+                NetworkTableValue.makeDouble(m_elevatorMotor2.getRotorPosition().getValueAsDouble()));
+        m_table.putValue("Error",
+                NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopError().getValueAsDouble()));
+        m_table.putValue("D term",
+                NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopDerivativeOutput().getValueAsDouble()));
+        m_table.putValue("I term",
+                NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopIntegratedOutput().getValueAsDouble()));
+        m_table.putValue("P term",
+                NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopProportionalOutput().getValueAsDouble()));
+        m_table.putValue("Closed loop output",
+                NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopOutput().getValueAsDouble()));
+        m_table.putValue("Feed forward output",
+                NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopFeedForward().getValueAsDouble()));
+
+        m_table.putValue("atBottom", NetworkTableValue.makeBoolean(this.atBottom()));
+
     }
 }

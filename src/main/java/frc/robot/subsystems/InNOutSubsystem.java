@@ -20,10 +20,9 @@ public class InNOutSubsystem extends SubsystemBase {
     TalonFX m_intakeMotor = new TalonFX(IDConstants.intakeMotorID);
     TalonFX m_outtakeMotor = new TalonFX(IDConstants.outtakeMotorID);
     public TalonFX m_intakeFoldMotor = new TalonFX(IDConstants.intakeFoldMotorID);
-    // BeamBreak m_intakeBeamBreak = new BeamBreak(0); // Is in robot TODO: Find
-    // channel id
     public String m_state = "empty";
     NetworkTable m_table;
+    // BeamBreak m_intakeBeamBreak;
     BeamBreak m_outtakeBeamBreak; // Checks to see if can score
     BeamBreak m_elevatorBeamBreak; // Make sure coral doesn't block elevator
 

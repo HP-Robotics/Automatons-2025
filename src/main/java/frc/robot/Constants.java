@@ -22,14 +22,14 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public final class Constants {
 
   public static class SubsystemConstants {
-    public static final boolean useDrive = true;
+    public static final boolean useDrive = false;
     public static final boolean useIntake = false;
     public static final boolean useOuttake = false;
     public static final boolean useDataManager = false;
     public static final boolean useLimelight = false;
     public static final boolean useClimber = false;
-    public static final boolean usePoseEstimator = true;
-    public static final boolean useElevator = false;
+    public static final boolean usePoseEstimator = false;
+    public static final boolean useElevator = true;
   }
 
   public static class RobotConfigConstants {
@@ -98,8 +98,18 @@ public final class Constants {
     public static final double kI = 0;
     public static final double kD = 0;
 
-    public static final double elevatorUpSpeed = 0.4; // 0.6 or 0.7 and -0.4
-    public static final double elevatorDownSpeed = -0.4;
+    public static final double upperLimit = 20;
+
+    public static final double elevatorUpSpeed = 0.15; // 0.6 or 0.7 and -0.4
+    public static final double elevatorDownSpeed = -0.1;
+    public static final double kG = 12 * 0.15;
+    public static final double kA = 6 / 40;
+    public static final double kS = 0;
+    public static final double kV = 4 / 20;
+
+    public static final double motionMagicCruiseVelocity = 20;
+    public static final double motionMagicAcceleration = motionMagicCruiseVelocity * 2;
+    public static final double motionMagicJerk = motionMagicCruiseVelocity * 10;
   }
 
   public static class ControllerConstants {
@@ -135,6 +145,7 @@ public final class Constants {
     public static final Trigger elevatorL4Button = m_opJoystick.button(4);
     public static final int elevatorDownButton = 7;
     public static final int elevatorUpButton = 8;
+    public static final int goToTargetButton = 0; // TODO: change this
 
     public static final int leftAutoAlignButton = 5;
 
