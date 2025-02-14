@@ -123,6 +123,17 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
     }
 
+    // are we there yet?
+    public boolean atPosition() {
+        return (Math.abs(m_elevatorMotor1.getClosedLoopError().getValueAsDouble()) <= ElevatorConstants.errorTolerance);
+    }
+
+    public boolean atDownPosition() {
+        return (Math.abs(m_elevatorMotor1.getPosition().getValueAsDouble()
+                - ElevatorConstants.elevatorDownPosition - m_offset) <= ElevatorConstants.errorTolerance
+                && atPosition());
+    }
+
     public Command SetPosition(double position) {
         return new InstantCommand(() -> m_elevatorMotor1.setPosition(position));
     }

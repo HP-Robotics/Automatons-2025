@@ -59,15 +59,15 @@ public class InNOutSubsystem extends SubsystemBase {
         m_table.putValue("state", NetworkTableValue.makeString(m_state));
     }
 
-    public static boolean intakeHasCoral() {
+    public boolean intakeHasCoral() {
         return m_elevatorBeamBreak.beamBroken() || m_intakebeamBreak.beamBroken();
     }
 
-    public static boolean isLoaded() {
+    public boolean isLoaded() {
         return m_outtakeBeamBreak.beamBroken() && !m_elevatorBeamBreak.beamBroken();
     }
 
-    public static boolean isEmpty() {
+    public boolean isEmpty() {
         return !m_elevatorBeamBreak.beamBroken() && !m_intakebeamBreak.beamBroken() && !m_outtakeBeamBreak.beamBroken();
     }
 

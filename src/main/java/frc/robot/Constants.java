@@ -97,6 +97,8 @@ public final class Constants {
 
     public static final double elevatorUpSpeed = 0.4; // 0.6 or 0.7 and -0.4
     public static final double elevatorDownSpeed = -0.4;
+
+    public static final double errorTolerance = 0.2;
   }
 
   public static class ControllerConstants {
@@ -123,10 +125,6 @@ public final class Constants {
     public static final int stopIntakeButtton = 9;
     public static final int outtakeButton = useXbox ? 0 : 0;
     public static final Trigger outtakeTrigger = m_driveJoystick.button(outtakeButton);
-    public static final int drivePointedToSpeakerButton = useXbox ? 6 : 0;
-    public static final int drivePointedToNoteButton = useXbox ? 5 : 0;
-    public static final int driveToNoteAxis = useXbox ? 2 : 0;
-    public static final int pointToCornerButton = 2;
 
     public static final Trigger elevatorL3Button = m_opJoystick.button(3);
     public static final Trigger elevatorL4Button = m_opJoystick.button(4);
@@ -134,6 +132,9 @@ public final class Constants {
     public static final int elevatorUpButton = 8;
 
     public static final int leftAutoAlignButton = 5;
+    public static final int rightAutoAlignButton = 6;
+
+    public static final int overrideButton = 11;
 
     public static double getRotation(CommandJoystick stick) {
       if (useXbox) {
