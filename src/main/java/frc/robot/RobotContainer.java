@@ -155,20 +155,8 @@ public class RobotContainer {
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
     }
 
-    ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAutoAlignButton).whileTrue(new RunCommand(() -> { // TODO:
-                                                                                                                         // add
-                                                                                                                         // auto
-                                                                                                                         // align
-                                                                                                                         // to
-                                                                                                                         // the
-                                                                                                                         // feeder
-                                                                                                                         // station
-                                                                                                                         // if
-                                                                                                                         // robot
-                                                                                                                         // doesn't
-                                                                                                                         // have
-                                                                                                                         // a
-                                                                                                                         // coral
+    ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAutoAlignButton).whileTrue(new RunCommand(() -> {
+      // TODO: add auto align to the feeder station if robot doesn't have a coral
       // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
       // new Rotation2d(Math.PI)));
 
