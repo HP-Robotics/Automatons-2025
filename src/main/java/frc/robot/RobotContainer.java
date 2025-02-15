@@ -112,6 +112,27 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+    // TEST CODE
+    if (SubsystemConstants.useElevator) {
+      ControllerConstants.m_driveJoystick.povUp().whileTrue(
+          new StartEndCommand(m_elevatorSubsystem::GoToTarget, () -> m_elevatorMotor1.setControl(new DutyCycleOut(0)),
+              m_elevatorSubsystem));
+
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.elevatorUpButton)
+          .whileTrue(new StartEndCommand(() -> {
+            m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorUpSpeed));
+          }, () -> {
+            m_elevatorMotor1.setControl(new DutyCycleOut(0));
+          }, m_elevatorSubsystem));
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.elevatorDownButton)
+          .whileTrue(new StartEndCommand(() -> {
+            m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorDownSpeed));
+          },
+              () -> {
+                m_elevatorMotor1.setControl(new DutyCycleOut(0));
+              },
+              m_elevatorSubsystem));
+    }
     /*
      * PRODUCTION CODE
      */
@@ -273,31 +294,14 @@ public class RobotContainer {
           .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L2ButtonIsPressed()));
       ControllerConstants.m_opJoystick.button(3)
           .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L1ButtonIsPressed()));
+    }
 
-      if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
-        ControllerConstants.m_driveJoystick.button(7)
-            .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
-      }
-      if (SubsystemConstants.useClimber) {
-        ControllerConstants.m_driveJoystick.button(1).whileTrue(new ClimberClimbCommand(m_climberSubsystem));
-      }
-
-      if (SubsystemConstants.useElevator) {
-        ControllerConstants.m_driveJoystick.button(ControllerConstants.elevatorUpButton)
-            .whileTrue(new StartEndCommand(() -> {
-              m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorUpSpeed));
-            }, () -> {
-              m_elevatorMotor1.setControl(new DutyCycleOut(0));
-            }, m_elevatorSubsystem));
-        ControllerConstants.m_driveJoystick.button(ControllerConstants.elevatorDownButton)
-            .whileTrue(new StartEndCommand(() -> {
-              m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorDownSpeed));
-            },
-                () -> {
-                  m_elevatorMotor1.setControl(new DutyCycleOut(0));
-                },
-                m_elevatorSubsystem));
-      }
+    if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
+      ControllerConstants.m_driveJoystick.button(7)
+          .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
+    }
+    if (SubsystemConstants.useClimber) {
+      ControllerConstants.m_driveJoystick.button(1).whileTrue(new ClimberClimbCommand(m_climberSubsystem));
     }
   }
 
@@ -306,7 +310,6 @@ public class RobotContainer {
    */
 
   /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
