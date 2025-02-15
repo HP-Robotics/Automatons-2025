@@ -94,18 +94,18 @@ public final class Constants {
     public static final double elevatorDownPosition = 0;
     public static final double bottomPosition = 0;
     // TODO: this might be right but should be checked with the other two
-    public static final double kP = 0;// TODO: tune these
-    public static final double kI = 0;
+    public static final double kP = 0.01;// TODO: tune these more
+    public static final double kI = 0.05;
     public static final double kD = 0;
 
     public static final double upperLimit = 20;
 
     public static final double elevatorUpSpeed = 0.15; // 0.6 or 0.7 and -0.4
     public static final double elevatorDownSpeed = -0.1;
-    public static final double kG = 12 * 0.15;
-    public static final double kA = 6 / 40;
+    public static final double kG = 12 * 0.075;
+    public static final double kA = 0.075;
     public static final double kS = 0;
-    public static final double kV = 4 / 20;
+    public static final double kV = 1.0;
 
     public static final double motionMagicCruiseVelocity = 20;
     public static final double motionMagicAcceleration = motionMagicCruiseVelocity * 2;

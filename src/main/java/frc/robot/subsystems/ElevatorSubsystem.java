@@ -75,6 +75,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_table.putValue("kP", NetworkTableValue.makeDouble(elevatorConfig.Slot0.kP));
         m_table.putValue("kI", NetworkTableValue.makeDouble(elevatorConfig.Slot0.kI));
         m_table.putValue("kD", NetworkTableValue.makeDouble(elevatorConfig.Slot0.kD));
+        m_table.putValue("setpoint", NetworkTableValue.makeDouble(0));
+        m_table.putValue("kA", NetworkTableValue.makeDouble(ElevatorConstants.kA));
+        m_table.putValue("kS", NetworkTableValue.makeDouble(ElevatorConstants.kS));
+        m_table.putValue("kV", NetworkTableValue.makeDouble(ElevatorConstants.kV));
 
         kPSub = m_table.getDoubleTopic("kP").subscribe(ElevatorConstants.kP);
         kISub = m_table.getDoubleTopic("kI").subscribe(ElevatorConstants.kI);
@@ -148,7 +152,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void GoToTarget() {
         // m_elevatorMotor1.setPosition(m_targetRotation); // + m_offset
         // create a Motion Magic request, voltage output
-        m_elevatorMotor1.setControl(new MotionMagicVoltage(m_targetRotation));
+        m_elevatorMotor1.setControl(new MotionMagicVoltage(0).withPosition(m_targetRotation));
     }
 
     public void GoToElevatorDown() {
