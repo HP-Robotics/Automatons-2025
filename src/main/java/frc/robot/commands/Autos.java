@@ -8,6 +8,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.InNOutSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.path.PathPlannerPath;
 
@@ -25,4 +26,8 @@ public final class Autos {
   private Autos() {
     throw new UnsupportedOperationException("This is a utility class!");
   }
+
+  // public Command DriveForward() {
+  // return RunCommand(AutoBuilder.followPath());
+  // }
 }
