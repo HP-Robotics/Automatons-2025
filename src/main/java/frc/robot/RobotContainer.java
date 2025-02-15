@@ -13,6 +13,7 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IDConstants;
+import frc.robot.Constants.OuttakeConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SubsystemConstants;
 import frc.robot.commands.ClimberClimbCommand;
@@ -33,7 +34,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -118,13 +121,13 @@ public class RobotContainer {
           new StartEndCommand(m_elevatorSubsystem::GoToTarget, () -> m_elevatorMotor1.setControl(new DutyCycleOut(0)),
               m_elevatorSubsystem));
 
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.elevatorUpButton)
+      ControllerConstants.m_opJoystick.button(ControllerConstants.elevatorUpButton)
           .whileTrue(new StartEndCommand(() -> {
             m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorUpSpeed));
           }, () -> {
             m_elevatorMotor1.setControl(new DutyCycleOut(0));
           }, m_elevatorSubsystem));
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.elevatorDownButton)
+      ControllerConstants.m_opJoystick.button(ControllerConstants.elevatorDownButton)
           .whileTrue(new StartEndCommand(() -> {
             m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorDownSpeed));
           },
@@ -165,18 +168,20 @@ public class RobotContainer {
       // When it becomes empty (no beam breaks are broken)
       new Trigger(m_inNOutSubsystem::isEmpty)
           .and(() -> m_inNOutSubsystem.m_state == "outtaking")
-          .onTrue(new InstantCommand(() -> {
-            m_inNOutSubsystem.m_state = "empty";
-          }));
+          .onTrue(new SequentialCommandGroup(new WaitCommand(OuttakeConstants.scoreDelay),
+              new InstantCommand(() -> {
+                m_inNOutSubsystem.m_state = "empty";
+                m_elevatorSubsystem.GoToElevatorDown();
+              })));
 
       // ACTIONS
       // run intake if intake button pressed and state is empty or is intaking
-      new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
-          .or(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton)
-              .and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty")))
+      (new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
+          .or(new Trigger(() -> m_inNOutSubsystem.m_state == "empty")))
+          .and(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton))
           .and(new Trigger(m_elevatorSubsystem::atDownPosition))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
-          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
+          .whileTrue(new StartEndCommand(m_inNOutSubsystem::loadOuttake, m_inNOutSubsystem::stopOuttake));
 
       // Shoot if outtaking and stop when done
       new Trigger(() -> m_inNOutSubsystem.m_state == "outtaking")
@@ -261,7 +266,7 @@ public class RobotContainer {
 
     if (SubsystemConstants.useElevator) {
 
-      ControllerConstants.m_opJoystick.button(12)
+      ControllerConstants.m_driveJoystick.button(7)
           .and(new Trigger(() -> m_inNOutSubsystem.isLoaded()))
           .whileTrue(new StartEndCommand(m_elevatorSubsystem::GoToTarget, m_elevatorSubsystem::GoToElevatorDown));
 
@@ -269,21 +274,22 @@ public class RobotContainer {
                                                                                  // breaking the elevator beam break (?)
                                                                                  // consider other conditions
         m_elevatorSubsystem.GoToL4();
-        m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L4Position;
+        m_elevatorSubsystem.m_targetRotation = Constants.ElevatorConstants.L4Position;
       }));
       ControllerConstants.m_opJoystick.povRight().onTrue(new InstantCommand(() -> {
         m_elevatorSubsystem.GoToL3();
-        m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L3Position;
+        m_elevatorSubsystem.m_targetRotation = Constants.ElevatorConstants.L3Position;
       }));
       ControllerConstants.m_opJoystick.povDown().onTrue(new InstantCommand(() -> {
         m_elevatorSubsystem.GoToL2();
-        m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L2Position;
+        m_elevatorSubsystem.m_targetRotation = Constants.ElevatorConstants.L2Position;
       }));
       ControllerConstants.m_opJoystick.povLeft().onTrue(new InstantCommand(() -> {
         m_elevatorSubsystem.GoToL1();
-        m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L2Position;
+        m_elevatorSubsystem.m_targetRotation = Constants.ElevatorConstants.L2Position;
       }));
       ControllerConstants.m_opJoystick.button(9)
+          .or(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton))
           .onTrue(new InstantCommand(() -> m_elevatorSubsystem.GoToElevatorDown()));
 
       ControllerConstants.m_opJoystick.button(4)

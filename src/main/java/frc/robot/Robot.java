@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SubsystemConstants;
 
@@ -47,7 +48,7 @@ public class Robot extends TimedRobot {
       }, 1.0 / DriveConstants.odometryUpdateFrequency);
       m_robotContainer.m_driveSubsystem.startPoseEstimator(new Pose2d(0, 0, new Rotation2d(
           DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red ? Math.PI : 0)));
-          FollowPathCommand.warmupCommand().schedule();
+      FollowPathCommand.warmupCommand().schedule();
     }
   }
 
@@ -97,6 +98,10 @@ public class Robot extends TimedRobot {
     // schedule the autonomous command
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
+    }
+
+    if (SubsystemConstants.useElevator) {
+      new InstantCommand(() -> m_robotContainer.m_elevatorSubsystem.m_elevatorMotor1.set(-0.1)).schedule();
     }
   }
 
