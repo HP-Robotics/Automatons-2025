@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Go to L4",
+      "name": "GoToL4",
       "waypointRelativePos": 0.8114909781576416,
       "endWaypointRelativePos": null,
       "command": null

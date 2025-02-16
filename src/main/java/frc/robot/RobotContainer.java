@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -75,6 +76,10 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+
+    configureNamedCommands();
+    m_driveSubsystem.configureAutoBuilder();
+
     if (SubsystemConstants.useDrive) {
       m_driveSubsystem.setDefaultCommand(
           new RunCommand(
@@ -101,17 +106,43 @@ public class RobotContainer {
   }
 
   private void configureNamedCommands() {
-    NamedCommands.registerCommand("intake coral", m_inNOutSubsystem.IntakeCoral()); // TODO: pathplanner needs to stop
-                                                                                    // the StartEnd command
-    NamedCommands.registerCommand("outtake coral", m_inNOutSubsystem.OuttakeCoral());
-    NamedCommands.registerCommand("set elevator level", m_elevatorSubsystem.SetPosition(1200));
-    NamedCommands.registerCommand("Go to L4", new InstantCommand(m_elevatorSubsystem::GoToL4));
-    NamedCommands.registerCommand("Go to L3", new InstantCommand(m_elevatorSubsystem::GoToL3));
-    NamedCommands.registerCommand("Go to L2", new InstantCommand(m_elevatorSubsystem::GoToL2));
-    NamedCommands.registerCommand("Go to L1", new InstantCommand(m_elevatorSubsystem::GoToL1));
-    NamedCommands.registerCommand("Elevator down", new InstantCommand(m_elevatorSubsystem::elevatorDown));
+    NamedCommands.registerCommand("Intake",
+
+        new WaitUntilCommand(m_elevatorSubsystem::atDownPosition).andThen(m_inNOutSubsystem.IntakeCoral()));
+    NamedCommands.registerCommand("Outtake", m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
+        .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")));
+    NamedCommands.registerCommand("SetElevatorLevel", m_elevatorSubsystem.SetPosition(1200));
+    NamedCommands.registerCommand("GoToL4", m_elevatorSubsystem.GoToL4());
+    NamedCommands.registerCommand("GoToL3", m_elevatorSubsystem.GoToL3());
+    NamedCommands.registerCommand("GoToL2", m_elevatorSubsystem.GoToL2());
+    NamedCommands.registerCommand("GoToL1", m_elevatorSubsystem.GoToL1());
+    NamedCommands.registerCommand("ElevatorDown", m_elevatorSubsystem.GoToElevatorDown());
+    NamedCommands.registerCommand("WaitForElevator",
+        new WaitUntilCommand(m_elevatorSubsystem::atPosition));
+    NamedCommands.registerCommand("IWaited",
+        new InstantCommand(() -> SmartDashboard.putString("I waited three", "yes")));
+    NamedCommands.registerCommand("IFished", new InstantCommand(() -> SmartDashboard.putString("I fished", "yes")));
+
+    NamedCommands.registerCommand("WaitForIntake", new WaitUntilCommand(m_inNOutSubsystem::isLoaded));
+    NamedCommands.registerCommand("InitializeElevator", InitializeElevator());
     // TODO: this is just a random number, make it take a position based on the auto
     // somehow
+  }
+
+  public Command InitializeElevator() {
+    if (SubsystemConstants.useElevator && SubsystemConstants.useIntake) {
+
+      return new SequentialCommandGroup(
+          new InstantCommand(() -> m_elevatorSubsystem.m_elevatorMotor1.set(-0.2),
+              m_elevatorSubsystem),
+          new WaitUntilCommand(m_elevatorSubsystem::atBottom),
+          new InstantCommand(m_elevatorSubsystem::goToElevatorDown,
+              m_elevatorSubsystem),
+          new WaitUntilCommand(m_elevatorSubsystem::atDownPosition),
+          m_inNOutSubsystem.IntakeCoral().until(m_inNOutSubsystem::isLoaded)).withTimeout(0.5);
+    } else {
+      return new WaitCommand(0);
+    }
   }
 
   private void configureBindings() {
@@ -152,7 +183,7 @@ public class RobotContainer {
       // Set state to loaded if isLoaded (elevator beam break not broken and outtake
       // beam break is broken)
       // is true and previous state is intaking
-      new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
+      new Trigger(() -> m_inNOutSubsystem.m_state == "intaking" || m_inNOutSubsystem.m_state == "empty")
           .and(m_inNOutSubsystem::isLoaded)
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "loaded";
@@ -168,11 +199,10 @@ public class RobotContainer {
       // When it becomes empty (no beam breaks are broken)
       new Trigger(m_inNOutSubsystem::isEmpty)
           .and(() -> m_inNOutSubsystem.m_state == "outtaking")
-          .onTrue(new SequentialCommandGroup(new WaitCommand(OuttakeConstants.scoreDelay),
-              new InstantCommand(() -> {
-                m_inNOutSubsystem.m_state = "empty";
-                m_elevatorSubsystem.GoToElevatorDown();
-              })));
+          .onTrue(new SequentialCommandGroup(
+              new WaitCommand(OuttakeConstants.scoreDelay),
+              new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty"),
+              m_elevatorSubsystem.GoToElevatorDown()));
 
       // ACTIONS
       // run intake if intake button pressed and state is empty or is intaking
@@ -196,6 +226,10 @@ public class RobotContainer {
           }))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
     }
+
+    new Trigger(() -> m_inNOutSubsystem.m_state == "loaded")
+        .onTrue(new InstantCommand(m_inNOutSubsystem::stopIntake))
+        .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
 
     if (SubsystemConstants.useDrive) {
       ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAutoAlignButton)
@@ -268,29 +302,15 @@ public class RobotContainer {
 
       ControllerConstants.m_driveJoystick.button(7)
           .and(new Trigger(() -> m_inNOutSubsystem.isLoaded()))
-          .whileTrue(new StartEndCommand(m_elevatorSubsystem::GoToTarget, m_elevatorSubsystem::GoToElevatorDown));
+          .whileTrue(new StartEndCommand(m_elevatorSubsystem::GoToTarget, m_elevatorSubsystem::goToElevatorDown));
 
-      ControllerConstants.m_opJoystick.povUp().onTrue(new InstantCommand(() -> { // don't let us go up if we have coral
-                                                                                 // breaking the elevator beam break (?)
-                                                                                 // consider other conditions
-        m_elevatorSubsystem.GoToL4();
-        m_elevatorSubsystem.m_targetRotation = Constants.ElevatorConstants.L4Position;
-      }));
-      ControllerConstants.m_opJoystick.povRight().onTrue(new InstantCommand(() -> {
-        m_elevatorSubsystem.GoToL3();
-        m_elevatorSubsystem.m_targetRotation = Constants.ElevatorConstants.L3Position;
-      }));
-      ControllerConstants.m_opJoystick.povDown().onTrue(new InstantCommand(() -> {
-        m_elevatorSubsystem.GoToL2();
-        m_elevatorSubsystem.m_targetRotation = Constants.ElevatorConstants.L2Position;
-      }));
-      ControllerConstants.m_opJoystick.povLeft().onTrue(new InstantCommand(() -> {
-        m_elevatorSubsystem.GoToL1();
-        m_elevatorSubsystem.m_targetRotation = Constants.ElevatorConstants.L2Position;
-      }));
+      ControllerConstants.m_opJoystick.povUp().onTrue(m_elevatorSubsystem.GoToL4());
+      ControllerConstants.m_opJoystick.povRight().onTrue(m_elevatorSubsystem.GoToL3());
+      ControllerConstants.m_opJoystick.povDown().onTrue(m_elevatorSubsystem.GoToL2());
+      ControllerConstants.m_opJoystick.povLeft().onTrue(m_elevatorSubsystem.GoToL1());
       ControllerConstants.m_opJoystick.button(9)
           .or(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton))
-          .onTrue(new InstantCommand(() -> m_elevatorSubsystem.GoToElevatorDown()));
+          .onTrue(m_elevatorSubsystem.GoToElevatorDown());
 
       ControllerConstants.m_opJoystick.button(4)
           .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L4ButtonIsPressed()));

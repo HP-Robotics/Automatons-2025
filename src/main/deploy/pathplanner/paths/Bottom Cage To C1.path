@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.360450663820783,
-        "y": 4.792210854856021
+        "x": 7.360703389021397,
+        "y": 4.897331716893291
       },
       "isLocked": false,
       "linkedName": "Bottom Cage"
@@ -20,8 +20,8 @@
         "y": 5.127868852459017
       },
       "prevControl": {
-        "x": 5.897950819672132,
-        "y": 4.984016393442623
+        "x": 5.803222551653536,
+        "y": 5.045149720629224
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 64.17900802581072
+    "rotation": -119.99999999999999
   },
   "reversed": false,
   "folder": "Drive Foward",

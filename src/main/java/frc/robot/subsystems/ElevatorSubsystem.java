@@ -141,24 +141,52 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorPreset = "Elevator to L1";
     }
 
-    public void GoToL4() {
+    public void goToL4() {
         goToPosition(Constants.ElevatorConstants.L4Position +
                 m_offset);
     }
 
-    public void GoToL3() {
+    public Command GoToL4() {
+        return new InstantCommand(() -> {
+            this.goToL4();
+            this.m_targetRotation = Constants.ElevatorConstants.L4Position;
+        });
+    }
+
+    public void goToL3() {
         goToPosition(Constants.ElevatorConstants.L3Position +
                 m_offset);
     }
 
-    public void GoToL2() {
+    public Command GoToL3() {
+        return new InstantCommand(() -> {
+            this.goToL3();
+            this.m_targetRotation = Constants.ElevatorConstants.L3Position;
+        });
+    }
+
+    public void goToL2() {
         goToPosition(Constants.ElevatorConstants.L2Position +
                 m_offset);
     }
 
-    public void GoToL1() {
+    public Command GoToL2() {
+        return new InstantCommand(() -> {
+            this.goToL2();
+            this.m_targetRotation = Constants.ElevatorConstants.L2Position;
+        });
+    }
+
+    public void goToL1() {
         goToPosition(Constants.ElevatorConstants.L1Position +
                 m_offset);
+    }
+
+    public Command GoToL1() {
+        return new InstantCommand(() -> {
+            this.goToL1();
+            this.m_targetRotation = Constants.ElevatorConstants.L1Position;
+        });
     }
 
     public void GoToTarget() {
@@ -189,11 +217,19 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
     }
 
-    public void GoToElevatorDown() {
+    public void goToElevatorDown() {
         goToPosition(ElevatorConstants.elevatorDownPosition + m_offset);
     }
 
+    public Command GoToElevatorDown() {
+        return new InstantCommand(() -> {
+            this.goToElevatorDown();
+            this.m_targetRotation = Constants.ElevatorConstants.elevatorDownPosition;
+        });
+    }
+
     public boolean atBottom() {
+        m_bottomLimit.refresh();
         if (m_bottomLimit.getValue() == ReverseLimitValue.ClosedToGround) {
             return true;
         } else {
@@ -203,7 +239,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     // are we there yet?
     public boolean atPosition() {
-        return (Math.abs(m_elevatorMotor1.getClosedLoopError().getValueAsDouble()) <= ElevatorConstants.errorTolerance);
+        return (Math.abs(m_elevatorMotor1.getRotorPosition().getValueAsDouble()
+                - m_targetRotation) <= ElevatorConstants.errorTolerance);
     }
 
     public boolean atDownPosition() {
@@ -277,6 +314,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         m_table.putValue("atBottom", NetworkTableValue.makeBoolean(this.atBottom()));
         m_table.putValue("atIntakePosition", NetworkTableValue.makeBoolean(this.atDownPosition()));
+        m_table.putValue("targetRotation", NetworkTableValue.makeDouble(m_targetRotation));
 
     }
 }

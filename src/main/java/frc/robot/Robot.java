@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SubsystemConstants;
 
@@ -99,10 +98,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    m_robotContainer.m_inNOutSubsystem.m_state = "empty";
 
-    if (SubsystemConstants.useElevator) {
-      new InstantCommand(() -> m_robotContainer.m_elevatorSubsystem.m_elevatorMotor1.set(-0.1)).schedule();
-    }
   }
 
   /** This function is called periodically during autonomous. */
