@@ -5,39 +5,34 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "InitializeElevator"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Bottom Cage To C1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Bottom Cage to C2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "WaitForElevator"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Outtake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ElevatorDown"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "C2 to Lower Feeder"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
+            "pathName": "C1 to Upper Feeder"
           }
         },
         {
@@ -49,31 +44,43 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Lower Feeder to F3"
+            "pathName": "Upper Feeder to F1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "WaitForElevator"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Outtake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ElevatorDown"
+            "name": "Score"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "F3 to Lower Feeder"
+            "pathName": "F1 to Upper Feeder"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "WaitForIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Upper Feeder to F1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "F1 to Upper Feeder"
           }
         }
       ]

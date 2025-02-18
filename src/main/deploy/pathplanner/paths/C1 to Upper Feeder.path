@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "Intake",
-      "waypointRelativePos": 0.29677113010446077,
+      "waypointRelativePos": 0.6025641025641022,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -55,7 +55,7 @@
   "folder": "Reef to Feeder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 64.17900802581072
+    "rotation": -119.99999999999999
   },
   "useDefaultConstraints": true
 }

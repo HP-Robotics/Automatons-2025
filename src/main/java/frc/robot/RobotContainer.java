@@ -27,6 +27,8 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.events.EventTrigger;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -78,6 +80,7 @@ public class RobotContainer {
   public RobotContainer() {
 
     configureNamedCommands();
+    configureEventTriggers();
     m_driveSubsystem.configureAutoBuilder();
 
     if (SubsystemConstants.useDrive) {
@@ -107,7 +110,6 @@ public class RobotContainer {
 
   private void configureNamedCommands() {
     NamedCommands.registerCommand("Intake",
-
         new WaitUntilCommand(m_elevatorSubsystem::atDownPosition).andThen(m_inNOutSubsystem.IntakeCoral()));
     NamedCommands.registerCommand("Outtake", m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
         .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")));
@@ -125,8 +127,37 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("WaitForIntake", new WaitUntilCommand(m_inNOutSubsystem::isLoaded));
     NamedCommands.registerCommand("InitializeElevator", InitializeElevator());
+    NamedCommands.registerCommand("Score", new SequentialCommandGroup(
+        new WaitUntilCommand(m_elevatorSubsystem::atPosition),
+        m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
+            .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")),
+        m_elevatorSubsystem.GoToElevatorDown()));
     // TODO: this is just a random number, make it take a position based on the auto
     // somehow
+  }
+
+  public void configureEventTriggers() {
+    new EventTrigger("Intake")
+        .onTrue(new WaitUntilCommand(m_elevatorSubsystem::atDownPosition).andThen(m_inNOutSubsystem.IntakeCoral()));
+    new EventTrigger("Outtake").onTrue(m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
+        .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")));
+    new EventTrigger("SetElevatorLevel").onTrue(m_elevatorSubsystem.SetPosition(1200));
+    new EventTrigger("GoToL4").onTrue(m_elevatorSubsystem.GoToL4());
+    new EventTrigger("GoToL3").onTrue(m_elevatorSubsystem.GoToL3());
+    new EventTrigger("GoToL2").onTrue(m_elevatorSubsystem.GoToL2());
+    new EventTrigger("GoToL1").onTrue(m_elevatorSubsystem.GoToL1());
+    new EventTrigger("ElevatorDown").onTrue(m_elevatorSubsystem.GoToElevatorDown());
+    new EventTrigger("WaitForElevator").onTrue(new WaitUntilCommand(m_elevatorSubsystem::atPosition));
+    new EventTrigger("IWaited").onTrue(
+        new InstantCommand(() -> SmartDashboard.putString("I waited three", "yes")));
+    new EventTrigger("IFished").onTrue(new InstantCommand(() -> SmartDashboard.putString("I fished", "yes")));
+    new EventTrigger("WaitForIntake").onTrue(new WaitUntilCommand(m_inNOutSubsystem::isLoaded));
+    new EventTrigger("InitializeElevator").onTrue(InitializeElevator());
+    new EventTrigger("Score").onTrue(new SequentialCommandGroup(
+        new WaitUntilCommand(m_elevatorSubsystem::atPosition),
+        m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
+            .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")),
+        m_elevatorSubsystem.GoToElevatorDown()));
   }
 
   public Command InitializeElevator() {
@@ -139,7 +170,7 @@ public class RobotContainer {
           new InstantCommand(m_elevatorSubsystem::goToElevatorDown,
               m_elevatorSubsystem),
           new WaitUntilCommand(m_elevatorSubsystem::atDownPosition),
-          m_inNOutSubsystem.IntakeCoral().until(m_inNOutSubsystem::isLoaded)).withTimeout(0.5);
+          m_inNOutSubsystem.IntakeCoral().until(m_inNOutSubsystem::isLoaded));
     } else {
       return new WaitCommand(0);
     }

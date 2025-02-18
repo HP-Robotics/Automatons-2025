@@ -16,22 +16,29 @@
     },
     {
       "anchor": {
-        "x": 5.214651639348607,
-        "y": 5.175819672132832
+        "x": 5.154713114754099,
+        "y": 5.127868852459017
       },
       "prevControl": {
-        "x": 5.993852459020738,
-        "y": 5.499487704919717
+        "x": 5.93391393442623,
+        "y": 5.451536885245901
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "C1"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "GoToL4",
+      "waypointRelativePos": 0.7953237410071882,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 3.0,
@@ -42,7 +49,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.18429424827075
+    "rotation": -119.99999999999999
   },
   "reversed": false,
   "folder": "Drive Foward",
