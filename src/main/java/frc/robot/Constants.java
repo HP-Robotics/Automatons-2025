@@ -87,7 +87,7 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final double L4Position = 80; // TODO: figure out what these are
+    public static final double L4Position = 76; // TODO: figure out what these are
     public static final double L3Position = 51.5;
     public static final double L2Position = 35.5;
     public static final double L1Position = 20;
@@ -247,7 +247,7 @@ public final class Constants {
         new Pose2d(new Translation2d(-1.2816, 0.18).plus(blueReefCenter), new Rotation2d(0)),
         new Pose2d(new Translation2d(-0.796685, -1.0199).plus(blueReefCenter), new Rotation2d(Math.PI / 3)),
         new Pose2d(new Translation2d(0.484915, -1.1999).plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)),
-        new Pose2d(new Translation2d(1.2816, -0.18).plus(redReefCenter), new Rotation2d(Math.PI)),
+        new Pose2d(new Translation2d(1.2816 - 0.01, -0.18 + 0.02).plus(redReefCenter), new Rotation2d(Math.PI)),
         new Pose2d(new Translation2d(0.796685, 1.0199).plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
         new Pose2d(new Translation2d(-0.484915, 1.1999).plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
         new Pose2d(new Translation2d(-1.2816, 0.18).plus(redReefCenter), new Rotation2d(0)),
@@ -262,7 +262,7 @@ public final class Constants {
         new Pose2d(new Translation2d(-0.4849, -1.2).plus(blueReefCenter), new Rotation2d(Math.PI / 3)),
         new Pose2d(new Translation2d(0.7968, -1.02).plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)),
 
-        new Pose2d(new Translation2d(1.2816, 0.18).plus(redReefCenter), new Rotation2d(Math.PI)),
+        new Pose2d(new Translation2d(1.2816 - 0.01, 0.18 - 0.02).plus(redReefCenter), new Rotation2d(Math.PI)),
         new Pose2d(new Translation2d(0.4849, 1.2).plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
         new Pose2d(new Translation2d(-0.7968, 1.02).plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
         new Pose2d(new Translation2d(-1.2817, -0.18005).plus(redReefCenter), new Rotation2d(0)),
