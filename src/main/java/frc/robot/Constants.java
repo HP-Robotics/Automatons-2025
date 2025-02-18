@@ -22,13 +22,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public final class Constants {
 
   public static class SubsystemConstants {
-    public static final boolean useDrive = false;
-    public static final boolean useIntake = false;
-    public static final boolean useOuttake = false;
+    public static final boolean useDrive = true;
+    public static final boolean useIntake = true;
+    public static final boolean useOuttake = true;
     public static final boolean useDataManager = false;
-    public static final boolean useLimelight = false;
+    public static final boolean useLimelight = true;
     public static final boolean useClimber = false;
-    public static final boolean usePoseEstimator = false;
+    public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
   }
 
@@ -81,34 +81,36 @@ public final class Constants {
     public static final int FRAbsEncoder = 10;
     public static final int BRAbsEncoder = 13;
     public static final int BLAbsEncoder = 11;
-    public static final int intakeBeamBreakID = 0;
-    public static final int outtakeBeamBreakID = 1;
-    public static final int elevatorBeamBreakID = 2;
+    public static final int intakeBeamBreakID = 0; // this is fake
+    public static final int outtakeBeamBreakID = 9;
+    public static final int elevatorBeamBreakID = 8;
   }
 
   public static class ElevatorConstants {
-    public static final double L4Position = 1200; // TODO: figure out what these are
-    public static final double L3Position = 900;
-    public static final double L2Position = 600;
-    public static final double L1Position = 300;
-    public static final double elevatorDownPosition = 0;
+    public static final double L4Position = 76; // TODO: figure out what these are
+    public static final double L3Position = 51.5;
+    public static final double L2Position = 35.5;
+    public static final double L1Position = 20;
+    public static final double elevatorDownPosition = 3.5;
     public static final double bottomPosition = 0;
     // TODO: this might be right but should be checked with the other two
-    public static final double kP = 0;// TODO: tune these
-    public static final double kI = 0;
+    public static final double kP = 1.5;// TODO: tune these more
+    public static final double kI = 0.3;
     public static final double kD = 0;
+
+    public static final double errorTolerance = 1.0;
 
     public static final double upperLimit = 20;
 
-    public static final double elevatorUpSpeed = 0.15; // 0.6 or 0.7 and -0.4
+    public static final double elevatorUpSpeed = 1; // 0.15 // 0.6 or 0.7 and -0.4
     public static final double elevatorDownSpeed = -0.1;
-    public static final double kG = 12 * 0.15;
-    public static final double kA = 6 / 40;
-    public static final double kS = 0;
-    public static final double kV = 4 / 20;
+    public static final double kG = 0.8;
+    public static final double kA = 0.0;
+    public static final double kS = 0.0;
+    public static final double kV = 0.0;
 
-    public static final double motionMagicCruiseVelocity = 20;
-    public static final double motionMagicAcceleration = motionMagicCruiseVelocity * 2;
+    public static final double motionMagicCruiseVelocity = 150;
+    public static final double motionMagicAcceleration = 120;
     public static final double motionMagicJerk = motionMagicCruiseVelocity * 10;
   }
 
@@ -134,12 +136,8 @@ public final class Constants {
         : m_driveJoystick.axisGreaterThan(2, 0.2);
     public static final int intakeButton = useXbox ? 2 : 2;
     public static final int stopIntakeButtton = 9;
-    public static final int outtakeButton = useXbox ? 0 : 0;
+    public static final int outtakeButton = useXbox ? 4 : 0;
     public static final Trigger outtakeTrigger = m_driveJoystick.button(outtakeButton);
-    public static final int drivePointedToSpeakerButton = useXbox ? 6 : 0;
-    public static final int drivePointedToNoteButton = useXbox ? 5 : 0;
-    public static final int driveToNoteAxis = useXbox ? 2 : 0;
-    public static final int pointToCornerButton = 2;
 
     public static final Trigger elevatorL3Button = m_opJoystick.button(3);
     public static final Trigger elevatorL4Button = m_opJoystick.button(4);
@@ -148,6 +146,9 @@ public final class Constants {
     public static final int goToTargetButton = 0; // TODO: change this
 
     public static final int leftAutoAlignButton = 5;
+    public static final int rightAutoAlignButton = 6;
+
+    public static final int overrideButton = 6;
 
     public static double getRotation(CommandJoystick stick) {
       if (useXbox) {
@@ -246,7 +247,8 @@ public final class Constants {
         new Pose2d(new Translation2d(-1.2816, 0.18).plus(blueReefCenter), new Rotation2d(0)),
         new Pose2d(new Translation2d(-0.796685, -1.0199).plus(blueReefCenter), new Rotation2d(Math.PI / 3)),
         new Pose2d(new Translation2d(0.484915, -1.1999).plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)),
-        new Pose2d(new Translation2d(1.2816, -0.18).plus(redReefCenter), new Rotation2d(Math.PI)),
+
+        new Pose2d(new Translation2d(1.2816 - 0.01, -0.18 + 0.02).plus(redReefCenter), new Rotation2d(Math.PI)),
         new Pose2d(new Translation2d(0.796685, 1.0199).plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
         new Pose2d(new Translation2d(-0.484915, 1.1999).plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
         new Pose2d(new Translation2d(-1.2816, 0.18).plus(redReefCenter), new Rotation2d(0)),
@@ -254,18 +256,19 @@ public final class Constants {
         new Pose2d(new Translation2d(0.484915, -1.1999).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
     };
     public static final Pose2d[] rightAlignPoses = {
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
-        new Pose2d(),
+        new Pose2d(new Translation2d(1.2816, 0.18).plus(blueReefCenter), new Rotation2d(Math.PI)),
+        new Pose2d(new Translation2d(0.4849, 1.2).plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+        new Pose2d(new Translation2d(-0.7968, 1.02).plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+        new Pose2d(new Translation2d(-1.2817, -0.18005).plus(blueReefCenter), new Rotation2d(0)),
+        new Pose2d(new Translation2d(-0.4849, -1.2).plus(blueReefCenter), new Rotation2d(Math.PI / 3)),
+        new Pose2d(new Translation2d(0.7968, -1.02).plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+
+        new Pose2d(new Translation2d(1.2816 - 0.01, 0.18 - 0.02).plus(redReefCenter), new Rotation2d(Math.PI)),
+        new Pose2d(new Translation2d(0.4849, 1.2).plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+        new Pose2d(new Translation2d(-0.7968, 1.02).plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+        new Pose2d(new Translation2d(-1.2817, -0.18005).plus(redReefCenter), new Rotation2d(0)),
+        new Pose2d(new Translation2d(-0.4849, -1.2).plus(redReefCenter), new Rotation2d(Math.PI / 3)),
+        new Pose2d(new Translation2d(0.7968, -1.02).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
     };
   }
 
@@ -275,7 +278,7 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    public static final double intakeSpeed = 0.2;
+    public static final double intakeSpeed = 0.5;
   }
 
   public static class PoseEstimatorConstants {
@@ -326,8 +329,9 @@ public final class Constants {
   }
 
   public static class OuttakeConstants {
-    public static final double loadSpeed = 0.2;
-    public static final double outtakeSpeed = 0.2;
+    public static final double outtakeSpeed = -0.6;
+    public static final double loadSpeed = -0.3;
+    public static final double scoreDelay = 0.5;
   }
 
 }

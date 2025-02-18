@@ -47,7 +47,7 @@ public class Robot extends TimedRobot {
       }, 1.0 / DriveConstants.odometryUpdateFrequency);
       m_robotContainer.m_driveSubsystem.startPoseEstimator(new Pose2d(0, 0, new Rotation2d(
           DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red ? Math.PI : 0)));
-          FollowPathCommand.warmupCommand().schedule();
+      FollowPathCommand.warmupCommand().schedule();
     }
   }
 
@@ -98,6 +98,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    m_robotContainer.m_inNOutSubsystem.m_state = "empty";
+
   }
 
   /** This function is called periodically during autonomous. */

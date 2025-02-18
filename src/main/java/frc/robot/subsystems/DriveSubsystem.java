@@ -158,43 +158,15 @@ public class DriveSubsystem extends SubsystemBase {
   public DriveSubsystem(PoseEstimatorSubsystem poseEstimator) {
     m_pGyro.getYaw().setUpdateFrequency(DriveConstants.odometryUpdateFrequency);
 
+    m_poseEstimator = poseEstimator;
+    m_pGyro.setYaw(0);
+
     try {
       m_config = RobotConfig.fromGUISettings();
     } catch (Exception e) {
       // Handle exception as needed
       e.printStackTrace();
     }
-
-    // Configure AutoBuilder last
-    AutoBuilder.configure(
-        this::getPose, // Robot pose supplier
-        this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-        this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        (speeds, feedforwards) -> driveRobotRelative(speeds, feedforwards),
-        // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-        // Also optionally outputs individual module feedforwards
-        new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic
-                                        // drive trains
-            PathplannerPIDConstants.translationConstants, // Translation PID constants
-            PathplannerPIDConstants.rotationConstants // Rotation PID constants
-        ),
-        m_config, // The robot configuration
-        () -> {
-          // Boolean supplier that controls when the path will be mirrored for the red
-          // alliance
-          // This will flip the path being followed to the red side of the field.
-          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-          var alliance = DriverStation.getAlliance();
-          if (alliance.isPresent()) {
-            return alliance.get() == DriverStation.Alliance.Red;
-          }
-          return false;
-        },
-        this // Reference to this subsystem to set requirements
-    );
-    m_poseEstimator = poseEstimator;
-    m_pGyro.setYaw(0);
 
     PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
       m_currentPose.setRobotPose(pose);
@@ -241,6 +213,38 @@ public class DriveSubsystem extends SubsystemBase {
 
     robotToReefPub = m_driveTrainTable.getStructTopic("Robot To Reef", Translation2d.struct).publish();
 
+  }
+
+  public void configureAutoBuilder() {
+
+    // Configure AutoBuilder last
+    AutoBuilder.configure(
+        this::getPose, // Robot pose supplier
+        this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+        this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        (speeds, feedforwards) -> driveRobotRelative(speeds, feedforwards),
+        // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+        // Also optionally outputs individual module feedforwards
+        new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic
+                                        // drive trains
+            PathplannerPIDConstants.translationConstants, // Translation PID constants
+            PathplannerPIDConstants.rotationConstants // Rotation PID constants
+        ),
+        m_config, // The robot configuration
+        () -> {
+          // Boolean supplier that controls when the path will be mirrored for the red
+          // alliance
+          // This will flip the path being followed to the red side of the field.
+          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          return false;
+        },
+        this // Reference to this subsystem to set requirements
+    );
   }
 
   public ChassisSpeeds getRobotRelativeSpeeds() {
@@ -593,7 +597,7 @@ public class DriveSubsystem extends SubsystemBase {
     if (isRed) {
       sector += DriveConstants.autoAlignSectorCount;
     }
-    System.out.println(sector);
+    // System.out.println(sector);
     return Optional.of(sector);
   }
 

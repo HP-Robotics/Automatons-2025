@@ -6,6 +6,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ForwardLimitValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -24,12 +25,11 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IDConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
-    TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
+    public TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
     TalonFX m_elevatorMotor2 = new TalonFX(IDConstants.ElevatorMotor2ID);
     Slot0Configs m_PIDValues = new Slot0Configs();
     public double m_targetRotation = 0;
     public String elevatorPreset = "Empty";
-    public double targetPosition = 0; // TODO: find real value
     public double m_offset = 0;
     StatusSignal<ReverseLimitValue> m_bottomLimit = m_elevatorMotor1.getReverseLimit();
     NetworkTable m_table;
@@ -53,8 +53,19 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorConfig.Slot0.kV = ElevatorConstants.kV;
         elevatorConfig.Slot0.kA = ElevatorConstants.kA;
         elevatorConfig.Slot0.kG = ElevatorConstants.kG;
+        elevatorConfig.HardwareLimitSwitch.ReverseLimitEnable = true;
+        elevatorConfig.HardwareLimitSwitch.ReverseLimitAutosetPositionValue = 0;
+        elevatorConfig.HardwareLimitSwitch.ReverseLimitAutosetPositionEnable = true;
         elevatorConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         elevatorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+        elevatorConfig.Slot1.kP = ElevatorConstants.kP;
+        elevatorConfig.Slot1.kI = ElevatorConstants.kI;
+        elevatorConfig.Slot1.kD = ElevatorConstants.kD;
+        elevatorConfig.Slot1.kS = ElevatorConstants.kS;
+        elevatorConfig.Slot1.kV = 0.0;
+        elevatorConfig.Slot1.kA = ElevatorConstants.kA;
+        elevatorConfig.Slot1.kG = 0.0; // -ElevatorConstants.kG;
 
         // set Motion Magic settings
         elevatorConfig.MotionMagic.MotionMagicCruiseVelocity = ElevatorConstants.motionMagicCruiseVelocity; // Target
@@ -75,6 +86,11 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_table.putValue("kP", NetworkTableValue.makeDouble(elevatorConfig.Slot0.kP));
         m_table.putValue("kI", NetworkTableValue.makeDouble(elevatorConfig.Slot0.kI));
         m_table.putValue("kD", NetworkTableValue.makeDouble(elevatorConfig.Slot0.kD));
+        m_table.putValue("setpoint", NetworkTableValue.makeDouble(0));
+        m_table.putValue("kG", NetworkTableValue.makeDouble(ElevatorConstants.kG));
+        m_table.putValue("kA", NetworkTableValue.makeDouble(ElevatorConstants.kA));
+        m_table.putValue("kS", NetworkTableValue.makeDouble(ElevatorConstants.kS));
+        m_table.putValue("kV", NetworkTableValue.makeDouble(ElevatorConstants.kV));
 
         kPSub = m_table.getDoubleTopic("kP").subscribe(ElevatorConstants.kP);
         kISub = m_table.getDoubleTopic("kI").subscribe(ElevatorConstants.kI);
@@ -125,37 +141,95 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorPreset = "Elevator to L1";
     }
 
-    public void GoToL4() {
-        // m_elevatorMotor1.setPosition(Constants.ElevatorConstants.L4Position +
-        // m_offset);
+    public void goToL4() {
+        goToPosition(Constants.ElevatorConstants.L4Position +
+                m_offset);
     }
 
-    public void GoToL3() {
-        // m_elevatorMotor1.setPosition(Constants.ElevatorConstants.L3Position +
-        // m_offset);
+    public Command GoToL4() {
+        return new InstantCommand(() -> {
+            this.goToL4();
+            this.m_targetRotation = Constants.ElevatorConstants.L4Position;
+        });
     }
 
-    public void GoToL2() {
-        // m_elevatorMotor1.setPosition(Constants.ElevatorConstants.L2Position +
-        // m_offset);
+    public void goToL3() {
+        goToPosition(Constants.ElevatorConstants.L3Position +
+                m_offset);
     }
 
-    public void GoToL1() {
-        // m_elevatorMotor1.setPosition(Constants.ElevatorConstants.L1Position +
-        // m_offset);
+    public Command GoToL3() {
+        return new InstantCommand(() -> {
+            this.goToL3();
+            this.m_targetRotation = Constants.ElevatorConstants.L3Position;
+        });
+    }
+
+    public void goToL2() {
+        goToPosition(Constants.ElevatorConstants.L2Position +
+                m_offset);
+    }
+
+    public Command GoToL2() {
+        return new InstantCommand(() -> {
+            this.goToL2();
+            this.m_targetRotation = Constants.ElevatorConstants.L2Position;
+        });
+    }
+
+    public void goToL1() {
+        goToPosition(Constants.ElevatorConstants.L1Position +
+                m_offset);
+    }
+
+    public Command GoToL1() {
+        return new InstantCommand(() -> {
+            this.goToL1();
+            this.m_targetRotation = Constants.ElevatorConstants.L1Position;
+        });
     }
 
     public void GoToTarget() {
         // m_elevatorMotor1.setPosition(m_targetRotation); // + m_offset
         // create a Motion Magic request, voltage output
-        m_elevatorMotor1.setControl(new MotionMagicVoltage(m_targetRotation));
+        var request = new PositionVoltage(0).withPosition(m_targetRotation);
+        if (m_targetRotation >= m_elevatorMotor1.getRotorPosition().getValueAsDouble()) {
+            request.Slot = 0;
+            m_elevatorMotor1.setControl(request);
+            m_table.putValue("Slot", NetworkTableValue.makeInteger(m_elevatorMotor1.getClosedLoopSlot().getValue()));
+        } else {
+            request.Slot = 1;
+            m_elevatorMotor1.setControl(request);
+            m_table.putValue("Slot", NetworkTableValue.makeInteger(m_elevatorMotor1.getClosedLoopSlot().getValue()));
+        }
     }
 
-    public void GoToElevatorDown() {
-        // m_elevatorMotor1.setPosition(targetRotation + m_offset);
+    public void goToPosition(double position) {
+        var request = new PositionVoltage(0).withPosition(position);
+        if (position >= m_elevatorMotor1.getRotorPosition().getValueAsDouble()) {
+            request.Slot = 0;
+            m_elevatorMotor1.setControl(request);
+            m_table.putValue("Slot", NetworkTableValue.makeInteger(m_elevatorMotor1.getClosedLoopSlot().getValue()));
+        } else {
+            request.Slot = 1;
+            m_elevatorMotor1.setControl(request);
+            m_table.putValue("Slot", NetworkTableValue.makeInteger(m_elevatorMotor1.getClosedLoopSlot().getValue()));
+        }
+    }
+
+    public void goToElevatorDown() {
+        goToPosition(ElevatorConstants.elevatorDownPosition + m_offset);
+    }
+
+    public Command GoToElevatorDown() {
+        return new InstantCommand(() -> {
+            this.goToElevatorDown();
+            this.m_targetRotation = Constants.ElevatorConstants.elevatorDownPosition;
+        });
     }
 
     public boolean atBottom() {
+        m_bottomLimit.refresh();
         if (m_bottomLimit.getValue() == ReverseLimitValue.ClosedToGround) {
             return true;
         } else {
@@ -163,8 +237,20 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
     }
 
+    // are we there yet?
+    public boolean atPosition() {
+        return (Math.abs(m_elevatorMotor1.getRotorPosition().getValueAsDouble()
+                - m_targetRotation) <= ElevatorConstants.errorTolerance);
+    }
+
+    public boolean atDownPosition() {
+        return (Math.abs(m_elevatorMotor1.getPosition().getValueAsDouble()
+                - ElevatorConstants.elevatorDownPosition - m_offset) <= ElevatorConstants.errorTolerance
+                && atPosition());
+    }
+
     public Command SetPosition(double position) {
-        return new InstantCommand(() -> m_elevatorMotor1.setPosition(position));
+        return new InstantCommand(() -> goToPosition(position));
     }
 
     @Override
@@ -227,6 +313,8 @@ public class ElevatorSubsystem extends SubsystemBase {
                 NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopFeedForward().getValueAsDouble()));
 
         m_table.putValue("atBottom", NetworkTableValue.makeBoolean(this.atBottom()));
+        m_table.putValue("atIntakePosition", NetworkTableValue.makeBoolean(this.atDownPosition()));
+        m_table.putValue("targetRotation", NetworkTableValue.makeDouble(m_targetRotation));
 
     }
 }

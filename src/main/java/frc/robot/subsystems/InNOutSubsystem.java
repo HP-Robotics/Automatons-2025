@@ -41,6 +41,10 @@ public class InNOutSubsystem extends SubsystemBase {
         m_outtakeMotor.set(OuttakeConstants.outtakeSpeed);
     }
 
+    public void loadOuttake() {
+        m_outtakeMotor.set(OuttakeConstants.loadSpeed);
+    }
+
     public void stopIntake() {
         m_intakeMotor.set(0);
         // LED (on intake motor?) red

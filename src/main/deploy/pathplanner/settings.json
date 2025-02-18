@@ -3,9 +3,10 @@
   "robotLength": 0.845,
   "holonomicMode": true,
   "pathFolders": [
-    "Reef to Feeder",
+    "Drive Foward",
     "Feeder to Reef",
-    "Center to Reef"
+    "New Folder",
+    "Reef to Feeder"
   ],
   "autoFolders": [],
   "defaultMaxVel": 5.0,

@@ -33,9 +33,9 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "go to L3",
-      "waypointRelativePos": 0.7,
-      "endWaypointRelativePos": 1.0,
+      "name": "GoToL4",
+      "waypointRelativePos": 0.8114909781576416,
+      "endWaypointRelativePos": null,
       "command": null
     }
   ],
@@ -52,7 +52,7 @@
     "rotation": 122.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Drive Foward",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

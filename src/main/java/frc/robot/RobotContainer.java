@@ -13,6 +13,7 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IDConstants;
+import frc.robot.Constants.OuttakeConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SubsystemConstants;
 import frc.robot.commands.ClimberClimbCommand;
@@ -33,7 +34,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -72,6 +76,10 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+
+    configureNamedCommands();
+    m_driveSubsystem.configureAutoBuilder();
+
     if (SubsystemConstants.useDrive) {
       m_driveSubsystem.setDefaultCommand(
           new RunCommand(
@@ -98,23 +106,67 @@ public class RobotContainer {
   }
 
   private void configureNamedCommands() {
-    NamedCommands.registerCommand("intake coral", m_inNOutSubsystem.IntakeCoral()); // TODO: pathplanner needs to stop
-                                                                                    // the StartEnd command
-    NamedCommands.registerCommand("outtake coral", m_inNOutSubsystem.OuttakeCoral());
-    NamedCommands.registerCommand("go to L1", new InstantCommand(() -> m_elevatorSubsystem.GoToL1()));
-    NamedCommands.registerCommand("go to L2", new InstantCommand(() -> m_elevatorSubsystem.GoToL2()));
-    NamedCommands.registerCommand("go to L3", new InstantCommand(() -> m_elevatorSubsystem.GoToL3()));
-    NamedCommands.registerCommand("go to L4", new InstantCommand(() -> m_elevatorSubsystem.GoToL4()));
+    NamedCommands.registerCommand("Intake",
+
+        new WaitUntilCommand(m_elevatorSubsystem::atDownPosition).andThen(m_inNOutSubsystem.IntakeCoral()));
+    NamedCommands.registerCommand("Outtake", m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
+        .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")));
+    NamedCommands.registerCommand("SetElevatorLevel", m_elevatorSubsystem.SetPosition(1200));
+    NamedCommands.registerCommand("GoToL4", m_elevatorSubsystem.GoToL4());
+    NamedCommands.registerCommand("GoToL3", m_elevatorSubsystem.GoToL3());
+    NamedCommands.registerCommand("GoToL2", m_elevatorSubsystem.GoToL2());
+    NamedCommands.registerCommand("GoToL1", m_elevatorSubsystem.GoToL1());
+    NamedCommands.registerCommand("ElevatorDown", m_elevatorSubsystem.GoToElevatorDown());
+    NamedCommands.registerCommand("WaitForElevator",
+        new WaitUntilCommand(m_elevatorSubsystem::atPosition));
+    NamedCommands.registerCommand("IWaited",
+        new InstantCommand(() -> SmartDashboard.putString("I waited three", "yes")));
+    NamedCommands.registerCommand("IFished", new InstantCommand(() -> SmartDashboard.putString("I fished", "yes")));
+
+    NamedCommands.registerCommand("WaitForIntake", new WaitUntilCommand(m_inNOutSubsystem::isLoaded));
+    NamedCommands.registerCommand("InitializeElevator", InitializeElevator());
     // TODO: this is just a random number, make it take a position based on the auto
     // somehow
   }
 
+  public Command InitializeElevator() {
+    if (SubsystemConstants.useElevator && SubsystemConstants.useIntake) {
+
+      return new SequentialCommandGroup(
+          new InstantCommand(() -> m_elevatorSubsystem.m_elevatorMotor1.set(-0.2),
+              m_elevatorSubsystem),
+          new WaitUntilCommand(m_elevatorSubsystem::atBottom),
+          new InstantCommand(m_elevatorSubsystem::goToElevatorDown,
+              m_elevatorSubsystem),
+          new WaitUntilCommand(m_elevatorSubsystem::atDownPosition),
+          m_inNOutSubsystem.IntakeCoral().until(m_inNOutSubsystem::isLoaded)).withTimeout(0.5);
+    } else {
+      return new WaitCommand(0);
+    }
+  }
+
   private void configureBindings() {
     // TEST CODE
+    if (SubsystemConstants.useElevator) {
+      ControllerConstants.m_driveJoystick.povUp().whileTrue(
+          new StartEndCommand(m_elevatorSubsystem::GoToTarget, () -> m_elevatorMotor1.setControl(new DutyCycleOut(0)),
+              m_elevatorSubsystem));
 
-    ControllerConstants.m_driveJoystick.povUp().whileTrue(
-        new StartEndCommand(m_elevatorSubsystem::GoToTarget, () -> m_elevatorMotor1.setControl(new DutyCycleOut(0)),
-            m_elevatorSubsystem));
+      ControllerConstants.m_opJoystick.button(ControllerConstants.elevatorUpButton)
+          .whileTrue(new StartEndCommand(() -> {
+            m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorUpSpeed));
+          }, () -> {
+            m_elevatorMotor1.setControl(new DutyCycleOut(0));
+          }, m_elevatorSubsystem));
+      ControllerConstants.m_opJoystick.button(ControllerConstants.elevatorDownButton)
+          .whileTrue(new StartEndCommand(() -> {
+            m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorDownSpeed));
+          },
+              () -> {
+                m_elevatorMotor1.setControl(new DutyCycleOut(0));
+              },
+              m_elevatorSubsystem));
+    }
     /*
      * PRODUCTION CODE
      */
@@ -126,11 +178,12 @@ public class RobotContainer {
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "intaking"; // TODO: Make sure elevator is at bottom before intaking
           }));
+      // TODO: manual override button
 
       // Set state to loaded if isLoaded (elevator beam break not broken and outtake
       // beam break is broken)
       // is true and previous state is intaking
-      new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
+      new Trigger(() -> m_inNOutSubsystem.m_state == "intaking" || m_inNOutSubsystem.m_state == "empty")
           .and(m_inNOutSubsystem::isLoaded)
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "loaded";
@@ -146,22 +199,38 @@ public class RobotContainer {
       // When it becomes empty (no beam breaks are broken)
       new Trigger(m_inNOutSubsystem::isEmpty)
           .and(() -> m_inNOutSubsystem.m_state == "outtaking")
-          .onTrue(new InstantCommand(() -> {
-            m_inNOutSubsystem.m_state = "empty";
-          }));
+          .onTrue(new SequentialCommandGroup(
+              new WaitCommand(OuttakeConstants.scoreDelay),
+              new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty"),
+              m_elevatorSubsystem.GoToElevatorDown()));
 
       // ACTIONS
       // run intake if intake button pressed and state is empty or is intaking
-      new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
-          .or(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton)
-              .and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty")))
+      (new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
+          .or(new Trigger(() -> m_inNOutSubsystem.m_state == "empty")))
+          .and(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton))
+          .and(new Trigger(m_elevatorSubsystem::atDownPosition))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
-          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
+          .whileTrue(new StartEndCommand(m_inNOutSubsystem::loadOuttake, m_inNOutSubsystem::stopOuttake));
 
       // Shoot if outtaking and stop when done
       new Trigger(() -> m_inNOutSubsystem.m_state == "outtaking")
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
+
+      // Manual override button
+      ControllerConstants.m_opJoystick.button(ControllerConstants.overrideButton)
+          .whileTrue(new InstantCommand(() -> m_inNOutSubsystem.m_state = "override"))
+          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, () -> {
+            m_inNOutSubsystem.stopIntake();
+            m_inNOutSubsystem.m_state = "empty";
+          }))
+          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
     }
+
+    new Trigger(() -> m_inNOutSubsystem.m_state == "loaded")
+        .onTrue(new InstantCommand(m_inNOutSubsystem::stopIntake))
+        .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
+
     if (SubsystemConstants.useDrive) {
       ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAutoAlignButton)
           .whileTrue(new RunCommand(() -> {
@@ -188,54 +257,60 @@ public class RobotContainer {
             m_driveSubsystem.m_driveTrainTable.putValue("Joystick Degrees",
                 NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
           }, m_driveSubsystem));
-      ControllerConstants.m_driveJoystick.button(6).and(new Trigger(() -> {
-        return m_driveSubsystem.m_sector.isPresent();
-      })).whileTrue(new RunCommand(() -> {
-        // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
-        // new Rotation2d(Math.PI)));
-        m_driveSubsystem.driveToPose(DriveConstants.rightAlignPoses[m_driveSubsystem.m_sector.get()]);
-      }, m_driveSubsystem));
 
-      ControllerConstants.m_driveJoystick.button(1).whileTrue(new RunCommand(() -> {
-        m_driveSubsystem.drivePointedTowardsAngle(
-            ControllerConstants.m_driveJoystick,
-            Rotation2d.fromDegrees(m_driveSubsystem.getAngleBetweenPoses(m_poseEstimatorSubsystem.getPose(),
-                new Pose2d(
-                    DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
-                        ? DriveConstants.redReefCenter
-                        : DriveConstants.blueReefCenter,
-                    new Rotation2d()))));
-      }, m_driveSubsystem));
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.rightAutoAlignButton)
+          .whileTrue(new RunCommand(() -> {
+            // TODO: add auto align to the feeder station if robot doesn't have a coral
+            // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
+            // new Rotation2d(Math.PI)));
 
-      ControllerConstants.m_driveJoystick.button(6).whileTrue(new RunCommand(
-          () -> {
-            m_driveSubsystem.driveToPose(new Pose2d());
-          },
-          m_driveSubsystem));
+            if (m_driveSubsystem.m_sector.isPresent()
+                && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans, m_driveSubsystem.robotToReef,
+                    DriveConstants.autoAlignTolerance)
+                    || ControllerConstants.m_driveJoystick
+                        .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
+              m_driveSubsystem.driveToPose(DriveConstants.rightAlignPoses[m_driveSubsystem.m_sector.get()]);
+            } else {
+              m_driveSubsystem.drivePointedTowardsAngle(
+                  ControllerConstants.m_driveJoystick,
+                  Rotation2d.fromDegrees(m_driveSubsystem.getAngleBetweenPoses(m_poseEstimatorSubsystem.getPose(),
+                      new Pose2d(
+                          DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
+                              ? DriveConstants.redReefCenter
+                              : DriveConstants.blueReefCenter,
+                          new Rotation2d()))));
+            }
+            m_driveSubsystem.m_driveTrainTable.putValue("Joystick Degrees",
+                NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
+          }, m_driveSubsystem));
+
+      // ControllerConstants.m_driveJoystick.button(1).whileTrue(new RunCommand(() ->
+      // {
+      // m_driveSubsystem.drivePointedTowardsAngle(
+      // ControllerConstants.m_driveJoystick,
+      // Rotation2d.fromDegrees(m_driveSubsystem.getAngleBetweenPoses(m_poseEstimatorSubsystem.getPose(),
+      // new Pose2d(
+      // DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get()
+      // == Alliance.Red
+      // ? DriveConstants.redReefCenter
+      // : DriveConstants.blueReefCenter,
+      // new Rotation2d()))));
+      // }, m_driveSubsystem));
     }
 
     if (SubsystemConstants.useElevator) {
-      // ControllerConstants.m_opJoystick.povUp().onTrue(new InstantCommand(() -> { //
-      // don't let us go up if we have coral
-      // // breaking the elevator beam break (?)
-      // // consider other conditions
-      // m_elevatorSubsystem.GoToL4();
-      // m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L4Position;
-      // }));
-      ControllerConstants.m_opJoystick.povRight().onTrue(new InstantCommand(() -> {
-        m_elevatorSubsystem.GoToL3();
-        m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L3Position;
-      }));
-      ControllerConstants.m_opJoystick.povDown().onTrue(new InstantCommand(() -> {
-        m_elevatorSubsystem.GoToL2();
-        m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L2Position;
-      }));
-      ControllerConstants.m_opJoystick.povLeft().onTrue(new InstantCommand(() -> {
-        m_elevatorSubsystem.GoToL1();
-        m_elevatorSubsystem.targetPosition = Constants.ElevatorConstants.L2Position;
-      }));
+
+      ControllerConstants.m_driveJoystick.button(7)
+          .and(new Trigger(() -> m_inNOutSubsystem.isLoaded()))
+          .whileTrue(new StartEndCommand(m_elevatorSubsystem::GoToTarget, m_elevatorSubsystem::goToElevatorDown));
+
+      ControllerConstants.m_opJoystick.povUp().onTrue(m_elevatorSubsystem.GoToL4());
+      ControllerConstants.m_opJoystick.povRight().onTrue(m_elevatorSubsystem.GoToL3());
+      ControllerConstants.m_opJoystick.povDown().onTrue(m_elevatorSubsystem.GoToL2());
+      ControllerConstants.m_opJoystick.povLeft().onTrue(m_elevatorSubsystem.GoToL1());
       ControllerConstants.m_opJoystick.button(9)
-          .onTrue(new InstantCommand(() -> m_elevatorSubsystem.GoToElevatorDown()));
+          .or(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton))
+          .onTrue(m_elevatorSubsystem.GoToElevatorDown());
 
       ControllerConstants.m_opJoystick.button(4)
           .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L4ButtonIsPressed()));
@@ -245,31 +320,14 @@ public class RobotContainer {
           .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L2ButtonIsPressed()));
       ControllerConstants.m_opJoystick.button(3)
           .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L1ButtonIsPressed()));
+    }
 
-      if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
-        ControllerConstants.m_driveJoystick.button(7)
-            .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
-      }
-
+    if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
+      ControllerConstants.m_driveJoystick.button(7)
+          .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
+    }
+    if (SubsystemConstants.useClimber) {
       ControllerConstants.m_driveJoystick.button(1).whileTrue(new ClimberClimbCommand(m_climberSubsystem));
-
-      if (SubsystemConstants.useElevator) {
-        ControllerConstants.m_driveJoystick.button(ControllerConstants.elevatorUpButton)
-            .whileTrue(new StartEndCommand(() -> {
-              m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorUpSpeed));
-            }, () -> {
-              m_elevatorMotor1.setControl(new DutyCycleOut(0));
-            }, m_elevatorSubsystem));
-        ControllerConstants.m_driveJoystick.button(ControllerConstants.elevatorDownButton)
-            .whileTrue(new StartEndCommand(() -> {
-              m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorDownSpeed));
-            },
-                () -> {
-                  m_elevatorMotor1.setControl(new DutyCycleOut(0));
-                },
-                m_elevatorSubsystem));
-      }
-
     }
   }
 
@@ -278,7 +336,6 @@ public class RobotContainer {
    */
 
   /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
