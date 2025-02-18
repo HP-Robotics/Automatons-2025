@@ -241,33 +241,34 @@ public final class Constants {
 
     // TODO: actually do this
     public static final Pose2d[] leftAlignPoses = {
-        new Pose2d(new Translation2d(1.2816, -0.18).plus(blueReefCenter), new Rotation2d(Math.PI)),
-        new Pose2d(new Translation2d(0.796685, 1.0199).plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)),
-        new Pose2d(new Translation2d(-0.484915, 1.1999).plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)),
-        new Pose2d(new Translation2d(-1.2816, 0.18).plus(blueReefCenter), new Rotation2d(0)),
-        new Pose2d(new Translation2d(-0.796685, -1.0199).plus(blueReefCenter), new Rotation2d(Math.PI / 3)),
-        new Pose2d(new Translation2d(0.484915, -1.1999).plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)),
-        new Pose2d(new Translation2d(1.2816 - 0.01, -0.18 + 0.02).plus(redReefCenter), new Rotation2d(Math.PI)),
-        new Pose2d(new Translation2d(0.796685, 1.0199).plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
-        new Pose2d(new Translation2d(-0.484915, 1.1999).plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
-        new Pose2d(new Translation2d(-1.2816, 0.18).plus(redReefCenter), new Rotation2d(0)),
-        new Pose2d(new Translation2d(-0.796685, -1.0199).plus(redReefCenter), new Rotation2d(Math.PI / 3)),
-        new Pose2d(new Translation2d(0.484915, -1.1999).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+        new Pose2d(new Translation2d(1.2716, -0.16).plus(blueReefCenter), new Rotation2d(Math.PI)),
+        new Pose2d(new Translation2d(0.774364, 1.02124).plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+        new Pose2d(new Translation2d(-0.497238, 1.18124).plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+        new Pose2d(new Translation2d(-1.2716, 0.15999).plus(blueReefCenter), new Rotation2d(0)),
+        new Pose2d(new Translation2d(-0.774355, -1.02124).plus(blueReefCenter), new Rotation2d(Math.PI / 3)),
+        new Pose2d(new Translation2d(0.497242, -1.18123).plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+
+        new Pose2d(new Translation2d(1.2716, -0.16).plus(redReefCenter), new Rotation2d(Math.PI)), // 7
+        new Pose2d(new Translation2d(0.774364, 1.02124).plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+        new Pose2d(new Translation2d(-0.497238, 1.18124).plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+        new Pose2d(new Translation2d(-1.2716, 0.15999).plus(redReefCenter), new Rotation2d(0)),
+        new Pose2d(new Translation2d(-0.774355, -1.02124).plus(redReefCenter), new Rotation2d(Math.PI / 3)),
+        new Pose2d(new Translation2d(0.497242, -1.18123).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
     };
     public static final Pose2d[] rightAlignPoses = {
-        new Pose2d(new Translation2d(1.2816, 0.18).plus(blueReefCenter), new Rotation2d(Math.PI)),
-        new Pose2d(new Translation2d(0.4849, 1.2).plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)),
-        new Pose2d(new Translation2d(-0.7968, 1.02).plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)),
-        new Pose2d(new Translation2d(-1.2817, -0.18005).plus(blueReefCenter), new Rotation2d(0)),
-        new Pose2d(new Translation2d(-0.4849, -1.2).plus(blueReefCenter), new Rotation2d(Math.PI / 3)),
-        new Pose2d(new Translation2d(0.7968, -1.02).plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+        new Pose2d(new Translation2d(1.2716, 0.16).plus(blueReefCenter), new Rotation2d(Math.PI)),
+        new Pose2d(new Translation2d(0.497236, 1.18124).plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+        new Pose2d(new Translation2d(-0.774366, 1.02124).plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+        new Pose2d(new Translation2d(-1.2716, -0.16).plus(blueReefCenter), new Rotation2d(0)),
+        new Pose2d(new Translation2d(-0.497236, -1.18124).plus(blueReefCenter), new Rotation2d(Math.PI / 3)),
+        new Pose2d(new Translation2d(0.774366, -1.02124).plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)),
 
-        new Pose2d(new Translation2d(1.2816 - 0.01, 0.18 - 0.02).plus(redReefCenter), new Rotation2d(Math.PI)),
-        new Pose2d(new Translation2d(0.4849, 1.2).plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
-        new Pose2d(new Translation2d(-0.7968, 1.02).plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
-        new Pose2d(new Translation2d(-1.2817, -0.18005).plus(redReefCenter), new Rotation2d(0)),
-        new Pose2d(new Translation2d(-0.4849, -1.2).plus(redReefCenter), new Rotation2d(Math.PI / 3)),
-        new Pose2d(new Translation2d(0.7968, -1.02).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+        new Pose2d(new Translation2d(1.2716, 0.16).plus(redReefCenter), new Rotation2d(Math.PI)), // 7
+        new Pose2d(new Translation2d(0.497236, 1.18124).plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+        new Pose2d(new Translation2d(-0.774366, 1.02124).plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+        new Pose2d(new Translation2d(-1.2716, -0.16).plus(redReefCenter), new Rotation2d(0)),
+        new Pose2d(new Translation2d(-0.497236, -1.18124).plus(redReefCenter), new Rotation2d(Math.PI / 3)),
+        new Pose2d(new Translation2d(0.774366, -1.02124).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
     };
   }
 
