@@ -72,10 +72,14 @@ public class InNOutSubsystem extends SubsystemBase {
                 /* && !m_intakeBeamBreak.beamBroken() */ && !m_outtakeBeamBreak.beamBroken();
     }
 
-    public Command IntakeCoral() {
-        return new ParallelCommandGroup(
-                new StartEndCommand(this::runIntake, this::stopIntake),
-                new StartEndCommand(this::runOuttake, this::stopOuttake));
+    public Command IntakeCoral() { // make this timed with a state condition
+        if (this.m_state == "intaking" || this.m_state == "empty")
+            return new ParallelCommandGroup(
+                    new StartEndCommand(this::runIntake, this::stopIntake),
+                    new StartEndCommand(this::runOuttake, this::stopOuttake));
+        else {
+            return null;
+        }
     }
 
     public Command OuttakeCoral() {

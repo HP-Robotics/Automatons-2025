@@ -101,7 +101,10 @@ public class RobotContainer {
     NamedCommands.registerCommand("intake coral", m_inNOutSubsystem.IntakeCoral()); // TODO: pathplanner needs to stop
                                                                                     // the StartEnd command
     NamedCommands.registerCommand("outtake coral", m_inNOutSubsystem.OuttakeCoral());
-    NamedCommands.registerCommand("set elevator level", m_elevatorSubsystem.SetPosition(1200));
+    NamedCommands.registerCommand("go to L1", new InstantCommand(() -> m_elevatorSubsystem.GoToL1()));
+    NamedCommands.registerCommand("go to L2", new InstantCommand(() -> m_elevatorSubsystem.GoToL2()));
+    NamedCommands.registerCommand("go to L3", new InstantCommand(() -> m_elevatorSubsystem.GoToL3()));
+    NamedCommands.registerCommand("go to L4", new InstantCommand(() -> m_elevatorSubsystem.GoToL4()));
     // TODO: this is just a random number, make it take a position based on the auto
     // somehow
   }

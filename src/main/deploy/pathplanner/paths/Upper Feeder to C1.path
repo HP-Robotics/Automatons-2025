@@ -45,7 +45,7 @@
     "rotation": 64.17900802581072
   },
   "reversed": false,
-  "folder": "Feeder to Reef",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 126.15818543980839

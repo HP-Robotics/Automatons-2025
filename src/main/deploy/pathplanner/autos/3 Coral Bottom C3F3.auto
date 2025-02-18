@@ -11,15 +11,52 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "go to L4"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "outtake coral"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.0
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "C3 to Lower Feeder"
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Lower Feeder to F3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "go to L4"
           }
         },
         {
@@ -29,9 +66,21 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Lower Feeder to F3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "go to L4"
           }
         },
         {
