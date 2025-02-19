@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.952868852459017,
-        "y": 4.360655737704918
+        "x": 7.046196618713061,
+        "y": 4.3659216720839815
       },
       "isLocked": false,
       "linkedName": "Bottom Cage"
     },
     {
       "anchor": {
-        "x": 5.814036885245901,
-        "y": 4.001024590163935
+        "x": 5.761923,
+        "y": 3.8599
       },
       "prevControl": {
-        "x": 6.197643442622951,
-        "y": 4.10891393442623
+        "x": 6.018176755397637,
+        "y": 3.9521228381726097
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "C2"
+      "linkedName": "C2L"
     }
   ],
   "rotationTargets": [],
@@ -52,7 +52,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Drive Foward",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

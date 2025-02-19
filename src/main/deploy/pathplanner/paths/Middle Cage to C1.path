@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.324487704922376,
-        "y": 6.194774590165618
+        "x": 7.277407767273803,
+        "y": 6.231451660248326
       },
       "isLocked": false,
       "linkedName": "Middle Cage"
     },
     {
       "anchor": {
-        "x": 5.154713114754099,
-        "y": 5.127868852459017
+        "x": 4.990466,
+        "y": 5.20114
       },
       "prevControl": {
-        "x": 5.93391393442623,
-        "y": 5.451536885245901
+        "x": 6.111795176862937,
+        "y": 5.78594415450961
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "C1"
+      "linkedName": "C1R"
     }
   ],
   "rotationTargets": [],
@@ -52,10 +52,10 @@
     "rotation": -119.99999999999999
   },
   "reversed": false,
-  "folder": "Drive Foward",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

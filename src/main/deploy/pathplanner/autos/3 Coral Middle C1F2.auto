@@ -37,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Upper Feeder to F2"
+            "pathName": "Upper Feeder to F2L"
           }
         },
         {
@@ -49,7 +49,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "F2 to Upper Feeder"
+            "pathName": "F2L to Upper Feeder"
           }
         },
         {
@@ -61,7 +61,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Upper Feeder to F2"
+            "pathName": "Upper Feeder to F2R"
           }
         },
         {

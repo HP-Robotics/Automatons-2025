@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 5.142725409836065,
+        "x": 4.987565,
         "y": 2.8382172131147545
       },
       "prevControl": {
-        "x": 6.413422131147541,
+        "x": 6.2582617213114755,
         "y": 3.281762295081968
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "C3"
+      "linkedName": "C3L"
     }
   ],
   "rotationTargets": [],
@@ -45,7 +45,7 @@
     "rotation": 122.0
   },
   "reversed": false,
-  "folder": "Drive Foward",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 178.9583733239901

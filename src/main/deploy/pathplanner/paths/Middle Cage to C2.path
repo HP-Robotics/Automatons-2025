@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 5.814036885245901,
-        "y": 4.001024590163935
+        "x": 5.761923,
+        "y": 3.8599
       },
       "prevControl": {
-        "x": 6.162000000000001,
-        "y": 4.395499999999999
+        "x": 6.1098861147541,
+        "y": 4.254375409836065
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "C2"
+      "linkedName": "C2L"
     }
   ],
   "rotationTargets": [],
@@ -45,7 +45,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Drive Foward",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

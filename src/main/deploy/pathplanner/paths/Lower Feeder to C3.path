@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.690266393442623,
+        "x": 1.69,
         "y": 0.692418032786884
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0688524590163935,
+        "x": 3.0685860655737707,
         "y": 1.5795081967213118
       },
       "isLocked": false,
@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 5.142725409836065,
+        "x": 4.987565,
         "y": 2.8382172131147545
       },
       "prevControl": {
-        "x": 4.06575,
+        "x": 3.9105895901639354,
         "y": 2.182249999999999
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "C3"
+      "linkedName": "C3L"
     }
   ],
   "rotationTargets": [],

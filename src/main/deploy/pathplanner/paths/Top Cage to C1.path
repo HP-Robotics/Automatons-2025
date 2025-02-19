@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 5.154713114754099,
-        "y": 5.127868852459017
+        "x": 4.990466,
+        "y": 5.20114
       },
       "prevControl": {
-        "x": 5.820750000005766,
-        "y": 5.760500000001025
+        "x": 5.656502885251667,
+        "y": 5.833771147542008
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "C1"
+      "linkedName": "C1R"
     }
   ],
   "rotationTargets": [],
@@ -52,7 +52,7 @@
     "rotation": -119.99999999999999
   },
   "reversed": false,
-  "folder": "Drive Foward",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 178.9583733239901
