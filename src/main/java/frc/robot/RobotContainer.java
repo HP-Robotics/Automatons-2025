@@ -17,6 +17,7 @@ import frc.robot.commands.IntakeFoldCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.InNOutSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -27,16 +28,16 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DutyCycle;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -60,11 +61,14 @@ public class RobotContainer {
   final InNOutSubsystem m_inNOutSubsystem = SubsystemConstants.useIntake && SubsystemConstants.useOuttake
       ? new InNOutSubsystem()
       : null;
-  final LimelightSubsystem m_limelightSubsystem = new LimelightSubsystem(m_poseEstimatorSubsystem);
+  final LimelightSubsystem m_limelightSubsystem = SubsystemConstants.useLimelight
+      ? new LimelightSubsystem(m_poseEstimatorSubsystem)
+      : null;
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
   final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
   final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
+  final LEDSubsystem m_LEDSubsystem = SubsystemConstants.useLED ? new LEDSubsystem() : null;
 
   BeamBreak m_intakeBeamBreak = new BeamBreak(0);
   TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
@@ -106,7 +110,7 @@ public class RobotContainer {
     // somehow
   }
 
-  private void configureBindings() {
+  private void configureBindings() { // TODO: Fix magic numbers for buttons
     /*
      * TEST CODE
      */
@@ -128,59 +132,58 @@ public class RobotContainer {
 
       catch (Exception e) {
         DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
-      }
-      /*
-       * END TEST CODE
-       */
+    }
+    /*
+     * END TEST CODE
+     */
 
-      /*
-       * PRODUCTION CODE
-       */
+    /*
+     * PRODUCTION CODE
+     */
 
-      if (SubsystemConstants.useIntake) {
-        // SETTING STATES
-        // Set state to intaking if intake or elevator beam break are broken
-        new Trigger(InNOutSubsystem::intakeHasCoral).and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
-            .onTrue(new InstantCommand(() -> {
-              m_inNOutSubsystem.m_state = "intaking";
-            }));
+    if (SubsystemConstants.useIntake) {
+      // SETTING STATES
+      // Set state to intaking if intake or elevator beam break are broken
+      new Trigger(InNOutSubsystem::intakeHasCoral).and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
+          .onTrue(new InstantCommand(() -> {
+            m_inNOutSubsystem.m_state = "intaking";
+          }));
 
-        // Set state to loaded if isLoaded (elevator beam break not broken and outtake
-        // beam break is broken)
-        // is true and previous state is intaking
-        new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
-            .and(InNOutSubsystem::isLoaded)
-            .onTrue(new InstantCommand(() -> {
-              m_inNOutSubsystem.m_state = "loaded";
-            }));
+      // Set state to loaded if isLoaded (elevator beam break not broken and outtake
+      // beam break is broken)
+      // is true and previous state is intaking
+      new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
+          .and(InNOutSubsystem::isLoaded)
+          .onTrue(new InstantCommand(() -> {
+            m_inNOutSubsystem.m_state = "loaded";
+          }));
 
-        // Set state to outtaking if outtake button pressed and we are loaded
-        ControllerConstants.m_driveJoystick.button(ControllerConstants.outtakeButton)
-            .and(new Trigger(() -> m_inNOutSubsystem.m_state == "loaded"))
-            .onTrue(new InstantCommand(() -> {
-              m_inNOutSubsystem.m_state = "outtaking";
-            }));
+      // Set state to outtaking if outtake button pressed and we are loaded
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.outtakeButton)
+          .and(new Trigger(() -> m_inNOutSubsystem.m_state == "loaded"))
+          .onTrue(new InstantCommand(() -> {
+            m_inNOutSubsystem.m_state = "outtaking";
+          }));
 
-        // When it becomes empty (no beam breaks are broken)
-        new Trigger(InNOutSubsystem::isEmpty)
-            .and(() -> m_inNOutSubsystem.m_state == "outtaking")
-            .onTrue(new InstantCommand(() -> {
-              m_inNOutSubsystem.m_state = "empty";
-            }))
-            .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
+      // When it becomes empty (no beam breaks are broken)
+      new Trigger(InNOutSubsystem::isEmpty)
+          .and(() -> m_inNOutSubsystem.m_state == "outtaking")
+          .onTrue(new InstantCommand(() -> {
+            m_inNOutSubsystem.m_state = "empty";
+          }))
+          .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
 
-        // ACTIONS
-        // run intake if intake button pressed and state is empty or is intaking
-        (ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton)
-            .and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty")))
-            .or(new Trigger(() -> m_inNOutSubsystem.m_state == "intaking"))
-            .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
-            .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
+      // ACTIONS
+      // run intake if intake button pressed and state is empty or is intaking
+      (ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton)
+          .and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty")))
+          .or(new Trigger(() -> m_inNOutSubsystem.m_state == "intaking"))
+          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
+          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
 
-        // Shoot if outtaking and stop when done
-        new Trigger(() -> m_inNOutSubsystem.m_state == "outtaking")
-            .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
-      }
+      // Shoot if outtaking and stop when done
+      new Trigger(() -> m_inNOutSubsystem.m_state == "outtaking")
+          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
     }
 
     if (SubsystemConstants.useDrive) {
@@ -227,8 +230,10 @@ public class RobotContainer {
           .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
     }
 
-    ControllerConstants.m_driveJoystick.button(1)
-        .whileTrue(new ClimberClimbCommand(m_climberSubsystem));
+    if (SubsystemConstants.useClimber) {
+      ControllerConstants.m_driveJoystick.button(1)
+          .whileTrue(new ClimberClimbCommand(m_climberSubsystem));
+    }
 
     if (SubsystemConstants.useElevator) {
       ControllerConstants.m_driveJoystick.button(ControllerConstants.elevatorUpButton)

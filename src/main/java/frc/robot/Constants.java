@@ -31,7 +31,7 @@ public final class Constants {
     public static final boolean useClimber = false;
     public static final boolean useTrigger = false;
     public static final boolean usePoseEstimator = false;
-    public static final boolean useElevator = true;
+    public static final boolean useLED = true;
   }
 
   public static class RobotConfigConstants {
@@ -284,4 +284,12 @@ public final class Constants {
     public static final double outtakeSpeed = 0.2;
   }
 
+  public static class LEDConstants {
+    public static final int port = 6;
+    public static final int length = 60;
+    public static final LEDPattern defaultSidePattern = LEDPattern.solid(Color.kRed);
+    public static final LEDPattern defaultMiddlePattern = LEDPattern.solid(Color.kGreen);
+    public static final int middleFirstIndex = 10;
+    public static final int middleLastIndex = 49;
+  }
 }
