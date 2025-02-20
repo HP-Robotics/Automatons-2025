@@ -53,6 +53,7 @@ import frc.robot.SwerveModule;
 /** Represents a swerve drive style drivetrain. */
 public class DriveSubsystem extends SubsystemBase {
   public Optional<Integer> m_sector = Optional.empty();
+  public Optional<Integer> m_feederSector = Optional.empty();
   SwerveDriveOdometry m_odometry;
 
   PPHolonomicDriveController m_driveController;
@@ -112,6 +113,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public Translation2d joystickTrans;
   public Translation2d robotToReef;
+  public Translation2d feederAngle;
 
   private double m_gyroOffset;
   RobotConfig m_config;
@@ -521,7 +523,7 @@ public class DriveSubsystem extends SubsystemBase {
         pose);
   }
 
-  // TTODO: getDistanceToPose() and getAngleToPose() already in limelight
+  // TODO: getDistanceToPose() and getAngleToPose() already in limelight
   // subsystem, move to where?
 
   public double getDistanceToPose(Pose2d robot, Pose2d fieldPose) {
