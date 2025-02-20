@@ -16,6 +16,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -31,6 +33,7 @@ public final class Constants {
     public static final boolean useClimber = false;
     public static final boolean useTrigger = false;
     public static final boolean usePoseEstimator = false;
+    public static final boolean useElevator = false;
     public static final boolean useLED = true;
   }
 

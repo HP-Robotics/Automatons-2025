@@ -132,6 +132,14 @@ public class RobotContainer {
 
       catch (Exception e) {
         DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
+      }
+    }
+
+    if (SubsystemConstants.useLED) {
+      ControllerConstants.m_driveJoystick.button(2)
+          .onTrue(m_LEDSubsystem.SetSidePattern(LEDPattern.solid(Color.kBlue)));
+      ControllerConstants.m_driveJoystick.button(1)
+          .onTrue(m_LEDSubsystem.SetMiddlePattern(LEDPattern.solid(new Color(255, 32, 0))));
     }
     /*
      * END TEST CODE
