@@ -11,6 +11,7 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IDConstants;
+import frc.robot.Constants.LEDConstants;
 import frc.robot.Constants.SubsystemConstants;
 import frc.robot.commands.ClimberClimbCommand;
 import frc.robot.commands.IntakeFoldCommand;
@@ -67,8 +68,9 @@ public class RobotContainer {
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
   final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
-  final ElevatorSubsystem m_elevatorSubsystem = new ElevatorSubsystem();
   final LEDSubsystem m_LEDSubsystem = SubsystemConstants.useLED ? new LEDSubsystem() : null;
+  final ElevatorSubsystem m_elevatorSubsystem = SubsystemConstants.useElevator ? new ElevatorSubsystem(m_LEDSubsystem)
+      : null;
 
   BeamBreak m_intakeBeamBreak = new BeamBreak(0);
   TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
@@ -187,7 +189,11 @@ public class RobotContainer {
           .and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty")))
           .or(new Trigger(() -> m_inNOutSubsystem.m_state == "intaking"))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
-          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
+          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake))
+          .whileTrue(new StartEndCommand(() -> m_LEDSubsystem.m_middlePattern = LEDConstants.intakeRunningPattern,
+              () -> m_LEDSubsystem.m_middlePattern = m_inNOutSubsystem.m_state == "loaded"
+                  ? LEDConstants.hasCoralPattern
+                  : LEDConstants.defaultMiddlePattern));
 
       // Shoot if outtaking and stop when done
       new Trigger(() -> m_inNOutSubsystem.m_state == "outtaking")

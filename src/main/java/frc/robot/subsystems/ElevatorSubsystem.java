@@ -22,6 +22,8 @@ import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IDConstants;
+import frc.robot.Constants.LEDConstants;
+import frc.robot.Constants.SubsystemConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
     TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
@@ -33,9 +35,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     public double m_offset = 0;
     StatusSignal m_bottomLimit = m_elevatorMotor1.getReverseLimit();
     NetworkTable m_table;
+    LEDSubsystem m_ledSubsystem;
+    boolean m_hasTouchedGrass = false;
 
-    public ElevatorSubsystem() {
+    public ElevatorSubsystem(LEDSubsystem ledSubsystem) {
         m_table = NetworkTableInstance.getDefault().getTable("ElevatorSubsystem");
+        m_ledSubsystem = ledSubsystem;
 
         TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
         elevatorConfig.Slot0.kP = ElevatorConstants.kP;
@@ -46,6 +51,27 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_elevatorMotor2.getConfigurator().apply(elevatorConfig);
         m_elevatorMotor2.setControl(new Follower(m_elevatorMotor1.getDeviceID(), true));
 
+    }
+
+    public int getCurrentLevel() {
+        double[] positions = { ElevatorConstants.elevatorDownPosition, ElevatorConstants.L1Position,
+                ElevatorConstants.L2Position, ElevatorConstants.L3Position, ElevatorConstants.L4Position };
+        double currentPosition = m_elevatorMotor1.getRotorPosition().getValueAsDouble();
+        double minDistance = Math.abs(currentPosition - positions[0]);
+        int minIndex = 0;
+        for (int i = 1; i < positions.length; i++) {
+            double distance = Math.abs(currentPosition - positions[i]);
+            if (distance < minDistance) {
+                minIndex = i;
+                minDistance = distance;
+            }
+        }
+        return minIndex;
+    }
+
+    public void updateLEDs() {
+        int currentLevel = getCurrentLevel();
+        m_ledSubsystem.m_sidePattern = LEDConstants.elevatorLevelPatterns[currentLevel];
     }
 
     public void elevatorDown() {
@@ -119,6 +145,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public boolean atBottom() {
         if (m_bottomLimit.getValue() == ReverseLimitValue.ClosedToGround) {
+            m_hasTouchedGrass = true;
             return true;
         } else {
             return false;
@@ -132,5 +159,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         m_table.putValue("state", NetworkTableValue.makeString(elevatorPreset));
+        if (SubsystemConstants.useLED && m_hasTouchedGrass) {
+            updateLEDs();
+        }
     }
 }

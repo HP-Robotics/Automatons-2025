@@ -9,6 +9,8 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 
@@ -16,6 +18,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -290,9 +293,21 @@ public final class Constants {
   public static class LEDConstants {
     public static final int port = 6;
     public static final int length = 60;
-    public static final LEDPattern defaultSidePattern = LEDPattern.solid(Color.kRed);
-    public static final LEDPattern defaultMiddlePattern = LEDPattern.solid(Color.kGreen);
     public static final int middleFirstIndex = 10;
     public static final int middleLastIndex = 49;
+    public static final Time blinkInterval = Seconds.of(0.5);
+
+    public static final LEDPattern defaultSidePattern = LEDPattern.solid(Color.kRed).blink(blinkInterval);
+    public static final LEDPattern defaultMiddlePattern = LEDPattern.solid(Color.kGreen);
+    public static final LEDPattern hasCoralPattern = LEDPattern.solid(Color.kPink).blink(blinkInterval);
+    public static final LEDPattern elevatorDownPattern = LEDPattern.solid(Color.kGreen);
+    public static final LEDPattern intakeRunningPattern = LEDPattern.solid(Color.kWhite).blink(blinkInterval);
+    public static final LEDPattern cagePattern = LEDPattern.solid(Color.kBlue);
+    public static final LEDPattern elevatorL1Pattern = LEDPattern.solid(Color.kWhite);
+    public static final LEDPattern elevatorL2Pattern = LEDPattern.solid(Color.kYellow);
+    public static final LEDPattern elevatorL3Pattern = LEDPattern.solid(new Color(255, 32, 0));
+    public static final LEDPattern elevatorL4Pattern = LEDPattern.solid(Color.kRed);
+    public static final LEDPattern[] elevatorLevelPatterns = { elevatorDownPattern, elevatorL1Pattern,
+        elevatorL2Pattern, elevatorL3Pattern, elevatorL4Pattern };
   }
 }
