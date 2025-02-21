@@ -105,7 +105,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_elevatorMotor1.setPosition(m_targetRotation + m_offset);
     }
 
-    public void goToElevatorDown() {
+    public void goToIntake() {
         m_elevatorMotor1.setPosition(ElevatorConstants.elevatorDownPosition + m_offset);
     }
 

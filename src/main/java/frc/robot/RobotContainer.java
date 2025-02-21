@@ -126,7 +126,7 @@ public class RobotContainer {
           }));
 
       // Set state to outtaking if outtake button pressed and we are loaded
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.outtakeButton)
+      ControllerConstants.m_opJoystick.axisGreaterThan(2, 0.15)
           .and(new Trigger(() -> m_inNOutSubsystem.m_state == "loaded"))
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "outtaking";
@@ -201,31 +201,33 @@ public class RobotContainer {
           },
           m_driveSubsystem));
     }
-    ControllerConstants.m_opJoystick.povUp().onTrue(new InstantCommand(() -> {
+    ControllerConstants.m_opJoystick.button(4).onTrue(new InstantCommand(() -> {
       m_elevatorSubsystem.goToL4();
       m_elevatorSubsystem.m_targetPosition = Constants.ElevatorConstants.L4Position;
     }));
-    ControllerConstants.m_opJoystick.povRight().onTrue(new InstantCommand(() -> {
+    ControllerConstants.m_opJoystick.button(2).onTrue(new InstantCommand(() -> {
       m_elevatorSubsystem.goToL3();
       m_elevatorSubsystem.m_targetPosition = Constants.ElevatorConstants.L3Position;
     }));
-    ControllerConstants.m_opJoystick.povDown().onTrue(new InstantCommand(() -> {
+    ControllerConstants.m_opJoystick.button(1).onTrue(new InstantCommand(() -> {
       m_elevatorSubsystem.goToL2();
       m_elevatorSubsystem.m_targetPosition = Constants.ElevatorConstants.L2Position;
     }));
-    ControllerConstants.m_opJoystick.povLeft().onTrue(new InstantCommand(() -> {
+    ControllerConstants.m_opJoystick.button(3).onTrue(new InstantCommand(() -> {
       m_elevatorSubsystem.goToL1();
       m_elevatorSubsystem.m_targetPosition = Constants.ElevatorConstants.L2Position;
     }));
-    ControllerConstants.m_opJoystick.button(9).onTrue(new InstantCommand(() -> m_elevatorSubsystem.goToElevatorDown()));
+    ControllerConstants.m_opJoystick.button(6).onTrue(new InstantCommand(() -> m_elevatorSubsystem.goToIntake()));
 
-    ControllerConstants.m_opJoystick.button(4)
+    //TODO: Make these work and put them on buttons 1-4 
+
+    ControllerConstants.m_opJoystick.button(14)
         .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L4ButtonIsPressed()));
-    ControllerConstants.m_opJoystick.button(2)
+    ControllerConstants.m_opJoystick.button(12)
         .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L3ButtonIsPressed()));
-    ControllerConstants.m_opJoystick.button(1)
+    ControllerConstants.m_opJoystick.button(11)
         .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L2ButtonIsPressed()));
-    ControllerConstants.m_opJoystick.button(3)
+    ControllerConstants.m_opJoystick.button(13)
         .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L1ButtonIsPressed()));
 
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
