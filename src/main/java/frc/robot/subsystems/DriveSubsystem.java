@@ -98,9 +98,9 @@ public class DriveSubsystem extends SubsystemBase {
   private StatusSignal<Angle> m_pGyroRoll = m_pGyro.getRoll();
 
   private final TrapezoidProfile m_xProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
-      DriveConstants.kMaxSpeed, AutoConstants.kMaxAccelerationMetersPerSecondSquared));
+      DriveConstants.kMaxSpeed / 2.0, AutoConstants.kMaxAccelerationMetersPerSecondSquared / 2.0));
   private final TrapezoidProfile m_yProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
-      DriveConstants.kMaxSpeed, AutoConstants.kMaxAccelerationMetersPerSecondSquared));
+      DriveConstants.kMaxSpeed / 2.0, AutoConstants.kMaxAccelerationMetersPerSecondSquared / 2.0));
 
   PIDController m_rotationController;
   PIDController m_xController;
@@ -286,7 +286,7 @@ public class DriveSubsystem extends SubsystemBase {
         m_feederSector = Optional.of(3);
       }
     }
-    m_autoAlignPublisher.set(DriveConstants.rightFeederAlignPoses[m_feederSector.get()]);
+    m_autoAlignPublisher.set(DriveConstants.leftFeederAlignPoses[m_feederSector.get()]);
 
     m_driveTrainTable.putValue("Reef sector",
         NetworkTableValue.makeInteger(m_sector.isPresent() ? m_sector.get() : -1));
