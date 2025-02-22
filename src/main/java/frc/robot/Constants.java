@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -145,8 +146,10 @@ public final class Constants {
     public static final int elevatorUpButton = 8;
     public static final int goToTargetButton = 0; // TODO: change this
 
-    public static final int leftAutoAlignButton = 5;
-    public static final int rightAutoAlignButton = 6;
+    public static final int leftReefAlignButton = 5;
+    public static final int rightReefAlignButton = 6;
+    public static final int leftFeederAlignButton = 4; // TODO: this might not be the right button
+    public static final int rightFeederAlignButton = 7; // TODO: this is not the right button
 
     public static final int overrideButton = 6;
 
@@ -234,10 +237,15 @@ public final class Constants {
     // TODO: put actual values TODO: consider a field constants? doesn't go in drive
     public static final Translation2d blueReefCenter = new Translation2d(4.490323, -0.0001 + 4.02);
     public static final Translation2d redReefCenter = new Translation2d(13.059902, -0.0001 + 4.02);
+    public static final Translation2d redUpperFeederCenter = new Translation2d(); // TODO: find these numbers
+    public static final Translation2d redLowerFeederCenter = new Translation2d();
+    public static final Translation2d blueUpperFeederCenter = new Translation2d();
+    public static final Translation2d blueLowerFeederCenter = new Translation2d();
     public static final int autoAlignSectorCount = 6;
     public static final double autoAlignSectorRadius = 3; // TODO: change
     public static final double autoAlignSectorOffset = 30;
     public static final double autoAlignTolerance = Math.PI / 4;
+    public static final double autoAlignDistanceTolerance = 10; // TODO: this is almost certainly the wrong number,
 
     // TODO: make comments with the corresponding april tags and red alliance
     public static final Pose2d[] leftAlignPoses = {
@@ -269,6 +277,26 @@ public final class Constants {
         new Pose2d(new Translation2d(-1.2716, -0.16).plus(redReefCenter), new Rotation2d(0)),
         new Pose2d(new Translation2d(-0.497236, -1.18124).plus(redReefCenter), new Rotation2d(Math.PI / 3)),
         new Pose2d(new Translation2d(0.774366, -1.02124).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+    };
+    public static final Pose2d[] leftFeederAlignPoses = {
+        new Pose2d(1.642, 7.376, new Rotation2d(-53.746)), // feeder sector 0
+        new Pose2d(0.731, 1.310, new Rotation2d(54.293)), // feeder sector 1
+        FlippingUtil.flipFieldPose(new Pose2d(0.731, 1.310, new Rotation2d(54.293))), // feeder sector 2
+        FlippingUtil.flipFieldPose(new Pose2d(1.642, 7.376, new Rotation2d(-53.746))), // feeder sector 3
+    };
+    public static final Translation2d[] feederAlignAngles = {
+        // make sure these are the correct sectors (0,1,2,3) in that order
+        new Translation2d(-0.64278761, 0.76604444), // feeder sector 0
+        new Translation2d(-0.76604444, -0.64278761), // feeder sector 1
+        new Translation2d(0.64278761, -0.76604444), // feeder sector 2
+        new Translation2d(0.64278761, 0.76604444) // feeder sector 3
+    };
+
+    public static final Pose2d[] rightFeederAlignPoses = {
+        new Pose2d(0.707, 6.704, new Rotation2d(-53.746)), // feeder sector 0
+        new Pose2d(1.654, 0.626, new Rotation2d(54.293)), // feeder sector 1
+        FlippingUtil.flipFieldPose(new Pose2d(0.707, 6.704, new Rotation2d(54.293))), // feeder sector 2
+        FlippingUtil.flipFieldPose(new Pose2d(1.654, 0.626, new Rotation2d(-53.746))), // feeder sector 3
     };
   }
 
