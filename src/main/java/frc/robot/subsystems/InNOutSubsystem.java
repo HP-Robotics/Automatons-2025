@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class InNOutSubsystem extends SubsystemBase {
     // TalonFX m_intakeMotor = new TalonFX(IDConstants.intakeMotorID);
     TalonFX m_outtakeMotor = new TalonFX(IDConstants.outtakeMotorID);
+    TalonFX m_dealginator = new TalonFX(IDConstants.dealginatorMotorID);
     public TalonFX m_intakeFoldMotor = new TalonFX(IDConstants.intakeFoldMotorID);
     public String m_state = "empty";
     NetworkTable m_table;
@@ -86,5 +87,9 @@ public class InNOutSubsystem extends SubsystemBase {
 
     public Command OuttakeCoral() {
         return new StartEndCommand(this::runOuttake, this::stopOuttake);
+    }
+
+    public Command Dealginate() {
+        return new StartEndCommand(() -> m_dealginator.set(0.8), () -> m_dealginator.set(0));
     }
 }

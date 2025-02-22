@@ -62,6 +62,7 @@ public final class Constants {
     public static final int ElevatorMotor2ID = 61; // TODO: Fix the motor ID
 
     public static final int ClimbMotorID = 0; // TODO: Find motor ID
+    public static final int dealginatorMotorID = 35;
   }
 
   public static class AutoConstants {

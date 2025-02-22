@@ -215,6 +215,8 @@ public class RobotContainer {
     if (SubsystemConstants.useIntake) {
       // SETTING STATES
       // Set state to intaking if intake or elevator beam break are broken
+      ControllerConstants.m_opJoystick.povUp().whileTrue(m_inNOutSubsystem.Dealginate());
+
       new Trigger(m_inNOutSubsystem::intakeHasCoral).and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "intaking"; // TODO: Make sure elevator is at bottom before intaking
@@ -380,7 +382,7 @@ public class RobotContainer {
                     DriveConstants.autoAlignTolerance)
                     || ControllerConstants.m_driveJoystick
                         .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
-              m_driveSubsystem.driveToPose(DriveConstants.rightAlignPoses[m_driveSubsystem.m_sector.get()]);
+              m_driveSubsystem.driveToPose(DriveConstants.leftAlignPoses[m_driveSubsystem.m_sector.get()]);
             } else {
               m_driveSubsystem.drivePointedTowardsAngle(
                   ControllerConstants.m_driveJoystick,
