@@ -91,7 +91,7 @@ public final class Constants {
     public static final double L3Position = 51.5;
     public static final double L2Position = 35.5;
     public static final double L1Position = 20;
-    public static final double elevatorDownPosition = 3.5;
+    public static final double elevatorDownPosition = 2.6; // Original: 3.5
     public static final double bottomPosition = 0;
     // TODO: this might be right but should be checked with the other two
     public static final double kP = 1.5;// TODO: tune these more

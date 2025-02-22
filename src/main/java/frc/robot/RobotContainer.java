@@ -27,6 +27,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -56,7 +57,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  SendableChooser<Command> m_autoChooser;
+  SendableChooser<String> m_autoChooser;
   final PoseEstimatorSubsystem m_poseEstimatorSubsystem = SubsystemConstants.usePoseEstimator
       ? new PoseEstimatorSubsystem()
       : null;
@@ -92,7 +93,11 @@ public class RobotContainer {
               m_driveSubsystem));
 
       // Build an auto chooser. This will use Commands.none() as the default option.
-      m_autoChooser = AutoBuilder.buildAutoChooser();
+      m_autoChooser = new SendableChooser<String>();
+      for (String autoName : AutoBuilder.getAllAutoNames()) {
+        m_autoChooser.addOption(autoName, autoName);
+      }
+
       // Another option that allows you to specify the default auto by its name
       // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
       SmartDashboard.putData("Auto Chooser", m_autoChooser);
@@ -170,7 +175,8 @@ public class RobotContainer {
           new InstantCommand(m_elevatorSubsystem::goToElevatorDown,
               m_elevatorSubsystem),
           new WaitUntilCommand(m_elevatorSubsystem::atDownPosition),
-          m_inNOutSubsystem.IntakeCoral().until(m_inNOutSubsystem::isLoaded));
+          m_inNOutSubsystem.IntakeCoral(),
+          new WaitUntilCommand(m_inNOutSubsystem::isLoaded));
     } else {
       return new WaitCommand(0);
     }
@@ -179,9 +185,10 @@ public class RobotContainer {
   private void configureBindings() {
     // TEST CODE
     if (SubsystemConstants.useElevator) {
-      ControllerConstants.m_driveJoystick.povUp().whileTrue(
-          new StartEndCommand(m_elevatorSubsystem::GoToTarget, () -> m_elevatorMotor1.setControl(new DutyCycleOut(0)),
-              m_elevatorSubsystem));
+      // ControllerConstants.m_driveJoystick.povUp().whileTrue(
+      // new StartEndCommand(m_elevatorSubsystem::GoToTarget, () ->
+      // m_elevatorMotor1.setControl(new DutyCycleOut(0)),
+      // m_elevatorSubsystem));
 
       ControllerConstants.m_opJoystick.button(ControllerConstants.elevatorUpButton)
           .whileTrue(new StartEndCommand(() -> {
@@ -232,8 +239,9 @@ public class RobotContainer {
           .and(() -> m_inNOutSubsystem.m_state == "outtaking")
           .onTrue(new SequentialCommandGroup(
               new WaitCommand(OuttakeConstants.scoreDelay),
-              new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty"),
-              m_elevatorSubsystem.GoToElevatorDown()));
+              new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")
+          // m_elevatorSubsystem.GoToElevatorDown()
+          ));
 
       // ACTIONS
       // run intake if intake button pressed and state is empty or is intaking
@@ -331,14 +339,19 @@ public class RobotContainer {
 
     if (SubsystemConstants.useElevator) {
 
-      ControllerConstants.m_driveJoystick.button(7)
-          .and(new Trigger(() -> m_inNOutSubsystem.isLoaded()))
-          .whileTrue(new StartEndCommand(m_elevatorSubsystem::GoToTarget, m_elevatorSubsystem::goToElevatorDown));
+      // ControllerConstants.m_driveJoystick.button(7)
+      // .and(new Trigger(() -> m_inNOutSubsystem.isLoaded()))
+      // .whileTrue(new StartEndCommand(m_elevatorSubsystem::GoToTarget,
+      // m_elevatorSubsystem::goToElevatorDown));
 
-      ControllerConstants.m_opJoystick.povUp().onTrue(m_elevatorSubsystem.GoToL4());
-      ControllerConstants.m_opJoystick.povRight().onTrue(m_elevatorSubsystem.GoToL3());
-      ControllerConstants.m_opJoystick.povDown().onTrue(m_elevatorSubsystem.GoToL2());
-      ControllerConstants.m_opJoystick.povLeft().onTrue(m_elevatorSubsystem.GoToL1());
+      ControllerConstants.m_opJoystick.povUp().and(new Trigger(m_inNOutSubsystem::isLoaded))
+          .onTrue(m_elevatorSubsystem.GoToL4());
+      ControllerConstants.m_opJoystick.povRight().and(new Trigger(m_inNOutSubsystem::isLoaded))
+          .onTrue(m_elevatorSubsystem.GoToL3());
+      ControllerConstants.m_opJoystick.povDown().and(new Trigger(m_inNOutSubsystem::isLoaded))
+          .onTrue((m_elevatorSubsystem.GoToL2()));
+      ControllerConstants.m_opJoystick.povLeft().and(new Trigger(m_inNOutSubsystem::isLoaded))
+          .onTrue((m_elevatorSubsystem.GoToL1()));
       ControllerConstants.m_opJoystick.button(9)
           .or(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton))
           .onTrue(m_elevatorSubsystem.GoToElevatorDown());
@@ -370,7 +383,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
-    return m_autoChooser.getSelected();
+  public PathPlannerAuto getAutonomousCommand() {
+    return (PathPlannerAuto) AutoBuilder.buildAuto(m_autoChooser.getSelected());
   }
 }
