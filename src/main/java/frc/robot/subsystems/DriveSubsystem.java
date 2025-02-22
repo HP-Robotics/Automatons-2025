@@ -54,6 +54,7 @@ import frc.robot.SwerveModule;
 public class DriveSubsystem extends SubsystemBase {
   public Optional<Integer> m_sector = Optional.empty();
   public Optional<Integer> m_feederSector = Optional.empty();
+  public Translation2d m_targetFeeder;
   SwerveDriveOdometry m_odometry;
 
   PPHolonomicDriveController m_driveController;
@@ -272,6 +273,19 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     m_sector = getCurrentSector(m_poseEstimator.getPose());
+    if (DriverStation.getAlliance().isPresent() &&
+        DriverStation.getAlliance().get() == Alliance.Red) {
+      if (m_poseEstimator.getPose().getY() > 4.02) {
+        m_targetFeeder = DriveConstants.redUpperFeederCenter;
+      } else {
+        m_targetFeeder = DriveConstants.redLowerFeederCenter;
+      }
+      if (m_poseEstimator.getPose().getY() > 4.02) {
+        m_targetFeeder = DriveConstants.blueUpperFeederCenter;
+      } else {
+        m_targetFeeder = DriveConstants.blueLowerFeederCenter;
+      }
+    }
 
     m_driveTrainTable.putValue("Robot theta",
         NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));

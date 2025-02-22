@@ -76,8 +76,6 @@ public class RobotContainer {
   BeamBreak m_intakeBeamBreak = new BeamBreak(0);
   TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
 
-  public Translation2d m_targetFeeder;
-
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -276,19 +274,6 @@ public class RobotContainer {
         .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
 
     if (SubsystemConstants.useDrive) {
-      // if (DriverStation.getAlliance().isPresent() &&
-      // DriverStation.getAlliance().get() == Alliance.Red) {
-      // if (m_poseEstimatorSubsystem.getPose().getY() > 4.02) {
-      // m_targetFeeder = DriveConstants.redUpperFeederCenter;
-      // } else {
-      // m_targetFeeder = DriveConstants.redLowerFeederCenter;
-      // }
-      // if (m_poseEstimatorSubsystem.getPose().getY() > 4.02) {
-      // m_targetFeeder = DriveConstants.blueUpperFeederCenter;
-      // } else {
-      // m_targetFeeder = DriveConstants.blueLowerFeederCenter;
-      // }
-      // }
       ControllerConstants.m_driveJoystick.button(ControllerConstants.leftFeederAlignButton)
           .whileTrue(new RunCommand(() -> {
             // TODO: add auto align to the feeder station if robot doesn't have a coral
@@ -297,7 +282,8 @@ public class RobotContainer {
 
             if (m_driveSubsystem.m_feederSector.isPresent()
                 && m_driveSubsystem.getDistanceToPose(m_poseEstimatorSubsystem.getPose(),
-                    new Pose2d(m_targetFeeder, new Rotation2d())) <= DriveConstants.autoAlignDistanceTolerance
+                    new Pose2d(m_driveSubsystem.m_targetFeeder,
+                        new Rotation2d())) <= DriveConstants.autoAlignDistanceTolerance
                 && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans,
                     DriveConstants.feederAlignAngles[m_driveSubsystem.m_feederSector.get()],
                     DriveConstants.autoAlignTolerance)
@@ -325,7 +311,8 @@ public class RobotContainer {
 
             if (m_driveSubsystem.m_feederSector.isPresent()
                 && m_driveSubsystem.getDistanceToPose(m_poseEstimatorSubsystem.getPose(),
-                    new Pose2d(m_targetFeeder, new Rotation2d())) <= DriveConstants.autoAlignDistanceTolerance
+                    new Pose2d(m_driveSubsystem.m_targetFeeder,
+                        new Rotation2d())) <= DriveConstants.autoAlignDistanceTolerance
                 && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans,
                     DriveConstants.feederAlignAngles[m_driveSubsystem.m_feederSector.get()],
                     DriveConstants.autoAlignTolerance)
