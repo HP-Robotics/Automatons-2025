@@ -33,6 +33,18 @@
           "data": {
             "pathName": "C1 to Upper Feeder"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Lower Feeder to F3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "F3 to Lower Feeder"
+          }
         }
       ]
     }

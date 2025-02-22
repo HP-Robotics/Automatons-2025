@@ -29,7 +29,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     TalonFX m_elevatorMotor2 = new TalonFX(IDConstants.ElevatorMotor2ID);
     Slot0Configs m_PIDValues = new Slot0Configs();
     public double m_targetRotation = 0;
-    public String elevatorPreset = "Empty";
+    public String m_elevatorPreset = "Empty";
     public double m_offset = 0;
     StatusSignal<ReverseLimitValue> m_bottomLimit = m_elevatorMotor1.getReverseLimit();
     NetworkTable m_table;
@@ -104,11 +104,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void elevatorDown() {
-        // m_elevatorMotor1.setControl(new
-        // PositionDutyCycle(ElevatorConstants.ElevatorDownPosition));
-        // m_elevatorMotor2.setControl(new
-        // PositionDutyCycle(ElevatorConstants.ElevatorDownPosition));
-        // resetMotorEncoders();
+        m_elevatorMotor1.setControl(new PositionDutyCycle(ElevatorConstants.elevatorDownPosition));
+        resetMotorEncoders();
     }
 
     public void resetMotorEncoders() {
@@ -118,27 +115,28 @@ public class ElevatorSubsystem extends SubsystemBase {
             // (ClimberConstants.topLeftPosition - m_offset));
             // climbMotorLeft.setSoftLimit(SoftLimitDirection.kReverse,
             // (float) (ClimberConstants.bottomPosition - m_offset));
+            // TODO: find these numbers
         }
     }
 
     public void L4ButtonIsPressed() {
         m_targetRotation = Constants.ElevatorConstants.L4Position;
-        elevatorPreset = "Elevator to L4";
+        m_elevatorPreset = "Elevator to L4";
     }
 
     public void L3ButtonIsPressed() {
         m_targetRotation = Constants.ElevatorConstants.L3Position;
-        elevatorPreset = "Elevator to L3";
+        m_elevatorPreset = "Elevator to L3";
     }
 
     public void L2ButtonIsPressed() {
         m_targetRotation = Constants.ElevatorConstants.L2Position;
-        elevatorPreset = "Elevator to L2";
+        m_elevatorPreset = "Elevator to L2";
     }
 
     public void L1ButtonIsPressed() {
         m_targetRotation = Constants.ElevatorConstants.L1Position;
-        elevatorPreset = "Elevator to L1";
+        m_elevatorPreset = "Elevator to L1";
     }
 
     public void goToL4() {
@@ -293,7 +291,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             m_elevatorMotor2.getConfigurator().apply(elevatorConfig);
 
         }
-        m_table.putValue("state", NetworkTableValue.makeString(elevatorPreset));
+        m_table.putValue("state", NetworkTableValue.makeString(m_elevatorPreset));
         m_table.putValue("offset", NetworkTableValue.makeDouble(m_offset));
         m_table.putValue("motor1position",
                 NetworkTableValue.makeDouble(m_elevatorMotor1.getRotorPosition().getValueAsDouble()));
@@ -315,6 +313,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_table.putValue("atBottom", NetworkTableValue.makeBoolean(this.atBottom()));
         m_table.putValue("atIntakePosition", NetworkTableValue.makeBoolean(this.atDownPosition()));
         m_table.putValue("targetRotation", NetworkTableValue.makeDouble(m_targetRotation));
+        m_table.putValue("preset", NetworkTableValue.makeString(m_elevatorPreset));
 
     }
 }
