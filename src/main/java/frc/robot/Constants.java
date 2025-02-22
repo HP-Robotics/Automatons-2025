@@ -147,10 +147,8 @@ public final class Constants {
     public static final int elevatorUpButton = 8;
     public static final int goToTargetButton = 0; // TODO: change this
 
-    public static final int leftReefAlignButton = 5;
-    public static final int rightReefAlignButton = 6;
-    public static final int leftFeederAlignButton = 4; // TODO: this might not be the right button
-    public static final int rightFeederAlignButton = 7; // TODO: this is not the right button
+    public static final int leftAlignButton = 5;
+    public static final int rightAlignButton = 6;
 
     public static final int overrideButton = 6;
 
@@ -280,10 +278,10 @@ public final class Constants {
         new Pose2d(new Translation2d(0.774366, -1.02124).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
     };
     public static final Pose2d[] leftFeederAlignPoses = {
-        new Pose2d(1.642, 7.376, new Rotation2d(-53.746)), // feeder sector 0
-        new Pose2d(0.731, 1.310, new Rotation2d(54.293)), // feeder sector 1
-        FlippingUtil.flipFieldPose(new Pose2d(0.731, 1.310, new Rotation2d(54.293))), // feeder sector 2
-        FlippingUtil.flipFieldPose(new Pose2d(1.642, 7.376, new Rotation2d(-53.746))), // feeder sector 3
+        FlippingUtil.flipFieldPose(new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(54.293))), // feeder sector 3
+        FlippingUtil.flipFieldPose(new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
+        new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(-53.746)), // feeder sector 0
+        new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(54.293)), // feeder sector 1
     };
     public static final Translation2d[] feederAlignAngles = {
         // make sure these are the correct sectors (0,1,2,3) in that order
@@ -294,10 +292,10 @@ public final class Constants {
     };
 
     public static final Pose2d[] rightFeederAlignPoses = {
-        new Pose2d(0.707, 6.704, new Rotation2d(-53.746)), // feeder sector 0
-        new Pose2d(1.654, 0.626, new Rotation2d(54.293)), // feeder sector 1
-        FlippingUtil.flipFieldPose(new Pose2d(0.707, 6.704, new Rotation2d(54.293))), // feeder sector 2
-        FlippingUtil.flipFieldPose(new Pose2d(1.654, 0.626, new Rotation2d(-53.746))), // feeder sector 3
+        FlippingUtil.flipFieldPose(new Pose2d(1.654, 0.626, Rotation2d.fromDegrees(54.293))), // feeder sector 3
+        FlippingUtil.flipFieldPose(new Pose2d(0.707, 6.704, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
+        new Pose2d(0.707, 6.704, Rotation2d.fromDegrees(-53.746)), // feeder sector 0
+        new Pose2d(1.654, 0.626, Rotation2d.fromDegrees(54.293)), // feeder sector 1
     };
   }
 
