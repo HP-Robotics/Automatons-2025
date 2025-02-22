@@ -266,20 +266,9 @@ public class RobotContainer {
         .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
 
     if (SubsystemConstants.useDrive) {
-      if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
-        if (m_poseEstimatorSubsystem.getPose().getY() > 4.02) {
-          m_targetFeeder = DriveConstants.redUpperFeederCenter;
-        } else {
-          m_targetFeeder = DriveConstants.redLowerFeederCenter;
-        }
-        if (m_poseEstimatorSubsystem.getPose().getY() > 4.02) {
-          m_targetFeeder = DriveConstants.blueUpperFeederCenter;
-        } else {
-          m_targetFeeder = DriveConstants.blueLowerFeederCenter;
-        }
-      }
-      ;
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.leftFeederAlignButton)
+
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAlignButton)
+          .and(m_inNOutSubsystem::isEmpty)
           .whileTrue(new RunCommand(() -> {
             // TODO: add auto align to the feeder station if robot doesn't have a coral
             // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
@@ -297,8 +286,7 @@ public class RobotContainer {
             } else if (m_driveSubsystem.m_feederSector.isPresent()) {
               m_driveSubsystem.drivePointedTowardsAngle(
                   ControllerConstants.m_driveJoystick,
-                  Rotation2d.fromDegrees(m_driveSubsystem.getAngleBetweenPoses(m_poseEstimatorSubsystem.getPose(),
-                      DriveConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector.get()])));
+                  DriveConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector.get()].getRotation());
             } else {
               m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
             }
@@ -307,7 +295,8 @@ public class RobotContainer {
           },
               m_driveSubsystem));
 
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.rightFeederAlignButton)
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.rightAlignButton)
+          .and(m_inNOutSubsystem::isEmpty)
           .whileTrue(new RunCommand(() -> {
             // TODO: add auto align to the feeder station if robot doesn't have a coral
             // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
@@ -325,8 +314,7 @@ public class RobotContainer {
             } else if (m_driveSubsystem.m_feederSector.isPresent()) {
               m_driveSubsystem.drivePointedTowardsAngle(
                   ControllerConstants.m_driveJoystick,
-                  Rotation2d.fromDegrees(m_driveSubsystem.getAngleBetweenPoses(m_poseEstimatorSubsystem.getPose(),
-                      DriveConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector.get()])));
+                  DriveConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector.get()].getRotation());
             } else {
               m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
             }
@@ -335,7 +323,8 @@ public class RobotContainer {
           },
               m_driveSubsystem));
 
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.rightReefAlignButton)
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.rightAlignButton)
+          .and(m_inNOutSubsystem::isLoaded)
           .whileTrue(new RunCommand(() -> {
             // TODO: add auto align to the feeder station if robot doesn't have a coral
             // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
@@ -361,7 +350,8 @@ public class RobotContainer {
                 NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
           }, m_driveSubsystem));
 
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.leftReefAlignButton)
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAlignButton)
+          .and(m_inNOutSubsystem::isLoaded)
           .whileTrue(new RunCommand(() -> {
             // TODO: add auto align to the feeder station if robot doesn't have a coral
             // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,

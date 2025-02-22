@@ -146,10 +146,8 @@ public final class Constants {
     public static final int elevatorUpButton = 8;
     public static final int goToTargetButton = 0; // TODO: change this
 
-    public static final int leftReefAlignButton = 5;
-    public static final int rightReefAlignButton = 6;
-    public static final int leftFeederAlignButton = 4; // TODO: this might not be the right button
-    public static final int rightFeederAlignButton = 7; // TODO: this is not the right button
+    public static final int leftAlignButton = 5;
+    public static final int rightAlignButton = 6;
 
     public static final int overrideButton = 6;
 

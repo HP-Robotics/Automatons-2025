@@ -272,14 +272,30 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     m_sector = getCurrentSector(m_poseEstimator.getPose());
+    if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
+      if (m_poseEstimator.getPose().getY() > 4.02) {
+        m_feederSector = Optional.of(0);
+      } else {
+        m_feederSector = Optional.of(1);
+      }
+    } else {
+      if (m_poseEstimator.getPose().getY() > 4.02) {
+        m_feederSector = Optional.of(2);
+      } else {
+        m_feederSector = Optional.of(3);
+      }
+    }
+
+    m_driveTrainTable.putValue("Reef sector",
+        NetworkTableValue.makeInteger(m_sector.isPresent() ? m_sector.get() : -1));
+    m_driveTrainTable.putValue("Feeder sector",
+        NetworkTableValue.makeInteger(m_feederSector.isPresent() ? m_feederSector.get() : -1));
 
     m_driveTrainTable.putValue("Robot theta",
         NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
-    m_driveTrainTable.putValue("is Drive Abs Working", NetworkTableValue.makeBoolean(
-        m_backLeft.m_absEncoder.get() != 0 &&
-            m_backRight.m_absEncoder.get() != 0 &&
-            m_frontLeft.m_absEncoder.get() != 0 &&
-            m_frontRight.m_absEncoder.get() != 0));
+    m_driveTrainTable.putValue("is Drive Abs Working",
+        NetworkTableValue.makeBoolean(m_backLeft.m_absEncoder.get() != 0 && m_backRight.m_absEncoder.get() != 0
+            && m_frontLeft.m_absEncoder.get() != 0 && m_frontRight.m_absEncoder.get() != 0));
 
     // TODO investigate why this takes so long
     m_frontLeft.updateShuffleboard();
@@ -296,8 +312,7 @@ public class DriveSubsystem extends SubsystemBase {
         ControllerConstants.m_driveJoystick.getRawAxis(0));
     robotToReef = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
         ? DriveConstants.redReefCenter
-        : DriveConstants.blueReefCenter)
-        .minus(m_poseEstimator.getPose().getTranslation());
+        : DriveConstants.blueReefCenter).minus(m_poseEstimator.getPose().getTranslation());
 
     joystickTransPub.set(joystickTrans);
     robotToReefPub.set(robotToReef);
