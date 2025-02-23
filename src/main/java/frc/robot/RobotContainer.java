@@ -231,7 +231,7 @@ public class RobotContainer {
           }));
 
       // Set state to outtaking if outtake button pressed and we are loaded
-      ControllerConstants.m_driveJoystick.button(4)
+      ControllerConstants.outtakeTrigger
           .and(new Trigger(() -> m_inNOutSubsystem.m_state == "loaded"))
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "outtaking";
@@ -408,15 +408,19 @@ public class RobotContainer {
       // .whileTrue(new StartEndCommand(m_elevatorSubsystem::GoToTarget,
       // m_elevatorSubsystem::goToElevatorDown));
 
-      ControllerConstants.m_opJoystick.button(4).and(new Trigger(m_inNOutSubsystem::isLoaded))
+      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL4Button)
+          .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue(m_elevatorSubsystem.GoToL4());
-      ControllerConstants.m_opJoystick.button(2).and(new Trigger(m_inNOutSubsystem::isLoaded))
+      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL3Button)
+          .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue(m_elevatorSubsystem.GoToL3());
-      ControllerConstants.m_opJoystick.button(1).and(new Trigger(m_inNOutSubsystem::isLoaded))
+      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL2Button)
+          .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue((m_elevatorSubsystem.GoToL2()));
-      ControllerConstants.m_opJoystick.button(3).and(new Trigger(m_inNOutSubsystem::isLoaded))
+      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL1Button)
+          .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue((m_elevatorSubsystem.GoToL1()));
-      ControllerConstants.m_opJoystick.button(6)
+      ControllerConstants.m_opJoystick.button(ControllerConstants.goToElevatorDownButton)
           .or(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton))
           .onTrue(m_elevatorSubsystem.GoToElevatorDown());
 
@@ -431,11 +435,11 @@ public class RobotContainer {
     }
 
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
-      ControllerConstants.m_driveJoystick.button(7)
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldButton)
           .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
     }
     if (SubsystemConstants.useClimber) {
-      ControllerConstants.m_driveJoystick.button(1).whileTrue(new ClimberClimbCommand(m_climberSubsystem));
+      ControllerConstants.climberTrigger.whileTrue(new ClimberClimbCommand(m_climberSubsystem));
     }
   }
 
