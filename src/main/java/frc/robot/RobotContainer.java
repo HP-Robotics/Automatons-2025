@@ -17,7 +17,6 @@ import frc.robot.Constants.IDConstants;
 import frc.robot.Constants.OuttakeConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SubsystemConstants;
-import frc.robot.commands.ClimberClimbCommand;
 import frc.robot.commands.IntakeFoldCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -439,7 +438,10 @@ public class RobotContainer {
           .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
     }
     if (SubsystemConstants.useClimber) {
-      ControllerConstants.climberTrigger.whileTrue(new ClimberClimbCommand(m_climberSubsystem));
+      ControllerConstants.climberTrigger.onTrue(m_climberSubsystem.Climb())
+          .onFalse(m_climberSubsystem.StopClimb());
+      ControllerConstants.m_driveJoystick.povLeft().onTrue(m_climberSubsystem.ResetClimmber())
+          .onFalse(m_climberSubsystem.StopClimb());
     }
   }
 

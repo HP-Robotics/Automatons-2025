@@ -28,7 +28,7 @@ public final class Constants {
     public static final boolean useOuttake = true;
     public static final boolean useDataManager = false;
     public static final boolean useLimelight = true;
-    public static final boolean useClimber = false;
+    public static final boolean useClimber = true;
     public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
   }
@@ -41,7 +41,7 @@ public final class Constants {
   }
 
   public static class IDConstants {
-    public static final int ClimberMotorID = 10;
+    public static final int ClimberMotorID = 11;
 
     public static final int FLDriveMotorID = 26;
     public static final int FRDriveMotorID = 22;
@@ -63,7 +63,6 @@ public final class Constants {
     public static final int ElevatorMotor1ID = 60; // TODO: Fix the motor ID
     public static final int ElevatorMotor2ID = 61; // TODO: Fix the motor ID
 
-    public static final int ClimbMotorID = 0; // TODO: Find motor ID
     public static final int dealginatorMotorID = 35;
   }
 
@@ -306,6 +305,16 @@ public final class Constants {
   public static class ClimberConstants {
     public static final double foldSpeed = 0.5;
     public static final double foldRunTime = 2; // TODO: Make this a number that makes sense
+
+    public static final double climbModulekP = 0.2;
+    public static final double climbModulekI = 0.001;
+    public static final double climbModulekD = 0;
+    public static final double climbModulekF = 0;
+
+    public static final double climberUpAbsolute = 0.27;
+    public static final double climberUpRelative = 0.0;
+    public static final double climberDownRelative = 40.0;
+    public static final double climberGearRatio = 243;
   }
 
   public static class IntakeConstants {
