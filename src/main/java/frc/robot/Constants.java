@@ -141,6 +141,7 @@ public final class Constants {
     public static final int leftAlignButton = 5;
     public static final int rightAlignButton = 6;
     public static final int intakeFoldButton = 7;
+    public static final int intakeFoldDualKeyButton = 8;
 
     // OPERATOR BUTTONS
     public static final Trigger elevatorL3Trigger = m_opJoystick.button(3);
@@ -313,7 +314,7 @@ public final class Constants {
 
     public static final double climberUpAbsolute = 0.27;
     public static final double climberUpRelative = 0.0;
-    public static final double climberDownRelative = 40.0;
+    public static final double climberDownRelative = 100.0;
     public static final double climberGearRatio = 243;
   }
 
