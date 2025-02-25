@@ -211,12 +211,6 @@ public class RobotContainer {
      * PRODUCTION CODE
      */
 
-    if (SubsystemConstants.useClimber) {
-      ControllerConstants.climberTrigger.whileTrue(m_climberSubsystem.openPinner());
-
-      ControllerConstants.closePinnerButton.whileTrue(m_climberSubsystem.closePinner());
-    }
-
     if (SubsystemConstants.useIntake) {
       // SETTING STATES
       // Set state to intaking if intake or elevator beam break are broken
@@ -446,9 +440,10 @@ public class RobotContainer {
           .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
     }
     if (SubsystemConstants.useClimber) {
+      ControllerConstants.closePinnerButton.whileTrue(m_climberSubsystem.closePinner());
       ControllerConstants.climberTrigger.onTrue(m_climberSubsystem.Climb())
           .onFalse(m_climberSubsystem.StopClimb());
-      ControllerConstants.m_driveJoystick.povLeft().onTrue(m_climberSubsystem.ResetClimmber())
+      ControllerConstants.m_driveJoystick.povLeft().onTrue(m_climberSubsystem.ResetClimber())
           .onFalse(m_climberSubsystem.StopClimb());
       ControllerConstants.m_driveJoystick.button(7).onTrue(m_climberSubsystem.openPinner());
     }

@@ -113,7 +113,7 @@ public class ClimberSubsystem extends SubsystemBase {
         return new InstantCommand(() -> m_climbMotor.set(0.0));
     }
 
-    public Command ResetClimmber() {
+    public Command ResetClimber() {
         return new InstantCommand(
                 () -> m_climbMotor.setControl(new PositionDutyCycle(ClimberConstants.climberUpRelative + m_offset)));
     }
@@ -139,7 +139,6 @@ public class ClimberSubsystem extends SubsystemBase {
                 var encoderAbs = m_absEncoder.get();
                 if (Math.abs(encoderAbs) > 0 && Math.abs(encoderAbs) < 1) {
                     m_offset = (encoderAbs - ClimberConstants.climberUpAbsolute) * ClimberConstants.climberGearRatio
-
                             /*
                              * Note that the logic here would more naturally be expressed a subtracting
                              * the current relative encoder. That is, what we do is compute where we think
@@ -152,7 +151,10 @@ public class ClimberSubsystem extends SubsystemBase {
                              * 'down')
                              */
                             + m_climbMotor.getRotorPosition().getValueAsDouble();
-
+                }
+                encoderAbs = m_pinnerAbsEncoder.get();
+                if (Math.abs(encoderAbs) > 0 && Math.abs(encoderAbs) < 1) {
+                    initializePinnerRelativeEncoder();
                 }
             }
         }

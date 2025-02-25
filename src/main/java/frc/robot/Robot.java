@@ -113,9 +113,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    if (SubsystemConstants.useClimber) {
-      m_robotContainer.m_climberSubsystem.initializePinnerRelativeEncoder();
-    }
     if (SubsystemConstants.useDrive) {
       m_robotContainer.resetModuleRotationOffsets();
     }
