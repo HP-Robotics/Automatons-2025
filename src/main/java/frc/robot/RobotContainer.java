@@ -434,7 +434,8 @@ public class RobotContainer {
     }
 
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldButton)
+      (ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldDualKeyButton))
+          .and(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldButton))
           .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
     }
     if (SubsystemConstants.useClimber) {
