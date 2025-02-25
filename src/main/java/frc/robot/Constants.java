@@ -148,6 +148,7 @@ public final class Constants {
     public static final Trigger elevatorL4Trigger = m_opJoystick.button(4);
     public static final int elevatorDownButton = 7;
     public static final int elevatorUpButton = 8;
+    public static final Trigger resetYawTrigger = m_opJoystick.button(6);
     // public static final int goToTargetButton = 0; // TODO: change this
     public static final int overrideButton = 10; // TODO: fix this
     public static final int goToL1Button = 3;

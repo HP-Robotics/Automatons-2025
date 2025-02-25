@@ -398,6 +398,8 @@ public class RobotContainer {
       // : DriveConstants.blueReefCenter,
       // new Rotation2d()))));
       // }, m_driveSubsystem));
+
+      ControllerConstants.resetYawTrigger.onTrue(new InstantCommand(() -> m_driveSubsystem.resetYaw()));
     }
 
     if (SubsystemConstants.useElevator) {
@@ -423,14 +425,15 @@ public class RobotContainer {
           .or(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton))
           .onTrue(m_elevatorSubsystem.GoToElevatorDown());
 
-      ControllerConstants.m_opJoystick.button(14)
-          .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L4ButtonIsPressed()));
-      ControllerConstants.m_opJoystick.button(12)
-          .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L3ButtonIsPressed()));
-      ControllerConstants.m_opJoystick.button(11)
-          .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L2ButtonIsPressed()));
-      ControllerConstants.m_opJoystick.button(13)
-          .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L1ButtonIsPressed()));
+      // TODO: Make elevator preset and use it after auto aligning
+      // ControllerConstants.m_opJoystick.button(14)
+      // .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L4ButtonIsPressed()));
+      // ControllerConstants.m_opJoystick.button(12)
+      // .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L3ButtonIsPressed()));
+      // ControllerConstants.m_opJoystick.button(11)
+      // .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L2ButtonIsPressed()));
+      // ControllerConstants.m_opJoystick.button(13)
+      // .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L1ButtonIsPressed()));
     }
 
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
