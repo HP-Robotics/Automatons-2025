@@ -54,6 +54,7 @@ import frc.robot.SwerveModule;
 public class DriveSubsystem extends SubsystemBase {
   public Optional<Integer> m_sector = Optional.empty();
   public Optional<Integer> m_feederSector = Optional.empty();
+  public Translation2d m_targetFeeder;
   SwerveDriveOdometry m_odometry;
 
   PPHolonomicDriveController m_driveController;
@@ -97,9 +98,9 @@ public class DriveSubsystem extends SubsystemBase {
   private StatusSignal<Angle> m_pGyroRoll = m_pGyro.getRoll();
 
   private final TrapezoidProfile m_xProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
-      DriveConstants.kMaxSpeed, AutoConstants.kMaxAccelerationMetersPerSecondSquared));
+      DriveConstants.kMaxSpeed / 2.0, AutoConstants.kMaxAccelerationMetersPerSecondSquared / 2.0));
   private final TrapezoidProfile m_yProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
-      DriveConstants.kMaxSpeed, AutoConstants.kMaxAccelerationMetersPerSecondSquared));
+      DriveConstants.kMaxSpeed / 2.0, AutoConstants.kMaxAccelerationMetersPerSecondSquared / 2.0));
 
   PIDController m_rotationController;
   PIDController m_xController;
@@ -272,14 +273,31 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     m_sector = getCurrentSector(m_poseEstimator.getPose());
+    if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
+      if (m_poseEstimator.getPose().getY() > 4.02) {
+        m_feederSector = Optional.of(0);
+      } else {
+        m_feederSector = Optional.of(1);
+      }
+    } else {
+      if (m_poseEstimator.getPose().getY() > 4.02) {
+        m_feederSector = Optional.of(2);
+      } else {
+        m_feederSector = Optional.of(3);
+      }
+    }
+    m_autoAlignPublisher.set(DriveConstants.leftFeederAlignPoses[m_feederSector.get()]);
+
+    m_driveTrainTable.putValue("Reef sector",
+        NetworkTableValue.makeInteger(m_sector.isPresent() ? m_sector.get() : -1));
+    m_driveTrainTable.putValue("Feeder sector",
+        NetworkTableValue.makeInteger(m_feederSector.isPresent() ? m_feederSector.get() : -1));
 
     m_driveTrainTable.putValue("Robot theta",
         NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
-    m_driveTrainTable.putValue("is Drive Abs Working", NetworkTableValue.makeBoolean(
-        m_backLeft.m_absEncoder.get() != 0 &&
-            m_backRight.m_absEncoder.get() != 0 &&
-            m_frontLeft.m_absEncoder.get() != 0 &&
-            m_frontRight.m_absEncoder.get() != 0));
+    m_driveTrainTable.putValue("is Drive Abs Working",
+        NetworkTableValue.makeBoolean(m_backLeft.m_absEncoder.get() != 0 && m_backRight.m_absEncoder.get() != 0
+            && m_frontLeft.m_absEncoder.get() != 0 && m_frontRight.m_absEncoder.get() != 0));
 
     // TODO investigate why this takes so long
     m_frontLeft.updateShuffleboard();
@@ -296,8 +314,7 @@ public class DriveSubsystem extends SubsystemBase {
         ControllerConstants.m_driveJoystick.getRawAxis(0));
     robotToReef = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
         ? DriveConstants.redReefCenter
-        : DriveConstants.blueReefCenter)
-        .minus(m_poseEstimator.getPose().getTranslation());
+        : DriveConstants.blueReefCenter).minus(m_poseEstimator.getPose().getTranslation());
 
     joystickTransPub.set(joystickTrans);
     robotToReefPub.set(robotToReef);

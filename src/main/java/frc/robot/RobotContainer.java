@@ -17,7 +17,6 @@ import frc.robot.Constants.IDConstants;
 import frc.robot.Constants.OuttakeConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SubsystemConstants;
-import frc.robot.commands.ClimberClimbCommand;
 import frc.robot.commands.IntakeFoldCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -28,6 +27,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -57,7 +57,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  SendableChooser<Command> m_autoChooser;
+  SendableChooser<String> m_autoChooser;
   final PoseEstimatorSubsystem m_poseEstimatorSubsystem = SubsystemConstants.usePoseEstimator
       ? new PoseEstimatorSubsystem()
       : null;
@@ -74,8 +74,6 @@ public class RobotContainer {
 
   BeamBreak m_intakeBeamBreak = new BeamBreak(0);
   TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
-
-  public Translation2d m_targetFeeder;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -97,7 +95,11 @@ public class RobotContainer {
               m_driveSubsystem));
 
       // Build an auto chooser. This will use Commands.none() as the default option.
-      m_autoChooser = AutoBuilder.buildAutoChooser();
+      m_autoChooser = new SendableChooser<String>();
+      for (String autoName : AutoBuilder.getAllAutoNames()) {
+        m_autoChooser.addOption(autoName, autoName);
+      }
+
       // Another option that allows you to specify the default auto by its name
       // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
       SmartDashboard.putData("Auto Chooser", m_autoChooser);
@@ -175,7 +177,8 @@ public class RobotContainer {
           new InstantCommand(m_elevatorSubsystem::goToElevatorDown,
               m_elevatorSubsystem),
           new WaitUntilCommand(m_elevatorSubsystem::atDownPosition),
-          m_inNOutSubsystem.IntakeCoral().until(m_inNOutSubsystem::isLoaded));
+          m_inNOutSubsystem.IntakeCoral(),
+          new WaitUntilCommand(m_inNOutSubsystem::isLoaded));
     } else {
       return new WaitCommand(0);
     }
@@ -184,9 +187,10 @@ public class RobotContainer {
   private void configureBindings() {
     // TEST CODE
     if (SubsystemConstants.useElevator) {
-      ControllerConstants.m_driveJoystick.povUp().whileTrue(
-          new StartEndCommand(m_elevatorSubsystem::GoToTarget, () -> m_elevatorMotor1.setControl(new DutyCycleOut(0)),
-              m_elevatorSubsystem));
+      // ControllerConstants.m_driveJoystick.povUp().whileTrue(
+      // new StartEndCommand(m_elevatorSubsystem::GoToTarget, () ->
+      // m_elevatorMotor1.setControl(new DutyCycleOut(0)),
+      // m_elevatorSubsystem));
 
       ControllerConstants.m_opJoystick.button(ControllerConstants.elevatorUpButton)
           .whileTrue(new StartEndCommand(() -> {
@@ -208,7 +212,7 @@ public class RobotContainer {
      */
 
     if (SubsystemConstants.useClimber) {
-      ControllerConstants.climberButton.whileTrue(m_climberSubsystem.openPinner());
+      ControllerConstants.climberTrigger.whileTrue(m_climberSubsystem.openPinner());
 
       ControllerConstants.closePinnerButton.whileTrue(m_climberSubsystem.closePinner());
     }
@@ -216,6 +220,8 @@ public class RobotContainer {
     if (SubsystemConstants.useIntake) {
       // SETTING STATES
       // Set state to intaking if intake or elevator beam break are broken
+      ControllerConstants.m_opJoystick.povUp().whileTrue(m_inNOutSubsystem.Dealginate());
+
       new Trigger(m_inNOutSubsystem::intakeHasCoral).and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "intaking"; // TODO: Make sure elevator is at bottom before intaking
@@ -232,7 +238,7 @@ public class RobotContainer {
           }));
 
       // Set state to outtaking if outtake button pressed and we are loaded
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.outtakeButton)
+      ControllerConstants.outtakeTrigger
           .and(new Trigger(() -> m_inNOutSubsystem.m_state == "loaded"))
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "outtaking";
@@ -243,8 +249,9 @@ public class RobotContainer {
           .and(() -> m_inNOutSubsystem.m_state == "outtaking")
           .onTrue(new SequentialCommandGroup(
               new WaitCommand(OuttakeConstants.scoreDelay),
-              new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty"),
-              m_elevatorSubsystem.GoToElevatorDown()));
+              new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")
+          // m_elevatorSubsystem.GoToElevatorDown()
+          ));
 
       // ACTIONS
       // run intake if intake button pressed and state is empty or is intaking
@@ -274,20 +281,9 @@ public class RobotContainer {
         .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
 
     if (SubsystemConstants.useDrive) {
-      if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
-        if (m_poseEstimatorSubsystem.getPose().getY() > 4.02) {
-          m_targetFeeder = DriveConstants.redUpperFeederCenter;
-        } else {
-          m_targetFeeder = DriveConstants.redLowerFeederCenter;
-        }
-        if (m_poseEstimatorSubsystem.getPose().getY() > 4.02) {
-          m_targetFeeder = DriveConstants.blueUpperFeederCenter;
-        } else {
-          m_targetFeeder = DriveConstants.blueLowerFeederCenter;
-        }
-      }
-      ;
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.leftFeederAlignButton)
+
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAlignButton)
+          .and(m_inNOutSubsystem::isEmpty)
           .whileTrue(new RunCommand(() -> {
             // TODO: add auto align to the feeder station if robot doesn't have a coral
             // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
@@ -295,7 +291,8 @@ public class RobotContainer {
 
             if (m_driveSubsystem.m_feederSector.isPresent()
                 && m_driveSubsystem.getDistanceToPose(m_poseEstimatorSubsystem.getPose(),
-                    new Pose2d(m_targetFeeder, new Rotation2d())) <= DriveConstants.autoAlignDistanceTolerance
+                    DriveConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector
+                        .get()]) <= DriveConstants.autoAlignDistanceTolerance
                 && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans,
                     DriveConstants.feederAlignAngles[m_driveSubsystem.m_feederSector.get()],
                     DriveConstants.autoAlignTolerance)
@@ -305,8 +302,7 @@ public class RobotContainer {
             } else if (m_driveSubsystem.m_feederSector.isPresent()) {
               m_driveSubsystem.drivePointedTowardsAngle(
                   ControllerConstants.m_driveJoystick,
-                  Rotation2d.fromDegrees(m_driveSubsystem.getAngleBetweenPoses(m_poseEstimatorSubsystem.getPose(),
-                      DriveConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector.get()])));
+                  DriveConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector.get()].getRotation());
             } else {
               m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
             }
@@ -315,7 +311,8 @@ public class RobotContainer {
           },
               m_driveSubsystem));
 
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.rightFeederAlignButton)
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.rightAlignButton)
+          .and(m_inNOutSubsystem::isEmpty)
           .whileTrue(new RunCommand(() -> {
             // TODO: add auto align to the feeder station if robot doesn't have a coral
             // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
@@ -323,7 +320,8 @@ public class RobotContainer {
 
             if (m_driveSubsystem.m_feederSector.isPresent()
                 && m_driveSubsystem.getDistanceToPose(m_poseEstimatorSubsystem.getPose(),
-                    new Pose2d(m_targetFeeder, new Rotation2d())) <= DriveConstants.autoAlignDistanceTolerance
+                    DriveConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector
+                        .get()]) <= DriveConstants.autoAlignDistanceTolerance
                 && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans,
                     DriveConstants.feederAlignAngles[m_driveSubsystem.m_feederSector.get()],
                     DriveConstants.autoAlignTolerance)
@@ -333,8 +331,7 @@ public class RobotContainer {
             } else if (m_driveSubsystem.m_feederSector.isPresent()) {
               m_driveSubsystem.drivePointedTowardsAngle(
                   ControllerConstants.m_driveJoystick,
-                  Rotation2d.fromDegrees(m_driveSubsystem.getAngleBetweenPoses(m_poseEstimatorSubsystem.getPose(),
-                      DriveConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector.get()])));
+                  DriveConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector.get()].getRotation());
             } else {
               m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
             }
@@ -343,7 +340,8 @@ public class RobotContainer {
           },
               m_driveSubsystem));
 
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.rightReefAlignButton)
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.rightAlignButton)
+          .and(m_inNOutSubsystem::isLoaded)
           .whileTrue(new RunCommand(() -> {
             // TODO: add auto align to the feeder station if robot doesn't have a coral
             // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
@@ -369,7 +367,8 @@ public class RobotContainer {
                 NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
           }, m_driveSubsystem));
 
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.leftReefAlignButton)
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAlignButton)
+          .and(m_inNOutSubsystem::isLoaded)
           .whileTrue(new RunCommand(() -> {
             // TODO: add auto align to the feeder station if robot doesn't have a coral
             // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
@@ -380,7 +379,7 @@ public class RobotContainer {
                     DriveConstants.autoAlignTolerance)
                     || ControllerConstants.m_driveJoystick
                         .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
-              m_driveSubsystem.driveToPose(DriveConstants.rightAlignPoses[m_driveSubsystem.m_sector.get()]);
+              m_driveSubsystem.driveToPose(DriveConstants.leftAlignPoses[m_driveSubsystem.m_sector.get()]);
             } else {
               m_driveSubsystem.drivePointedTowardsAngle(
                   ControllerConstants.m_driveJoystick,
@@ -411,34 +410,46 @@ public class RobotContainer {
 
     if (SubsystemConstants.useElevator) {
 
-      ControllerConstants.m_driveJoystick.button(7)
-          .and(new Trigger(() -> m_inNOutSubsystem.isLoaded()))
-          .whileTrue(new StartEndCommand(m_elevatorSubsystem::GoToTarget, m_elevatorSubsystem::goToElevatorDown));
+      // ControllerConstants.m_driveJoystick.button(7)
+      // .and(new Trigger(() -> m_inNOutSubsystem.isLoaded()))
+      // .whileTrue(new StartEndCommand(m_elevatorSubsystem::GoToTarget,
+      // m_elevatorSubsystem::goToElevatorDown));
 
-      ControllerConstants.m_opJoystick.povUp().onTrue(m_elevatorSubsystem.GoToL4());
-      ControllerConstants.m_opJoystick.povRight().onTrue(m_elevatorSubsystem.GoToL3());
-      ControllerConstants.m_opJoystick.povDown().onTrue(m_elevatorSubsystem.GoToL2());
-      ControllerConstants.m_opJoystick.povLeft().onTrue(m_elevatorSubsystem.GoToL1());
-      ControllerConstants.m_opJoystick.button(9)
+      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL4Button)
+          .and(new Trigger(m_inNOutSubsystem::isLoaded))
+          .onTrue(m_elevatorSubsystem.GoToL4());
+      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL3Button)
+          .and(new Trigger(m_inNOutSubsystem::isLoaded))
+          .onTrue(m_elevatorSubsystem.GoToL3());
+      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL2Button)
+          .and(new Trigger(m_inNOutSubsystem::isLoaded))
+          .onTrue((m_elevatorSubsystem.GoToL2()));
+      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL1Button)
+          .and(new Trigger(m_inNOutSubsystem::isLoaded))
+          .onTrue((m_elevatorSubsystem.GoToL1()));
+      ControllerConstants.m_opJoystick.button(ControllerConstants.goToElevatorDownButton)
           .or(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton))
           .onTrue(m_elevatorSubsystem.GoToElevatorDown());
 
-      ControllerConstants.m_opJoystick.button(4)
+      ControllerConstants.m_opJoystick.button(14)
           .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L4ButtonIsPressed()));
-      ControllerConstants.m_opJoystick.button(2)
+      ControllerConstants.m_opJoystick.button(12)
           .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L3ButtonIsPressed()));
-      ControllerConstants.m_opJoystick.button(1)
+      ControllerConstants.m_opJoystick.button(11)
           .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L2ButtonIsPressed()));
-      ControllerConstants.m_opJoystick.button(3)
+      ControllerConstants.m_opJoystick.button(13)
           .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L1ButtonIsPressed()));
     }
 
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
-      ControllerConstants.m_driveJoystick.button(7)
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldButton)
           .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
     }
     if (SubsystemConstants.useClimber) {
-      ControllerConstants.m_driveJoystick.button(1).whileTrue(new ClimberClimbCommand(m_climberSubsystem));
+      ControllerConstants.climberTrigger.onTrue(m_climberSubsystem.Climb())
+          .onFalse(m_climberSubsystem.StopClimb());
+      ControllerConstants.m_driveJoystick.povLeft().onTrue(m_climberSubsystem.ResetClimmber())
+          .onFalse(m_climberSubsystem.StopClimb());
       ControllerConstants.m_driveJoystick.button(7).onTrue(m_climberSubsystem.openPinner());
     }
   }
@@ -451,7 +462,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
-    return m_autoChooser.getSelected();
+  public PathPlannerAuto getAutonomousCommand() {
+    return (PathPlannerAuto) AutoBuilder.buildAuto(m_autoChooser.getSelected());
   }
 }

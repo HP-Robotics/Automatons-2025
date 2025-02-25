@@ -12,13 +12,15 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class InNOutSubsystem extends SubsystemBase {
-    TalonFX m_intakeMotor = new TalonFX(IDConstants.intakeMotorID);
+    // TalonFX m_intakeMotor = new TalonFX(IDConstants.intakeMotorID);
     TalonFX m_outtakeMotor = new TalonFX(IDConstants.outtakeMotorID);
+    TalonFX m_dealginator = new TalonFX(IDConstants.dealginatorMotorID);
     public TalonFX m_intakeFoldMotor = new TalonFX(IDConstants.intakeFoldMotorID);
     public String m_state = "empty";
     NetworkTable m_table;
@@ -34,7 +36,7 @@ public class InNOutSubsystem extends SubsystemBase {
     }
 
     public void runIntake() {
-        m_intakeMotor.set(IntakeConstants.intakeSpeed);
+        // m_intakeMotor.set(IntakeConstants.intakeSpeed);
     }
 
     public void runOuttake() {
@@ -46,7 +48,7 @@ public class InNOutSubsystem extends SubsystemBase {
     }
 
     public void stopIntake() {
-        m_intakeMotor.set(0);
+        // m_intakeMotor.set(0);
         // LED (on intake motor?) red
         // LED (on shoot motor?) green
     }
@@ -78,11 +80,16 @@ public class InNOutSubsystem extends SubsystemBase {
 
     public Command IntakeCoral() {
         return new ParallelCommandGroup(
-                new StartEndCommand(this::runIntake, this::stopIntake),
-                new StartEndCommand(this::loadOuttake, this::stopOuttake));
+                // new StartEndCommand(this::runIntake, this::stopIntake),
+                // new StartEndCommand(this::loadOuttake, this::stopOuttake));
+                new InstantCommand(this::loadOuttake));
     }
 
     public Command OuttakeCoral() {
         return new StartEndCommand(this::runOuttake, this::stopOuttake);
+    }
+
+    public Command Dealginate() {
+        return new StartEndCommand(() -> m_dealginator.set(0.8), () -> m_dealginator.set(0));
     }
 }

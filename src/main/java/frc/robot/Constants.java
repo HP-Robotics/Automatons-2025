@@ -41,6 +41,8 @@ public final class Constants {
   }
 
   public static class IDConstants {
+    public static final int ClimberMotorID = 11;
+
     public static final int FLDriveMotorID = 26;
     public static final int FRDriveMotorID = 22;
     public static final int BRDriveMotorID = 20;
@@ -66,6 +68,7 @@ public final class Constants {
     public static final int releaseMotorID = 13;
 
     public static final int pinnerAbsEncoderID = 7;
+    public static final int dealginatorMotorID = 35;
   }
 
   public static class AutoConstants {
@@ -96,7 +99,7 @@ public final class Constants {
     public static final double L3Position = 51.5;
     public static final double L2Position = 35.5;
     public static final double L1Position = 20;
-    public static final double elevatorDownPosition = 3.5;
+    public static final double elevatorDownPosition = 2.6; // Original: 3.5
     public static final double bottomPosition = 0;
     // TODO: this might be right but should be checked with the other two
     public static final double kP = 1.5;// TODO: tune these more
@@ -132,31 +135,32 @@ public final class Constants {
 
     public static final double driveJoystickExponent = useXbox ? 2 : 2;
 
-    public static final int resetHeadingButton = useXbox ? 8 : 0;
-    public static final int resetYawButton = useXbox ? 7 : 11;
-    public static final int fieldRelativeButton = useXbox ? 8 : 8;
-    public static final int robotRelativeButton = useXbox ? 2 : 8;
-    public static final int yuckButton = useXbox ? 4 : 2;
-    public static final Trigger climberButton = useXbox ? m_driveJoystick.axisGreaterThan(2, 0.2)
-        : m_driveJoystick.axisGreaterThan(2, 0.2);
-    public static final Trigger closePinnerButton = m_driveJoystick.axisGreaterThan(3, 0.2);
-    public static final int intakeButton = useXbox ? 2 : 2;
-    public static final int stopIntakeButtton = 9;
-    public static final int outtakeButton = useXbox ? 4 : 0;
-    public static final Trigger outtakeTrigger = m_driveJoystick.button(outtakeButton);
+    // public static final int resetYawButton = useXbox ? 7 : 11;
+    // public static final int fieldRelativeButton = useXbox ? 8 : 8;
+    // public static final int robotRelativeButton = useXbox ? 2 : 8;
 
-    public static final Trigger elevatorL3Button = m_opJoystick.button(3);
-    public static final Trigger elevatorL4Button = m_opJoystick.button(4);
+    // DRIVER BUTTONS
+    public static final Trigger climberTrigger = m_driveJoystick.axisGreaterThan(2, 0.2);
+    public static final int intakeButton = 2;
+    public static final Trigger outtakeTrigger = m_driveJoystick.button(4);
+    public static final int leftAlignButton = 5;
+    public static final int rightAlignButton = 6;
+    public static final int intakeFoldButton = 7;
+    public static final int intakeFoldDualKeyButton = 8;
+    public static final Trigger closePinnerButton = m_driveJoystick.axisGreaterThan(3, 0.2);
+
+    // OPERATOR BUTTONS
+    public static final Trigger elevatorL3Trigger = m_opJoystick.button(3);
+    public static final Trigger elevatorL4Trigger = m_opJoystick.button(4);
     public static final int elevatorDownButton = 7;
     public static final int elevatorUpButton = 8;
-    public static final int goToTargetButton = 0; // TODO: change this
-
-    public static final int leftReefAlignButton = 5;
-    public static final int rightReefAlignButton = 6;
-    public static final int leftFeederAlignButton = 4; // TODO: this might not be the right button
-    public static final int rightFeederAlignButton = 7; // TODO: this is not the right button
-
-    public static final int overrideButton = 6;
+    // public static final int goToTargetButton = 0; // TODO: change this
+    public static final int overrideButton = 10; // TODO: fix this
+    public static final int goToL1Button = 3;
+    public static final int goToL2Button = 1;
+    public static final int goToL3Button = 2;
+    public static final int goToL4Button = 4;
+    public static final int goToElevatorDownButton = 6;
 
     public static double getRotation(CommandJoystick stick) {
       if (useXbox) {
@@ -284,10 +288,10 @@ public final class Constants {
         new Pose2d(new Translation2d(0.774366, -1.02124).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
     };
     public static final Pose2d[] leftFeederAlignPoses = {
-        new Pose2d(1.642, 7.376, new Rotation2d(-53.746)), // feeder sector 0
-        new Pose2d(0.731, 1.310, new Rotation2d(54.293)), // feeder sector 1
-        FlippingUtil.flipFieldPose(new Pose2d(0.731, 1.310, new Rotation2d(54.293))), // feeder sector 2
-        FlippingUtil.flipFieldPose(new Pose2d(1.642, 7.376, new Rotation2d(-53.746))), // feeder sector 3
+        FlippingUtil.flipFieldPose(new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(54.293))), // feeder sector 3
+        FlippingUtil.flipFieldPose(new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
+        new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(-53.746)), // feeder sector 0
+        new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(54.293)), // feeder sector 1
     };
     public static final Translation2d[] feederAlignAngles = {
         // make sure these are the correct sectors (0,1,2,3) in that order
@@ -298,10 +302,10 @@ public final class Constants {
     };
 
     public static final Pose2d[] rightFeederAlignPoses = {
-        new Pose2d(0.707, 6.704, new Rotation2d(-53.746)), // feeder sector 0
-        new Pose2d(1.654, 0.626, new Rotation2d(54.293)), // feeder sector 1
-        FlippingUtil.flipFieldPose(new Pose2d(0.707, 6.704, new Rotation2d(54.293))), // feeder sector 2
-        FlippingUtil.flipFieldPose(new Pose2d(1.654, 0.626, new Rotation2d(-53.746))), // feeder sector 3
+        FlippingUtil.flipFieldPose(new Pose2d(1.654, 0.626, Rotation2d.fromDegrees(54.293))), // feeder sector 3
+        FlippingUtil.flipFieldPose(new Pose2d(0.707, 6.704, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
+        new Pose2d(0.707, 6.704, Rotation2d.fromDegrees(-53.746)), // feeder sector 0
+        new Pose2d(1.654, 0.626, Rotation2d.fromDegrees(54.293)), // feeder sector 1
     };
   }
 
@@ -320,6 +324,15 @@ public final class Constants {
     public static final double pinnerVertical = 0.71;
     public static final double pinnerHorizontal = 0.95;
 
+    public static final double climbModulekP = 0.2;
+    public static final double climbModulekI = 0.001;
+    public static final double climbModulekD = 0;
+    public static final double climbModulekF = 0;
+
+    public static final double climberUpAbsolute = 0.27;
+    public static final double climberUpRelative = 0.0;
+    public static final double climberDownRelative = 100.0;
+    public static final double climberGearRatio = 243;
   }
 
   public static class IntakeConstants {
