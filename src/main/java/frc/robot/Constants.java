@@ -23,13 +23,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public final class Constants {
 
   public static class SubsystemConstants {
-    public static final boolean useDrive = true;
+    public static final boolean useDrive = false;
     public static final boolean useIntake = true;
     public static final boolean useOuttake = true;
     public static final boolean useDataManager = false;
-    public static final boolean useLimelight = true;
-    public static final boolean useClimber = false;
-    public static final boolean usePoseEstimator = true;
+    public static final boolean useLimelight = false;
+    public static final boolean useClimber = true;
+    public static final boolean usePoseEstimator = false;
     public static final boolean useElevator = true;
   }
 
@@ -61,7 +61,11 @@ public final class Constants {
     public static final int ElevatorMotor1ID = 60; // TODO: Fix the motor ID
     public static final int ElevatorMotor2ID = 61; // TODO: Fix the motor ID
 
-    public static final int ClimbMotorID = 0; // TODO: Find motor ID
+    public static final int climbMotorID = 11; // TODO: Find motor ID
+    public static final int pinnerMotorID = 12;
+    public static final int releaseMotorID = 13;
+
+    public static final int pinnerAbsEncoderID = 7;
   }
 
   public static class AutoConstants {
@@ -135,6 +139,7 @@ public final class Constants {
     public static final int yuckButton = useXbox ? 4 : 2;
     public static final Trigger climberButton = useXbox ? m_driveJoystick.axisGreaterThan(2, 0.2)
         : m_driveJoystick.axisGreaterThan(2, 0.2);
+    public static final Trigger closePinnerButton = m_driveJoystick.axisGreaterThan(3, 0.2);
     public static final int intakeButton = useXbox ? 2 : 2;
     public static final int stopIntakeButtton = 9;
     public static final int outtakeButton = useXbox ? 4 : 0;
@@ -303,6 +308,18 @@ public final class Constants {
   public static class ClimberConstants {
     public static final double foldSpeed = 0.5;
     public static final double foldRunTime = 2; // TODO: Make this a number that makes sense
+
+    // TODO: find actual values
+    public static final double pinnerQuarterRotation = 10.5; // 42/4
+    public static final double pinnerkP = 0.05;
+    public static final double pinnerkI = 0.00001;
+    public static final double pinnerkD = 0;
+    public static final double pinnerkMinOutput = -1;
+    public static final double pinnerkMaxOutPut = 1;
+
+    public static final double pinnerVertical = 0.71;
+    public static final double pinnerHorizontal = 0.95;
+
   }
 
   public static class IntakeConstants {

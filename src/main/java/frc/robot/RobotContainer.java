@@ -69,7 +69,7 @@ public class RobotContainer {
       : null;
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
-  final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
+  public final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
   final ElevatorSubsystem m_elevatorSubsystem = SubsystemConstants.useElevator ? new ElevatorSubsystem() : null;
 
   BeamBreak m_intakeBeamBreak = new BeamBreak(0);
@@ -84,7 +84,9 @@ public class RobotContainer {
 
     configureNamedCommands();
     configureEventTriggers();
-    m_driveSubsystem.configureAutoBuilder();
+    if (SubsystemConstants.useDrive) {
+      m_driveSubsystem.configureAutoBuilder();
+    }
 
     if (SubsystemConstants.useDrive) {
       m_driveSubsystem.setDefaultCommand(
@@ -204,6 +206,12 @@ public class RobotContainer {
     /*
      * PRODUCTION CODE
      */
+
+    if (SubsystemConstants.useClimber) {
+      ControllerConstants.climberButton.whileTrue(m_climberSubsystem.openPinner());
+
+      ControllerConstants.closePinnerButton.whileTrue(m_climberSubsystem.closePinner());
+    }
 
     if (SubsystemConstants.useIntake) {
       // SETTING STATES
@@ -431,6 +439,7 @@ public class RobotContainer {
     }
     if (SubsystemConstants.useClimber) {
       ControllerConstants.m_driveJoystick.button(1).whileTrue(new ClimberClimbCommand(m_climberSubsystem));
+      ControllerConstants.m_driveJoystick.button(7).onTrue(m_climberSubsystem.openPinner());
     }
   }
 
