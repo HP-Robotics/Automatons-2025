@@ -68,11 +68,24 @@ public class ClimberSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        /* We have observed the absolute encoder reading 1.0 immediately on program start.
+           Last year, we observed that the absolute encoder reading was not stable until
+           some time after boot.  We noticed the encoder reading incorrectly early this year
+           as well.  So we have logic to wait 5 seconds before using the absolute encoder,
+           and only if it is reading something sensible. */
         if (m_offset == 0.0) {
             if (m_timer.hasElapsed(5)) {
                 var encoderAbs = m_absEncoder.get();
                 if (Math.abs(encoderAbs) > 0 && Math.abs(encoderAbs) < 1) {
                     m_offset = (encoderAbs - ClimberConstants.climberUpAbsolute) * ClimberConstants.climberGearRatio
+
+                    /* Note that the logic here would more naturally be expressed a subtracting
+                       the current relative encoder.  That is, what we do is compute where we think
+                       the relative encoder should be, given where the absolute encoder is.  Then, it
+                       would be natural to subtract the current value of the relative encoder.
+                       However, because the absolute encoder and relative encoder go opposite directions, we need
+                       one more negative sign.  (To be clear, the absolute
+                       increases counter clockwise, or up, and relative increases clockwise, or 'down') */
                             + m_climbMotor.getRotorPosition().getValueAsDouble();
 
                 }
