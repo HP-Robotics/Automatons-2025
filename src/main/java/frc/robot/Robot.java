@@ -98,7 +98,7 @@ public class Robot extends TimedRobot {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command
-    m_robotContainer.m_driveSubsystem.resetYaw(m_autonomousCommand.getStartingPose().getRotation().getDegrees());
+    m_robotContainer.m_driveSubsystem.setYaw(m_autonomousCommand.getStartingPose().getRotation().getDegrees());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }

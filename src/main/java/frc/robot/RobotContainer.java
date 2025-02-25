@@ -130,9 +130,13 @@ public class RobotContainer {
         new InstantCommand(() -> SmartDashboard.putString("I waited three", "yes")));
     NamedCommands.registerCommand("IFished", new InstantCommand(() -> SmartDashboard.putString("I fished", "yes")));
 
-    NamedCommands.registerCommand("WaitForIntake", new WaitUntilCommand(m_inNOutSubsystem::isLoaded));
+    NamedCommands.registerCommand("WaitForIntake",
+        new SequentialCommandGroup(
+            m_driveSubsystem.StayStillCommand(),
+            new WaitUntilCommand(m_inNOutSubsystem::isLoaded)));
     NamedCommands.registerCommand("InitializeElevator", InitializeElevator());
     NamedCommands.registerCommand("Score", new SequentialCommandGroup(
+        m_driveSubsystem.StayStillCommand(),
         new WaitUntilCommand(m_elevatorSubsystem::atPosition),
         m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
             .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")),
@@ -456,4 +460,5 @@ public class RobotContainer {
   public PathPlannerAuto getAutonomousCommand() {
     return (PathPlannerAuto) AutoBuilder.buildAuto(m_autoChooser.getSelected());
   }
+
 }

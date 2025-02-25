@@ -45,6 +45,8 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.*;
@@ -586,9 +588,9 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Resets robot's conception of field orientation
+   * Sets robot's conception of field orientation
    */
-  public void resetYaw(double angle) {
+  public void setYaw(double angle) {
     m_gyroOffset = m_pGyro.getYaw().getValueAsDouble() - angle;
   }
 
@@ -597,6 +599,10 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void resetYaw() {
-    resetYaw(0);
+    setYaw(0);
+  }
+
+  public Command StayStillCommand() {
+    return new InstantCommand(() -> drive(0, 0, getYaw(), true));
   }
 }
