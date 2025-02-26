@@ -69,7 +69,7 @@ public class RobotContainer {
       : null;
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
-  final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
+  public final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
   final ElevatorSubsystem m_elevatorSubsystem = SubsystemConstants.useElevator ? new ElevatorSubsystem() : null;
 
   BeamBreak m_intakeBeamBreak = new BeamBreak(0);
@@ -82,7 +82,9 @@ public class RobotContainer {
 
     configureNamedCommands();
     configureEventTriggers();
-    m_driveSubsystem.configureAutoBuilder();
+    if (SubsystemConstants.useDrive) {
+      m_driveSubsystem.configureAutoBuilder();
+    }
 
     if (SubsystemConstants.useDrive) {
       m_driveSubsystem.setDefaultCommand(
@@ -446,10 +448,12 @@ public class RobotContainer {
           .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
     }
     if (SubsystemConstants.useClimber) {
+      ControllerConstants.closePinnerButton.whileTrue(m_climberSubsystem.closePinner());
       ControllerConstants.climberTrigger.onTrue(m_climberSubsystem.Climb())
           .onFalse(m_climberSubsystem.StopClimb());
-      ControllerConstants.m_driveJoystick.povLeft().onTrue(m_climberSubsystem.ResetClimmber())
+      ControllerConstants.m_driveJoystick.povLeft().onTrue(m_climberSubsystem.ResetClimber())
           .onFalse(m_climberSubsystem.StopClimb());
+      ControllerConstants.m_driveJoystick.button(7).onTrue(m_climberSubsystem.openPinner());
     }
   }
 
