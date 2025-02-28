@@ -247,6 +247,8 @@ public final class Constants {
     // TODO: put actual values TODO: consider a field constants? doesn't go in drive
     public static final Translation2d blueReefCenter = new Translation2d(4.490323, -0.0001 + 4.02);
     public static final Translation2d redReefCenter = new Translation2d(13.059902, -0.0001 + 4.02);
+    public static final Translation2d leftC2 = new Translation2d(1.2716, -0.16);
+    public static final Translation2d rightC2 = new Translation2d(1.2716, 0.16);
     public static final Translation2d redUpperFeederCenter = new Translation2d(); // TODO: find these numbers
     public static final Translation2d redLowerFeederCenter = new Translation2d();
     public static final Translation2d blueUpperFeederCenter = new Translation2d();
@@ -259,34 +261,58 @@ public final class Constants {
 
     // TODO: make comments with the corresponding april tags and red alliance
     public static final Pose2d[] leftAlignPoses = {
-        new Pose2d(new Translation2d(1.2716, -0.16).plus(blueReefCenter), new Rotation2d(Math.PI)), // C2
-        new Pose2d(new Translation2d(0.774364, 1.02124).plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)), // C1
-        new Pose2d(new Translation2d(-0.497238, 1.18124).plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)), // F1
-        new Pose2d(new Translation2d(-1.2716, 0.15999).plus(blueReefCenter), new Rotation2d(0)), // F2
-        new Pose2d(new Translation2d(-0.774355, -1.02124).plus(blueReefCenter), new Rotation2d(Math.PI / 3)), // F3
-        new Pose2d(new Translation2d(0.497242, -1.18123).plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)), // C3
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(0))
+            .plus(blueReefCenter), new Rotation2d(Math.PI)), // C2
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)), // C1
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 2 / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)), // F1
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI))
+            .plus(blueReefCenter), new Rotation2d(0)), // F2
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 4 / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI / 3)), // F3
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 5 / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)), // C3
 
-        new Pose2d(new Translation2d(1.2716, -0.16).plus(redReefCenter), new Rotation2d(Math.PI)), // 7
-        new Pose2d(new Translation2d(0.774364, 1.02124).plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
-        new Pose2d(new Translation2d(-0.497238, 1.18124).plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
-        new Pose2d(new Translation2d(-1.2716, 0.15999).plus(redReefCenter), new Rotation2d(0)),
-        new Pose2d(new Translation2d(-0.774355, -1.02124).plus(redReefCenter), new Rotation2d(Math.PI / 3)),
-        new Pose2d(new Translation2d(0.497242, -1.18123).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(0))
+            .plus(redReefCenter), new Rotation2d(Math.PI)), // 7
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 2 / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI))
+            .plus(redReefCenter), new Rotation2d(0)),
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 4 / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI / 3)),
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 5 / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
     };
     public static final Pose2d[] rightAlignPoses = {
-        new Pose2d(new Translation2d(1.2716, 0.16).plus(blueReefCenter), new Rotation2d(Math.PI)), // C2
-        new Pose2d(new Translation2d(0.497236, 1.18124).plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)), // C1
-        new Pose2d(new Translation2d(-0.774366, 1.02124).plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)), // F1
-        new Pose2d(new Translation2d(-1.2716, -0.16).plus(blueReefCenter), new Rotation2d(0)), // F2
-        new Pose2d(new Translation2d(-0.497236, -1.18124).plus(blueReefCenter), new Rotation2d(Math.PI / 3)), // F3
-        new Pose2d(new Translation2d(0.774366, -1.02124).plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)), // C3
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(0))
+            .plus(blueReefCenter), new Rotation2d(Math.PI)), // C2
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)), // C1
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 2 / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)), // F1
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI))
+            .plus(blueReefCenter), new Rotation2d(0)), // F2
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 4 / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI / 3)), // F3
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 5 / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)), // C3
 
-        new Pose2d(new Translation2d(1.2716, 0.16).plus(redReefCenter), new Rotation2d(Math.PI)), // 7
-        new Pose2d(new Translation2d(0.497236, 1.18124).plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
-        new Pose2d(new Translation2d(-0.774366, 1.02124).plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
-        new Pose2d(new Translation2d(-1.2716, -0.16).plus(redReefCenter), new Rotation2d(0)),
-        new Pose2d(new Translation2d(-0.497236, -1.18124).plus(redReefCenter), new Rotation2d(Math.PI / 3)),
-        new Pose2d(new Translation2d(0.774366, -1.02124).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(0))
+            .plus(redReefCenter), new Rotation2d(Math.PI)), // 7
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 2 / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI))
+            .plus(redReefCenter), new Rotation2d(0)),
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 4 / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI / 3)),
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 5 / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
     };
     public static final Pose2d[] leftFeederAlignPoses = {
         FlippingUtil.flipFieldPose(new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(54.293))), // feeder sector 3
