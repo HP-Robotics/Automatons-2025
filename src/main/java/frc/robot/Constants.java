@@ -23,13 +23,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public final class Constants {
 
   public static class SubsystemConstants {
-    public static final boolean useDrive = false;
+    public static final boolean useDrive = true;
     public static final boolean useIntake = true;
     public static final boolean useOuttake = true;
-    public static final boolean useDataManager = false;
-    public static final boolean useLimelight = false;
+    public static final boolean useDataManager = true;
+    public static final boolean useLimelight = true;
     public static final boolean useClimber = true;
-    public static final boolean usePoseEstimator = false;
+    public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
   }
 
@@ -97,10 +97,10 @@ public final class Constants {
   public static class ElevatorConstants {
     public static final double L4Position = 76; // TODO: figure out what these are
     public static final double L3Position = 51.5;
-    public static final double L2Position = 35.5;
+    public static final double L2Position = 36;
     public static final double L1Position = 20;
     public static final double elevatorDownPosition = 2.6; // Original: 3.5
-    public static final double bottomPosition = 0;
+    public static final double bottomPosition = 1.0;
     // TODO: this might be right but should be checked with the other two
     public static final double kP = 1.5;// TODO: tune these more
     public static final double kI = 0.3;
@@ -141,20 +141,21 @@ public final class Constants {
 
     // DRIVER BUTTONS
     public static final Trigger climberTrigger = m_driveJoystick.axisGreaterThan(2, 0.2);
-    public static final int intakeButton = 2;
     public static final Trigger outtakeTrigger = m_driveJoystick.button(4);
     public static final int leftAlignButton = 5;
     public static final int rightAlignButton = 6;
     public static final int intakeFoldButton = 7;
     public static final int intakeFoldDualKeyButton = 8;
-    public static final Trigger closePinnerButton = m_driveJoystick.axisGreaterThan(3, 0.2);
+    public static final Trigger closePinnerTrigger = m_driveJoystick.axisGreaterThan(3, 0.2);
+    public static final Trigger resetYawTrigger = m_driveJoystick.povDownRight();
 
     // OPERATOR BUTTONS
     public static final Trigger elevatorL3Trigger = m_opJoystick.button(3);
     public static final Trigger elevatorL4Trigger = m_opJoystick.button(4);
     public static final int elevatorDownButton = 7;
     public static final int elevatorUpButton = 8;
-    public static final Trigger resetYawTrigger = m_opJoystick.button(6);
+    public static final Trigger intakeTrigger = m_opJoystick.button(5);
+
     // public static final int goToTargetButton = 0; // TODO: change this
     public static final int overrideButton = 10; // TODO: fix this
     public static final int goToL1Button = 3;
@@ -311,7 +312,7 @@ public final class Constants {
   }
 
   public static class ClimberConstants {
-    public static final double foldSpeed = 0.5;
+    public static final double foldSpeed = 0.1;
     public static final double foldRunTime = 2; // TODO: Make this a number that makes sense
 
     // TODO: find actual values
@@ -321,8 +322,9 @@ public final class Constants {
     public static final double pinnerkD = 0;
     public static final double pinnerkMinOutput = -1;
     public static final double pinnerkMaxOutPut = 1;
+    public static final double pinnerGearRatio = 54.5;
 
-    public static final double pinnerVertical = 0.71;
+    public static final double pinnerVertical = 0.4;
     public static final double pinnerHorizontal = 0.95;
 
     public static final double climbModulekP = 0.2;
@@ -332,7 +334,7 @@ public final class Constants {
 
     public static final double climberUpAbsolute = 0.27;
     public static final double climberUpRelative = 0.0;
-    public static final double climberDownRelative = 100.0;
+    public static final double climberDownRelative = 93.0;
     public static final double climberGearRatio = 243;
   }
 
@@ -390,7 +392,7 @@ public final class Constants {
   public static class OuttakeConstants {
     public static final double outtakeSpeed = -0.6;
     public static final double loadSpeed = -0.3;
-    public static final double scoreDelay = 0.5;
+    public static final double scoreDelay = 0.1;
   }
 
 }

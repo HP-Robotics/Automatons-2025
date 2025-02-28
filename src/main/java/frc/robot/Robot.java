@@ -11,6 +11,7 @@ import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -44,6 +45,9 @@ public class Robot extends TimedRobot {
   }
 
   public void robotInit() {
+    if (SubsystemConstants.useDataManager) {
+      DataLogManager.start();
+    }
     if (SubsystemConstants.useDrive) {
       addPeriodic(() -> {
         m_robotContainer.m_driveSubsystem.updateOdometry();

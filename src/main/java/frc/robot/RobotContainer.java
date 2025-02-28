@@ -128,10 +128,6 @@ public class RobotContainer {
     NamedCommands.registerCommand("ElevatorDown", m_elevatorSubsystem.GoToElevatorDown());
     NamedCommands.registerCommand("WaitForElevator",
         new WaitUntilCommand(m_elevatorSubsystem::atPosition));
-    NamedCommands.registerCommand("IWaited",
-        new InstantCommand(() -> SmartDashboard.putString("I waited three", "yes")));
-    NamedCommands.registerCommand("IFished", new InstantCommand(() -> SmartDashboard.putString("I fished", "yes")));
-
     NamedCommands.registerCommand("WaitForIntake",
         new SequentialCommandGroup(
             m_driveSubsystem.StayStillCommand(),
@@ -246,16 +242,15 @@ public class RobotContainer {
       new Trigger(m_inNOutSubsystem::isEmpty)
           .and(() -> m_inNOutSubsystem.m_state == "outtaking")
           .onTrue(new SequentialCommandGroup(
+              new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty"),
               new WaitCommand(OuttakeConstants.scoreDelay),
-              new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")
-          // m_elevatorSubsystem.GoToElevatorDown()
-          ));
+              m_elevatorSubsystem.GoToL1()));
 
       // ACTIONS
       // run intake if intake button pressed and state is empty or is intaking
       (new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
           .or(new Trigger(() -> m_inNOutSubsystem.m_state == "empty")))
-          .and(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton))
+          .and(ControllerConstants.intakeTrigger)
           .and(new Trigger(m_elevatorSubsystem::atDownPosition))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::loadOuttake, m_inNOutSubsystem::stopOuttake));
@@ -425,10 +420,10 @@ public class RobotContainer {
           .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue((m_elevatorSubsystem.GoToL2()));
       ControllerConstants.m_opJoystick.button(ControllerConstants.goToL1Button)
-          .and(new Trigger(m_inNOutSubsystem::isLoaded))
+          // .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue((m_elevatorSubsystem.GoToL1()));
       ControllerConstants.m_opJoystick.button(ControllerConstants.goToElevatorDownButton)
-          .or(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeButton))
+          .or(ControllerConstants.intakeTrigger)
           .onTrue(m_elevatorSubsystem.GoToElevatorDown());
 
       // TODO: Make elevator preset and use it after auto aligning
@@ -445,15 +440,19 @@ public class RobotContainer {
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
       (ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldDualKeyButton))
           .and(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldButton))
-          .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime));
+          .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime)
+              .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "folded")));
     }
     if (SubsystemConstants.useClimber) {
-      ControllerConstants.closePinnerButton.whileTrue(m_climberSubsystem.closePinner());
-      ControllerConstants.climberTrigger.onTrue(m_climberSubsystem.Climb())
+      ControllerConstants.closePinnerTrigger.whileTrue(m_climberSubsystem.closePinner());
+      ControllerConstants.climberTrigger.and(new Trigger(() -> m_inNOutSubsystem.m_state == "folded"))
+          .onTrue(m_climberSubsystem.Climb())
           .onFalse(m_climberSubsystem.StopClimb());
-      ControllerConstants.m_driveJoystick.povLeft().onTrue(m_climberSubsystem.ResetClimber())
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldDualKeyButton)
+          .onTrue(m_climberSubsystem.ResetClimber())
           .onFalse(m_climberSubsystem.StopClimb());
-      ControllerConstants.m_driveJoystick.button(7).onTrue(m_climberSubsystem.openPinner());
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldButton)
+          .onTrue(m_climberSubsystem.openPinner());
     }
   }
 
