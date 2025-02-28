@@ -603,6 +603,6 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Command StayStillCommand() {
-    return new InstantCommand(() -> drive(0, 0, getYaw(), true));
+    return new InstantCommand(() -> drive(0, 0, 0, true));
   }
 }

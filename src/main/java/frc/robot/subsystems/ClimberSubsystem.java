@@ -3,7 +3,9 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -77,14 +79,24 @@ public class ClimberSubsystem extends SubsystemBase {
         m_timer.start();
     }
 
+    public void setClimbMotorConfigs() {
+        var climberSoftLimits = new SoftwareLimitSwitchConfigs();
+        climberSoftLimits.ForwardSoftLimitThreshold = ClimberConstants.climberDownRelative + m_offset;
+        climberSoftLimits.ReverseSoftLimitThreshold = ClimberConstants.climberUpRelative + m_offset;
+        climberSoftLimits.ForwardSoftLimitEnable = true;
+        climberSoftLimits.ReverseSoftLimitEnable = true;
+        m_climbMotor.getConfigurator().apply(climberSoftLimits);
+    }
+
     public Command Climb() {
         return new InstantCommand(
                 () -> m_climbMotor.setControl(new PositionDutyCycle(ClimberConstants.climberDownRelative + m_offset)));
     }
 
     public void initializePinnerRelativeEncoder() {
-        double position = (m_pinnerAbsEncoder.get() - ClimberConstants.pinnerVertical) * 60;
-        m_pinnerMotor.getEncoder().setPosition(position);
+        double position = (m_pinnerAbsEncoder.get() - ClimberConstants.pinnerVertical)
+                * ClimberConstants.pinnerGearRatio;
+        m_pinnerMotor.getEncoder().setPosition(-position);
     }
 
     public Command openPinner() {
@@ -101,7 +113,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public Command closePinner() {
         return new InstantCommand(
                 () -> {
-                    m_pinnerController.setReference(15,
+                    m_pinnerController.setReference(ClimberConstants.pinnerGearRatio / 4.0,
                             // m_pinnerMotor.getEncoder().getPosition() +
                             // ClimberConstants.pinnerQuarterRotation,
                             ControlType.kPosition);
@@ -110,7 +122,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public Command StopClimb() {
-        return new InstantCommand(() -> m_climbMotor.set(0.0));
+        return new InstantCommand(() -> m_climbMotor.setControl(new NeutralOut()));
     }
 
     public Command ResetClimber() {
@@ -151,6 +163,7 @@ public class ClimberSubsystem extends SubsystemBase {
                              * 'down')
                              */
                             + m_climbMotor.getRotorPosition().getValueAsDouble();
+                    setClimbMotorConfigs();
                 }
                 encoderAbs = m_pinnerAbsEncoder.get();
                 if (Math.abs(encoderAbs) > 0 && Math.abs(encoderAbs) < 1) {

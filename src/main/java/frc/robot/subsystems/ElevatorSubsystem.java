@@ -54,7 +54,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorConfig.Slot0.kA = ElevatorConstants.kA;
         elevatorConfig.Slot0.kG = ElevatorConstants.kG;
         elevatorConfig.HardwareLimitSwitch.ReverseLimitEnable = true;
-        elevatorConfig.HardwareLimitSwitch.ReverseLimitAutosetPositionValue = 0;
+        elevatorConfig.HardwareLimitSwitch.ReverseLimitAutosetPositionValue = ElevatorConstants.bottomPosition;
         elevatorConfig.HardwareLimitSwitch.ReverseLimitAutosetPositionEnable = true;
         elevatorConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         elevatorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
