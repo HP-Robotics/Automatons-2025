@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "InitializeElevator"
+          }
+        },
+        {
           "type": "wait",
           "data": {
             "waitTime": 10.0

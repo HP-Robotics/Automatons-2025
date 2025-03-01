@@ -33,18 +33,6 @@
           "data": {
             "pathName": "C1 to Upper Feeder"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": null
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": null
-          }
         }
       ]
     }
