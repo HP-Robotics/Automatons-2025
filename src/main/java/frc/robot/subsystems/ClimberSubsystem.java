@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
@@ -45,6 +46,7 @@ public class ClimberSubsystem extends SubsystemBase {
     NetworkTable m_table;
     Double m_offset = 0.0;
     Timer m_timer;
+    private boolean m_pinnerInit = false;
 
     public ClimberSubsystem() {
         m_pinnerAbsEncoder = new DutyCycleEncoder(IDConstants.pinnerAbsEncoderID);
@@ -89,7 +91,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public Command Climb() {
-        return new InstantCommand(
+        return new RunCommand(
                 () -> m_climbMotor.setControl(new PositionDutyCycle(ClimberConstants.climberDownRelative + m_offset)));
     }
 
@@ -146,28 +148,30 @@ public class ClimberSubsystem extends SubsystemBase {
          * encoder,
          * and only if it is reading something sensible.
          */
-        if (m_offset == 0.0) {
-            if (m_timer.hasElapsed(5)) {
-                var encoderAbs = m_absEncoder.get();
-                if (Math.abs(encoderAbs) > 0 && Math.abs(encoderAbs) < 1) {
-                    m_offset = (encoderAbs - ClimberConstants.climberUpAbsolute) * ClimberConstants.climberGearRatio
-                            /*
-                             * Note that the logic here would more naturally be expressed a subtracting
-                             * the current relative encoder. That is, what we do is compute where we think
-                             * the relative encoder should be, given where the absolute encoder is. Then, it
-                             * would be natural to subtract the current value of the relative encoder.
-                             * However, because the absolute encoder and relative encoder go opposite
-                             * directions, we need
-                             * one more negative sign. (To be clear, the absolute
-                             * increases counter clockwise, or up, and relative increases clockwise, or
-                             * 'down')
-                             */
-                            + m_climbMotor.getRotorPosition().getValueAsDouble();
-                    setClimbMotorConfigs();
-                }
+        if (m_timer.hasElapsed(5)) {
+            var encoderAbs = m_absEncoder.get();
+            if (Math.abs(encoderAbs) > 0 && Math.abs(encoderAbs) < 1) {
+                m_offset = (encoderAbs - ClimberConstants.climberUpAbsolute) * ClimberConstants.climberGearRatio
+                        /*
+                         * Note that the logic here would more naturally be expressed a subtracting
+                         * the current relative encoder. That is, what we do is compute where we think
+                         * the relative encoder should be, given where the absolute encoder is. Then, it
+                         * would be natural to subtract the current value of the relative encoder.
+                         * However, because the absolute encoder and relative encoder go opposite
+                         * directions, we need
+                         * one more negative sign. (To be clear, the absolute
+                         * increases counter clockwise, or up, and relative increases clockwise, or
+                         * 'down')
+                         */
+                        + m_climbMotor.getRotorPosition().getValueAsDouble();
+                // setClimbMotorConfigs();
+            }
+            if (m_pinnerInit == false) {
+
                 encoderAbs = m_pinnerAbsEncoder.get();
                 if (Math.abs(encoderAbs) > 0 && Math.abs(encoderAbs) < 1) {
                     initializePinnerRelativeEncoder();
+                    m_pinnerInit = true;
                 }
             }
         }

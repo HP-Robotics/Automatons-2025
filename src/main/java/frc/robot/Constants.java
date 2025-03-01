@@ -28,7 +28,7 @@ public final class Constants {
     public static final boolean useOuttake = true;
     public static final boolean useDataManager = true;
     public static final boolean useLimelight = true;
-    public static final boolean useClimber = true;
+    public static final boolean useClimber = false;
     public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
   }
