@@ -446,7 +446,7 @@ public class RobotContainer {
     if (SubsystemConstants.useClimber) {
       ControllerConstants.closePinnerTrigger.whileTrue(m_climberSubsystem.closePinner());
       ControllerConstants.climberTrigger.and(new Trigger(() -> m_inNOutSubsystem.m_state == "folded"))
-          .onTrue(m_climberSubsystem.Climb())
+          .whileTrue(m_climberSubsystem.Climb())
           .onFalse(m_climberSubsystem.StopClimb());
       ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldDualKeyButton)
           .onTrue(m_climberSubsystem.ResetClimber())

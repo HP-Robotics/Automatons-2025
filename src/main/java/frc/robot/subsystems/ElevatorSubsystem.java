@@ -142,6 +142,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void goToL4() {
         goToPosition(Constants.ElevatorConstants.L4Position +
                 m_offset);
+
     }
 
     public Command GoToL4() {
@@ -217,6 +218,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void goToElevatorDown() {
         goToPosition(ElevatorConstants.elevatorDownPosition + m_offset);
+        m_targetRotation = Constants.ElevatorConstants.elevatorDownPosition;
+
     }
 
     public Command GoToElevatorDown() {
