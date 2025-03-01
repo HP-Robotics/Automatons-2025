@@ -248,8 +248,8 @@ public final class Constants {
     // TODO: put actual values TODO: consider a field constants? doesn't go in drive
     public static final Translation2d blueReefCenter = new Translation2d(4.490323, -0.0001 + 4.02);
     public static final Translation2d redReefCenter = new Translation2d(13.059902, -0.0001 + 4.02);
-    public static final Translation2d leftC2 = new Translation2d(1.2716, -0.16);
-    public static final Translation2d rightC2 = new Translation2d(1.2716, 0.16);
+    public static final Translation2d leftC2 = new Translation2d(1.2816, -0.16);
+    public static final Translation2d rightC2 = new Translation2d(1.2816, 0.16);
     public static final Translation2d redUpperFeederCenter = new Translation2d(); // TODO: find these numbers
     public static final Translation2d redLowerFeederCenter = new Translation2d();
     public static final Translation2d blueUpperFeederCenter = new Translation2d();
@@ -316,8 +316,8 @@ public final class Constants {
             .plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
     };
     public static final Pose2d[] leftFeederAlignPoses = {
-        FlippingUtil.flipFieldPose(new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(54.293))), // feeder sector 3
-        FlippingUtil.flipFieldPose(new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
+        FlippingUtil.flipFieldPose(new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(54.293))), // feeder sector 3
+        FlippingUtil.flipFieldPose(new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
         new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(-53.746)), // feeder sector 0
         new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(54.293)), // feeder sector 1
     };
@@ -375,8 +375,8 @@ public final class Constants {
     public static final double visionYStandardDev = 0.0005;
     public static final double visionHeadingStandardDev = 0.5;
 
-    public static final double maxAcceptableSkew = Math.PI / 3;
-    public static final double maxAcceptableDistance = 5.0;
+    public static final double maxAcceptableSkew = Math.PI / 3; // TODO: decrease this or only check one sector
+    public static final double maxAcceptableDistance = 5.0; // TODO: increase this
   }
 
   public static final class PathplannerPIDConstants {
