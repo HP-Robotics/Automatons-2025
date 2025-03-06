@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "InitializeElevator"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Bottom Cage to C2"

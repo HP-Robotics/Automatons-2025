@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.127249999999998,
-        "y": 6.891499999999999
+        "x": 6.880942622950819,
+        "y": 7.111834016393442
       },
       "isLocked": false,
       "linkedName": "Top Cage"
     },
     {
       "anchor": {
-        "x": 4.995,
-        "y": 5.21
+        "x": 4.990466,
+        "y": 5.20114
       },
       "prevControl": {
-        "x": 5.661036885251668,
-        "y": 5.842631147542009
+        "x": 5.370491803278688,
+        "y": 6.080891393442624
       },
       "nextControl": null,
       "isLocked": false,
@@ -40,8 +40,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 2.5,
+    "maxAcceleration": 1.5,
     "maxAngularVelocity": 480.0,
     "maxAngularAcceleration": 640.0,
     "nominalVoltage": 12.0,

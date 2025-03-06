@@ -3,35 +3,42 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.040568848466727,
-        "y": 6.496778858940768
+        "x": 7.756045081967213,
+        "y": 3.3237192622950817
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.004605733712628,
-        "y": 5.274032957301424
+        "x": 6.509323770491802,
+        "y": 3.683350409836065
       },
       "isLocked": false,
-      "linkedName": "Middle Cage"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.055737704918034,
-        "y": 4.744262295081968
+        "x": 5.761923,
+        "y": 3.8599
       },
       "prevControl": {
-        "x": 8.079713114754101,
-        "y": 5.990983606557376
+        "x": 6.557274590163935,
+        "y": 3.6593749999999994
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Bottom Cage"
+      "linkedName": "C2L"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "GoToL4",
+      "waypointRelativePos": 0.5557341907823945,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 2.5,
     "maxAcceleration": 1.5,
@@ -48,7 +55,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
