@@ -248,8 +248,8 @@ public final class Constants {
     // TODO: put actual values TODO: consider a field constants? doesn't go in drive
     public static final Translation2d blueReefCenter = new Translation2d(4.490323, -0.0001 + 4.02);
     public static final Translation2d redReefCenter = new Translation2d(13.059902, -0.0001 + 4.02);
-    public static final Translation2d leftC2 = new Translation2d(1.2816, -0.16);
-    public static final Translation2d rightC2 = new Translation2d(1.2816, 0.16);
+    public static final Translation2d leftC2 = new Translation2d(1.2716, -0.16);
+    public static final Translation2d rightC2 = new Translation2d(1.2716, 0.16);
     public static final Translation2d redUpperFeederCenter = new Translation2d(); // TODO: find these numbers
     public static final Translation2d redLowerFeederCenter = new Translation2d();
     public static final Translation2d blueUpperFeederCenter = new Translation2d();
@@ -395,7 +395,7 @@ public final class Constants {
         new Pose2d(2.78681 + 8.775, 4.02961 + 4.02, new Rotation2d(Math.PI * 3 / 2)), // 3
         new Pose2d(0.50208 + 8.775, 2.111656 + 4.02, new Rotation2d(Math.PI)), // 4
         new Pose2d(0.50208 + 8.775, -2.111094 + 4.02, new Rotation2d(Math.PI * 3 / 2)), // 5
-        new Pose2d(4.700446 + 8.775, -0.719682 + 4.02, new Rotation2d(Math.PI * 5 / 2)), // 6
+        new Pose2d(4.700446 + 8.775, -0.719682 + 4.02, new Rotation2d(Math.PI * 5 / 3)), // 6
         new Pose2d(5.116498 + 8.775, -0.0001 + 4.02, new Rotation2d(0)), // 7
         new Pose2d(4.700446 + 8.775, 0.719482 + 4.02, new Rotation2d(Math.PI / 3)), // 8
         new Pose2d(3.869358 + 8.775, 0.719482 + 4.02, new Rotation2d(Math.PI * 2 / 3)), // 9
