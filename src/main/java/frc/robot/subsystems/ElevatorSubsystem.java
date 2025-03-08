@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IDConstants;
+import frc.robot.Constants.LEDConstants;
+import frc.robot.Constants.SubsystemConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
     public TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
@@ -33,6 +35,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     public double m_offset = 0;
     StatusSignal<ReverseLimitValue> m_bottomLimit = m_elevatorMotor1.getReverseLimit();
     NetworkTable m_table;
+    LEDSubsystem m_ledSubsystem;
+    boolean m_hasTouchedGrass = false;
     TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
     final DoubleSubscriber kPSub;
     final DoubleSubscriber kISub;
@@ -43,8 +47,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     final DoubleSubscriber kSSub;
     final DoubleSubscriber kVSub;
 
-    public ElevatorSubsystem() {
+    public ElevatorSubsystem(LEDSubsystem ledSubsystem) {
         m_table = NetworkTableInstance.getDefault().getTable("ElevatorSubsystem");
+        m_ledSubsystem = ledSubsystem;
 
         elevatorConfig.Slot0.kP = ElevatorConstants.kP;
         elevatorConfig.Slot0.kI = ElevatorConstants.kI;
@@ -103,6 +108,27 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     }
 
+    public int getCurrentLevel() {
+        double[] positions = { ElevatorConstants.elevatorDownPosition, ElevatorConstants.L1Position,
+                ElevatorConstants.L2Position, ElevatorConstants.L3Position, ElevatorConstants.L4Position };
+        double currentPosition = m_elevatorMotor1.getRotorPosition().getValueAsDouble();
+        double minDistance = Math.abs(currentPosition - positions[0]);
+        int minIndex = 0;
+        for (int i = 1; i < positions.length; i++) {
+            double distance = Math.abs(currentPosition - positions[i]);
+            if (distance < minDistance) {
+                minIndex = i;
+                minDistance = distance;
+            }
+        }
+        return minIndex;
+    }
+
+    public void updateLEDs() {
+        int currentLevel = getCurrentLevel();
+        m_ledSubsystem.m_sidePattern = LEDConstants.elevatorLevelPatterns[currentLevel];
+    }
+
     public void elevatorDown() {
         m_elevatorMotor1.setControl(new PositionDutyCycle(ElevatorConstants.elevatorDownPosition));
         resetMotorEncoders();
@@ -142,50 +168,42 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void goToL4() {
         goToPosition(Constants.ElevatorConstants.L4Position +
                 m_offset);
+        this.m_targetRotation = Constants.ElevatorConstants.L4Position;
 
     }
 
     public Command GoToL4() {
-        return new InstantCommand(() -> {
-            this.goToL4();
-            this.m_targetRotation = Constants.ElevatorConstants.L4Position;
-        });
+        return new InstantCommand(this::goToL4);
     }
 
     public void goToL3() {
         goToPosition(Constants.ElevatorConstants.L3Position +
                 m_offset);
+        this.m_targetRotation = Constants.ElevatorConstants.L3Position;
     }
 
     public Command GoToL3() {
-        return new InstantCommand(() -> {
-            this.goToL3();
-            this.m_targetRotation = Constants.ElevatorConstants.L3Position;
-        });
+        return new InstantCommand(this::goToL3);
     }
 
     public void goToL2() {
         goToPosition(Constants.ElevatorConstants.L2Position +
                 m_offset);
+        this.m_targetRotation = Constants.ElevatorConstants.L1Position;
     }
 
     public Command GoToL2() {
-        return new InstantCommand(() -> {
-            this.goToL2();
-            this.m_targetRotation = Constants.ElevatorConstants.L2Position;
-        });
+        return new InstantCommand(this::goToL2);
     }
 
     public void goToL1() {
         goToPosition(Constants.ElevatorConstants.L1Position +
                 m_offset);
+        this.m_targetRotation = Constants.ElevatorConstants.L1Position;
     }
 
     public Command GoToL1() {
-        return new InstantCommand(() -> {
-            this.goToL1();
-            this.m_targetRotation = Constants.ElevatorConstants.L1Position;
-        });
+        return new InstantCommand(this::goToL1);
     }
 
     public void GoToTarget() {
@@ -232,6 +250,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public boolean atBottom() {
         m_bottomLimit.refresh();
         if (m_bottomLimit.getValue() == ReverseLimitValue.ClosedToGround) {
+            m_hasTouchedGrass = true;
             return true;
         } else {
             return false;
@@ -256,6 +275,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        // m_table.putValue("state", NetworkTableValue.makeString(elevatorPreset));
+        if (SubsystemConstants.useLED && m_hasTouchedGrass) {
+            updateLEDs();
+        }
         boolean doUpdate = false;
         for (double iterVal : kPSub.readQueueValues()) {
             elevatorConfig.Slot0.kP = iterVal;

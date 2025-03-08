@@ -9,6 +9,8 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.util.FlippingUtil;
@@ -17,6 +19,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -29,6 +34,7 @@ public final class Constants {
     public static final boolean useDataManager = true;
     public static final boolean useLimelight = true;
     public static final boolean useClimber = false;
+    public static final boolean useLED = true;
     public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
   }
@@ -152,17 +158,17 @@ public final class Constants {
     // OPERATOR BUTTONS
     public static final Trigger elevatorL3Trigger = m_opJoystick.button(3);
     public static final Trigger elevatorL4Trigger = m_opJoystick.button(4);
-    public static final int elevatorDownButton = 7;
-    public static final int elevatorUpButton = 8;
+    public static final Trigger elevatorDownButton = m_opJoystick.button(7);
+    public static final Trigger elevatorUpButton = m_opJoystick.button(8);
     public static final Trigger intakeTrigger = m_opJoystick.button(5);
 
     // public static final int goToTargetButton = 0; // TODO: change this
-    public static final int overrideButton = 10; // TODO: fix this
-    public static final int goToL1Button = 3;
-    public static final int goToL2Button = 1;
-    public static final int goToL3Button = 2;
-    public static final int goToL4Button = 4;
-    public static final int goToElevatorDownButton = 6;
+    public static final Trigger overrideButton = m_opJoystick.button(10); // TODO: fix this
+    public static final Trigger goToL1Button = m_opJoystick.button(3);
+    public static final Trigger goToL2Button = m_opJoystick.button(1);
+    public static final Trigger goToL3Button = m_opJoystick.button(2);
+    public static final Trigger goToL4Button = m_opJoystick.button(4);
+    public static final Trigger goToElevatorDownButton = m_opJoystick.button(6);
 
     public static double getRotation(CommandJoystick stick) {
       if (useXbox) {
@@ -421,4 +427,24 @@ public final class Constants {
     public static final double scoreDelay = 0.1;
   }
 
+  public static class LEDConstants {
+    public static final int port = 0;
+    public static final int length = 60;
+    public static final int middleFirstIndex = 10;
+    public static final int middleLastIndex = 49;
+    public static final Time blinkInterval = Seconds.of(0.5);
+
+    public static final LEDPattern defaultSidePattern = LEDPattern.solid(Color.kRed).blink(blinkInterval);
+    public static final LEDPattern defaultMiddlePattern = LEDPattern.solid(Color.kGreen);
+    public static final LEDPattern hasCoralPattern = LEDPattern.solid(new Color(255, 32, 0)).blink(blinkInterval);
+    public static final LEDPattern elevatorDownPattern = LEDPattern.solid(Color.kGreen);
+    public static final LEDPattern intakeRunningPattern = LEDPattern.solid(Color.kWhite).blink(blinkInterval);
+    public static final LEDPattern cagePattern = LEDPattern.solid(Color.kBlue);
+    public static final LEDPattern elevatorL1Pattern = LEDPattern.solid(Color.kWhite);
+    public static final LEDPattern elevatorL2Pattern = LEDPattern.solid(Color.kYellow);
+    public static final LEDPattern elevatorL3Pattern = LEDPattern.solid(new Color(255, 32, 0));
+    public static final LEDPattern elevatorL4Pattern = LEDPattern.solid(Color.kRed);
+    public static final LEDPattern[] elevatorLevelPatterns = { elevatorDownPattern, elevatorL1Pattern,
+        elevatorL2Pattern, elevatorL3Pattern, elevatorL4Pattern };
+  }
 }

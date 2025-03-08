@@ -14,6 +14,7 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IDConstants;
+import frc.robot.Constants.LEDConstants;
 import frc.robot.Constants.OuttakeConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SubsystemConstants;
@@ -21,6 +22,7 @@ import frc.robot.commands.IntakeFoldCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.InNOutSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 import java.time.Instant;
@@ -33,9 +35,11 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -72,7 +76,9 @@ public class RobotContainer {
   final DriveSubsystem m_driveSubsystem = SubsystemConstants.useDrive ? new DriveSubsystem(m_poseEstimatorSubsystem)
       : null;
   public final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
-  final ElevatorSubsystem m_elevatorSubsystem = SubsystemConstants.useElevator ? new ElevatorSubsystem() : null;
+  final LEDSubsystem m_LEDSubsystem = SubsystemConstants.useLED ? new LEDSubsystem() : null;
+  final ElevatorSubsystem m_elevatorSubsystem = SubsystemConstants.useElevator ? new ElevatorSubsystem(m_LEDSubsystem)
+      : null;
 
   BeamBreak m_intakeBeamBreak = new BeamBreak(0);
   TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
@@ -195,19 +201,25 @@ public class RobotContainer {
 
   private void configureBindings() {
     // TEST CODE
+    if (SubsystemConstants.useLED) {
+      ControllerConstants.m_driveJoystick.button(2)
+          .onTrue(m_LEDSubsystem.SetSidePattern(LEDPattern.solid(Color.kBlue)));
+      ControllerConstants.m_driveJoystick.button(1)
+          .onTrue(m_LEDSubsystem.SetMiddlePattern(LEDPattern.solid(new Color(255, 32, 0))));
+    }
     if (SubsystemConstants.useElevator) {
       // ControllerConstants.m_driveJoystick.povUp().whileTrue(
       // new StartEndCommand(m_elevatorSubsystem::GoToTarget, () ->
       // m_elevatorMotor1.setControl(new DutyCycleOut(0)),
       // m_elevatorSubsystem));
 
-      ControllerConstants.m_opJoystick.button(ControllerConstants.elevatorUpButton)
+      ControllerConstants.elevatorUpButton
           .whileTrue(new StartEndCommand(() -> {
             m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorUpSpeed));
           }, () -> {
             m_elevatorMotor1.setControl(new DutyCycleOut(0));
           }, m_elevatorSubsystem));
-      ControllerConstants.m_opJoystick.button(ControllerConstants.elevatorDownButton)
+      ControllerConstants.elevatorDownButton
           .whileTrue(new StartEndCommand(() -> {
             m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorDownSpeed));
           },
@@ -262,18 +274,26 @@ public class RobotContainer {
           .and(ControllerConstants.intakeTrigger)
           .and(new Trigger(m_elevatorSubsystem::atDownPosition))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
-          .whileTrue(new StartEndCommand(m_inNOutSubsystem::loadOuttake, m_inNOutSubsystem::stopOuttake));
+          .whileTrue(new StartEndCommand(m_inNOutSubsystem::loadOuttake, m_inNOutSubsystem::stopOuttake))
+          .whileTrue(new StartEndCommand(
+              () -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, LEDConstants.intakeRunningPattern),
+              () -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, m_inNOutSubsystem.m_state == "loaded"
+                  ? LEDConstants.hasCoralPattern
+                  : LEDConstants.defaultMiddlePattern)));
 
       // Shoot if outtaking and stop when done
       new Trigger(() -> m_inNOutSubsystem.m_state == "outtaking")
-          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
+          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake))
+          .onFalse(new InstantCommand(
+              () -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, LEDConstants.defaultMiddlePattern)));
 
       // Manual override button
-      ControllerConstants.m_opJoystick.button(ControllerConstants.overrideButton)
+      ControllerConstants.overrideButton
           .whileTrue(new InstantCommand(() -> m_inNOutSubsystem.m_state = "override"))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, () -> {
             m_inNOutSubsystem.stopIntake();
             m_inNOutSubsystem.m_state = "empty";
+            LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, LEDConstants.defaultMiddlePattern);
           }))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
     }
@@ -373,19 +393,19 @@ public class RobotContainer {
       // .whileTrue(new StartEndCommand(m_elevatorSubsystem::GoToTarget,
       // m_elevatorSubsystem::goToElevatorDown));
 
-      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL4Button)
+      ControllerConstants.goToL4Button
           .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue(m_elevatorSubsystem.GoToL4());
-      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL3Button)
+      ControllerConstants.goToL3Button
           .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue(m_elevatorSubsystem.GoToL3());
-      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL2Button)
+      ControllerConstants.goToL2Button
           .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue((m_elevatorSubsystem.GoToL2()));
-      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL1Button)
+      ControllerConstants.goToL1Button
           // .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue((m_elevatorSubsystem.GoToL1()));
-      ControllerConstants.m_opJoystick.button(ControllerConstants.goToElevatorDownButton)
+      ControllerConstants.goToElevatorDownButton
           .or(ControllerConstants.intakeTrigger)
           .onTrue(m_elevatorSubsystem.GoToElevatorDown());
 
