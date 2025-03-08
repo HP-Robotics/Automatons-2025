@@ -204,13 +204,13 @@ public class RobotContainer {
       // m_elevatorMotor1.setControl(new DutyCycleOut(0)),
       // m_elevatorSubsystem));
 
-      ControllerConstants.m_opJoystick.button(ControllerConstants.elevatorUpButton)
+      ControllerConstants.elevatorUpButton
           .whileTrue(new StartEndCommand(() -> {
             m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorUpSpeed));
           }, () -> {
             m_elevatorMotor1.setControl(new DutyCycleOut(0));
           }, m_elevatorSubsystem));
-      ControllerConstants.m_opJoystick.button(ControllerConstants.elevatorDownButton)
+      ControllerConstants.elevatorDownButton
           .whileTrue(new StartEndCommand(() -> {
             m_elevatorMotor1.setControl(new DutyCycleOut(ElevatorConstants.elevatorDownSpeed));
           },
@@ -279,7 +279,7 @@ public class RobotContainer {
               () -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, LEDConstants.defaultMiddlePattern)));
 
       // Manual override button
-      ControllerConstants.m_opJoystick.button(ControllerConstants.overrideButton)
+      ControllerConstants.overrideButton
           .whileTrue(new InstantCommand(() -> m_inNOutSubsystem.m_state = "override"))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, () -> {
             m_inNOutSubsystem.stopIntake();
@@ -430,19 +430,19 @@ public class RobotContainer {
       // .whileTrue(new StartEndCommand(m_elevatorSubsystem::GoToTarget,
       // m_elevatorSubsystem::goToElevatorDown));
 
-      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL4Button)
+      ControllerConstants.goToL4Button
           .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue(m_elevatorSubsystem.GoToL4());
-      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL3Button)
+      ControllerConstants.goToL3Button
           .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue(m_elevatorSubsystem.GoToL3());
-      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL2Button)
+      ControllerConstants.goToL2Button
           .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue((m_elevatorSubsystem.GoToL2()));
-      ControllerConstants.m_opJoystick.button(ControllerConstants.goToL1Button)
+      ControllerConstants.goToL1Button
           // .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue((m_elevatorSubsystem.GoToL1()));
-      ControllerConstants.m_opJoystick.button(ControllerConstants.goToElevatorDownButton)
+      ControllerConstants.goToElevatorDownButton
           .or(ControllerConstants.intakeTrigger)
           .onTrue(m_elevatorSubsystem.GoToElevatorDown());
 

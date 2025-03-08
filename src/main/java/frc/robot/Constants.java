@@ -158,17 +158,17 @@ public final class Constants {
     // OPERATOR BUTTONS
     public static final Trigger elevatorL3Trigger = m_opJoystick.button(3);
     public static final Trigger elevatorL4Trigger = m_opJoystick.button(4);
-    public static final int elevatorDownButton = 7;
-    public static final int elevatorUpButton = 8;
+    public static final Trigger elevatorDownButton = m_opJoystick.button(7);
+    public static final Trigger elevatorUpButton = m_opJoystick.button(8);
     public static final Trigger intakeTrigger = m_opJoystick.button(5);
 
     // public static final int goToTargetButton = 0; // TODO: change this
-    public static final int overrideButton = 10; // TODO: fix this
-    public static final int goToL1Button = 3;
-    public static final int goToL2Button = 1;
-    public static final int goToL3Button = 2;
-    public static final int goToL4Button = 4;
-    public static final int goToElevatorDownButton = 6;
+    public static final Trigger overrideButton = m_opJoystick.button(10); // TODO: fix this
+    public static final Trigger goToL1Button = m_opJoystick.button(3);
+    public static final Trigger goToL2Button = m_opJoystick.button(1);
+    public static final Trigger goToL3Button = m_opJoystick.button(2);
+    public static final Trigger goToL4Button = m_opJoystick.button(4);
+    public static final Trigger goToElevatorDownButton = m_opJoystick.button(6);
 
     public static double getRotation(CommandJoystick stick) {
       if (useXbox) {
