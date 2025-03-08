@@ -428,7 +428,7 @@ public final class Constants {
   }
 
   public static class LEDConstants {
-    public static final int port = 6;
+    public static final int port = 0;
     public static final int length = 60;
     public static final int middleFirstIndex = 10;
     public static final int middleLastIndex = 49;
@@ -436,7 +436,7 @@ public final class Constants {
 
     public static final LEDPattern defaultSidePattern = LEDPattern.solid(Color.kRed).blink(blinkInterval);
     public static final LEDPattern defaultMiddlePattern = LEDPattern.solid(Color.kGreen);
-    public static final LEDPattern hasCoralPattern = LEDPattern.solid(Color.kPink).blink(blinkInterval);
+    public static final LEDPattern hasCoralPattern = LEDPattern.solid(new Color(255, 32, 0)).blink(blinkInterval);
     public static final LEDPattern elevatorDownPattern = LEDPattern.solid(Color.kGreen);
     public static final LEDPattern intakeRunningPattern = LEDPattern.solid(Color.kWhite).blink(blinkInterval);
     public static final LEDPattern cagePattern = LEDPattern.solid(Color.kBlue);

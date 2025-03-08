@@ -45,6 +45,18 @@ public class LEDSubsystem extends SubsystemBase {
     m_led.setData(m_buffer);
   }
 
+  public static void trySetSidePattern(LEDSubsystem subsystem, LEDPattern pattern) {
+    if (subsystem != null) {
+      subsystem.m_sidePattern = pattern;
+    }
+  }
+
+  public static void trySetMiddlePattern(LEDSubsystem subsystem, LEDPattern pattern) {
+    if (subsystem != null) {
+      subsystem.m_middlePattern = pattern;
+    }
+  }
+
   public Command SetSidePattern(LEDPattern pattern) {
     return (new InstantCommand(() -> m_sidePattern = pattern));
   }

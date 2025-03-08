@@ -266,14 +266,17 @@ public class RobotContainer {
           .and(new Trigger(m_elevatorSubsystem::atDownPosition))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::loadOuttake, m_inNOutSubsystem::stopOuttake))
-          .whileTrue(new StartEndCommand(() -> m_LEDSubsystem.m_middlePattern = LEDConstants.intakeRunningPattern,
-              () -> m_LEDSubsystem.m_middlePattern = m_inNOutSubsystem.m_state == "loaded"
+          .whileTrue(new StartEndCommand(
+              () -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, LEDConstants.intakeRunningPattern),
+              () -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, m_inNOutSubsystem.m_state == "loaded"
                   ? LEDConstants.hasCoralPattern
-                  : LEDConstants.defaultMiddlePattern));
+                  : LEDConstants.defaultMiddlePattern)));
 
       // Shoot if outtaking and stop when done
       new Trigger(() -> m_inNOutSubsystem.m_state == "outtaking")
-          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
+          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake))
+          .onFalse(new InstantCommand(
+              () -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, LEDConstants.defaultMiddlePattern)));
 
       // Manual override button
       ControllerConstants.m_opJoystick.button(ControllerConstants.overrideButton)
@@ -281,6 +284,7 @@ public class RobotContainer {
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, () -> {
             m_inNOutSubsystem.stopIntake();
             m_inNOutSubsystem.m_state = "empty";
+            LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, LEDConstants.defaultMiddlePattern);
           }))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
     }
