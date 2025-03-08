@@ -23,6 +23,8 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.InNOutSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
+import java.time.Instant;
+
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -92,6 +94,13 @@ public class RobotContainer {
               () -> {
                 m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
               },
+              m_driveSubsystem));
+
+      ControllerConstants.testDriveToPoseTrigger.whileTrue(
+          new RunCommand(() -> m_driveSubsystem.driveToPose(new Pose2d(1, 0.5, new Rotation2d(Math.PI / 12))),
+              m_driveSubsystem));
+      ControllerConstants.testDriveBackTrigger
+          .whileTrue(new RunCommand(() -> m_driveSubsystem.driveToPose(new Pose2d(0.0, 0.0, new Rotation2d(0))),
               m_driveSubsystem));
 
       // Build an auto chooser. This will use Commands.none() as the default option.
@@ -335,57 +344,11 @@ public class RobotContainer {
 
       ControllerConstants.m_driveJoystick.button(ControllerConstants.rightAlignButton)
           .and(m_inNOutSubsystem::isLoaded)
-          .whileTrue(new RunCommand(() -> {
-            // TODO: add auto align to the feeder station if robot doesn't have a coral
-            // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
-            // new Rotation2d(Math.PI)));
-
-            if (m_driveSubsystem.m_sector.isPresent()
-                && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans, m_driveSubsystem.robotToReef,
-                    DriveConstants.autoAlignTolerance)
-                    || ControllerConstants.m_driveJoystick
-                        .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
-              m_driveSubsystem.driveToPose(DriveConstants.rightAlignPoses[m_driveSubsystem.m_sector.get()]);
-            } else {
-              m_driveSubsystem.drivePointedTowardsAngle(
-                  ControllerConstants.m_driveJoystick,
-                  Rotation2d.fromDegrees(m_driveSubsystem.getAngleBetweenPoses(m_poseEstimatorSubsystem.getPose(),
-                      new Pose2d(
-                          DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
-                              ? DriveConstants.redReefCenter
-                              : DriveConstants.blueReefCenter,
-                          new Rotation2d()))));
-            }
-            m_driveSubsystem.m_driveTrainTable.putValue("Joystick Degrees",
-                NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
-          }, m_driveSubsystem));
+          .whileTrue(m_driveSubsystem.AutoAlign(DriveConstants.rightAlignPoses));
 
       ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAlignButton)
           .and(m_inNOutSubsystem::isLoaded)
-          .whileTrue(new RunCommand(() -> {
-            // TODO: add auto align to the feeder station if robot doesn't have a coral
-            // m_driveSubsystem.driveToPose(new Pose2d(5.116498 + 8.775 + .45, 4.0199 - .18,
-            // new Rotation2d(Math.PI)));
-
-            if (m_driveSubsystem.m_sector.isPresent()
-                && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans, m_driveSubsystem.robotToReef,
-                    DriveConstants.autoAlignTolerance)
-                    || ControllerConstants.m_driveJoystick
-                        .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
-              m_driveSubsystem.driveToPose(DriveConstants.leftAlignPoses[m_driveSubsystem.m_sector.get()]);
-            } else {
-              m_driveSubsystem.drivePointedTowardsAngle(
-                  ControllerConstants.m_driveJoystick,
-                  Rotation2d.fromDegrees(m_driveSubsystem.getAngleBetweenPoses(m_poseEstimatorSubsystem.getPose(),
-                      new Pose2d(
-                          DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
-                              ? DriveConstants.redReefCenter
-                              : DriveConstants.blueReefCenter,
-                          new Rotation2d()))));
-            }
-            m_driveSubsystem.m_driveTrainTable.putValue("Joystick Degrees",
-                NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
-          }, m_driveSubsystem));
+          .whileTrue(m_driveSubsystem.AutoAlign(DriveConstants.leftAlignPoses));
 
       // ControllerConstants.m_driveJoystick.button(1).whileTrue(new RunCommand(() ->
       // {
