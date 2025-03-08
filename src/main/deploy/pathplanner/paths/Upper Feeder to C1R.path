@@ -3,35 +3,42 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.761923,
-        "y": 3.8599
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 6.607136114754098,
-        "y": 5.024625409836066
-      },
-      "isLocked": false,
-      "linkedName": "C2L"
-    },
-    {
-      "anchor": {
         "x": 1.4624999999999997,
         "y": 7.213729508196722
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.1887295081967215,
+        "y": 6.482479508196722
+      },
+      "isLocked": false,
+      "linkedName": "Upper Feeder"
+    },
+    {
+      "anchor": {
+        "x": 4.9725,
+        "y": 5.2145
+      },
       "prevControl": {
-        "x": 4.3485000000000005,
-        "y": 5.75075
+        "x": 4.061434426229509,
+        "y": 5.873823770491803
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Upper Feeder"
+      "linkedName": "C1L"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "GoToL4",
+      "waypointRelativePos": 0.8327935222671567,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 3.0,
@@ -42,13 +49,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -53.841999999999985
+    "rotation": -119.99999999999999
   },
   "reversed": false,
-  "folder": "Reef to Feeder",
+  "folder": "Feeder to Reef",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -53.841999999999985
   },
   "useDefaultConstraints": true
 }

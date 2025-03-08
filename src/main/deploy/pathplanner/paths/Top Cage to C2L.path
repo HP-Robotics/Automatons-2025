@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.127249999999998,
-        "y": 6.891499999999999
+        "x": 7.351500000000001,
+        "y": 6.423500000000001
       },
       "isLocked": false,
       "linkedName": "Top Cage"
     },
     {
       "anchor": {
-        "x": 4.995,
-        "y": 5.21
+        "x": 5.761923,
+        "y": 3.8599
       },
       "prevControl": {
-        "x": 5.661036885251668,
-        "y": 5.842631147542009
+        "x": 6.3243861147541,
+        "y": 4.702875409836064
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "C1R"
+      "linkedName": "C2L"
     }
   ],
   "rotationTargets": [],
@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "GoToL4",
-      "waypointRelativePos": 0.7305755395683488,
+      "waypointRelativePos": 0.850607287449346,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -49,10 +49,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Cage to Reef",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 178.9583733239901

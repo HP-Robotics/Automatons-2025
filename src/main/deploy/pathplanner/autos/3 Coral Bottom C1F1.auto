@@ -11,16 +11,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Bottom Cage To C1"
-                }
-              }
-            ]
+            "pathName": "Bottom Cage To C1L"
           }
         },
         {
@@ -32,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C1 to Upper Feeder"
+            "pathName": "C1L to Upper Feeder"
           }
         },
         {
@@ -87,6 +80,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "3 Coral",
   "choreoAuto": false
 }

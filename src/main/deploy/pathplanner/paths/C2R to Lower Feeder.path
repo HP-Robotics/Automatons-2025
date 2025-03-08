@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.995,
-        "y": 5.21
+        "x": 5.78175,
+        "y": 4.13225
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.604800356158443,
-        "y": 7.159746614860666
+        "x": 6.46425,
+        "y": 3.44975
       },
       "isLocked": false,
-      "linkedName": "C1R"
+      "linkedName": "C2R"
     },
     {
       "anchor": {
-        "x": 1.462,
-        "y": 7.213729508196722
+        "x": 1.69,
+        "y": 0.692418032786884
       },
       "prevControl": {
-        "x": 1.9982499999999999,
-        "y": 6.794479508196721
+        "x": 6.347249999999999,
+        "y": 2.5625
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Upper Feeder"
+      "linkedName": "Lower Feeder"
     }
   ],
   "rotationTargets": [],
@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "Intake",
-      "waypointRelativePos": 0.6025641025641022,
+      "waypointRelativePos": 0.88137651821858,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -49,13 +49,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -53.841999999999985
+    "rotation": -130.0
   },
   "reversed": false,
   "folder": "Reef to Feeder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
