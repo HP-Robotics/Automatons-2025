@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Middle Cage to C1"
+            "pathName": "Middle Cage to C1L"
           }
         },
         {
@@ -31,13 +31,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C1 to Upper Feeder"
+            "pathName": "C1L to Upper Feeder"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "1 Coral",
   "choreoAuto": false
 }

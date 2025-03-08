@@ -5,15 +5,33 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "InitializeElevator"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Middle Barge to C2R"
+            "pathName": "Middle Cage to C2R"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "C2R to Upper Feeder"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "1 Coral",
   "choreoAuto": false
 }

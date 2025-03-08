@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Cage to C3L"
+            "pathName": "Top Cage to C1L"
           }
         },
         {
@@ -25,7 +25,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C3L to Lower Feeder"
+            "pathName": "C1L to Upper Feeder"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
           }
         },
         {
@@ -37,7 +43,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Lower Feeder to F3L"
+            "pathName": "Upper Feeder to C1R"
           }
         },
         {
@@ -49,43 +55,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "F3L to Lower Feeder"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "WaitForIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Lower Feeder to F3R"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "F3R to Lower Feeder"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "WaitForIntake"
+            "pathName": "C1R to Upper Feeder"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "3 Coral",
+  "folder": "2 Coral",
   "choreoAuto": false
 }
