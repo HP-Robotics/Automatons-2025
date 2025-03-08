@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 8.011574999999995,
+        "y": 7.56815
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.880942622950819,
+        "y": 7.111834016393442
+      },
+      "isLocked": false,
+      "linkedName": "Top Cage"
+    },
+    {
+      "anchor": {
+        "x": 5.2455,
+        "y": 5.097499999999999
+      },
+      "prevControl": {
+        "x": 5.911536885251667,
+        "y": 5.730131147542008
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "C1R"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "GoToL4",
+      "waypointRelativePos": 0.7305755395683488,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 2.5,
+    "maxAcceleration": 1.5,
+    "maxAngularVelocity": 480.0,
+    "maxAngularAcceleration": 640.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -119.99999999999999
+  },
+  "reversed": false,
+  "folder": "Cage to Reef",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 178.9583733239901
+  },
+  "useDefaultConstraints": true
+}

@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.761923,
+        "y": 3.8599
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.277394311475409,
+        "y": 2.3794184426229505
+      },
+      "isLocked": false,
+      "linkedName": "C2L"
+    },
+    {
+      "anchor": {
+        "x": 1.69,
+        "y": 0.692418032786884
+      },
+      "prevControl": {
+        "x": 4.555061475409836,
+        "y": 2.4066598360655735
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Lower Feeder"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Intake",
+      "waypointRelativePos": 0.8019943019942986,
+      "endWaypointRelativePos": 1.0,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 2.5,
+    "maxAcceleration": 1.5,
+    "maxAngularVelocity": 480.0,
+    "maxAngularAcceleration": 640.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 54.806
+  },
+  "reversed": false,
+  "folder": "Reef to Feeder",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

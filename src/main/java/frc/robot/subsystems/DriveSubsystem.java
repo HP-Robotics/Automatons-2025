@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import java.util.Optional;
+import java.util.function.DoubleSupplier;
+import java.util.function.Function;
 import java.util.function.ToLongBiFunction;
 
 import com.ctre.phoenix6.StatusSignal;
@@ -28,6 +30,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -37,8 +41,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.*;
@@ -46,6 +54,9 @@ import frc.robot.SwerveModule;
 
 /** Represents a swerve drive style drivetrain. */
 public class DriveSubsystem extends SubsystemBase {
+  public Optional<Integer> m_sector = Optional.empty();
+  public Optional<Integer> m_feederSector = Optional.empty();
+  public Translation2d m_targetFeeder;
   SwerveDriveOdometry m_odometry;
 
   PPHolonomicDriveController m_driveController;
@@ -88,17 +99,65 @@ public class DriveSubsystem extends SubsystemBase {
   private StatusSignal<Angle> m_pGyroYaw = m_pGyro.getYaw();
   private StatusSignal<Angle> m_pGyroRoll = m_pGyro.getRoll();
 
+  private final TrapezoidProfile m_xProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
+      DriveConstants.kMaxSpeed / 2.0, AutoConstants.kMaxAccelerationMetersPerSecondSquared / 2.0));
+  private final TrapezoidProfile m_yProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
+      DriveConstants.kMaxSpeed / 2.0, AutoConstants.kMaxAccelerationMetersPerSecondSquared / 2.0));
+
   PIDController m_rotationController;
   PIDController m_xController;
   PIDController m_yController;
   PoseEstimatorSubsystem m_poseEstimator;
 
   StructPublisher<Pose2d> m_drivePublisher;
+  StructPublisher<Pose2d> m_autoAlignPublisher;
+  StructPublisher<Translation2d> joystickTransPub;
+  StructPublisher<Translation2d> robotToReefPub;
+
+  public Translation2d joystickTrans;
+  public Translation2d robotToReef;
+  public Translation2d feederAngle;
+
   private double m_gyroOffset;
   RobotConfig m_config;
 
+  // TODO: move to constants?
+  DoubleSupplier m_joystickForward = () -> {
+    return Math.signum(ControllerConstants.m_driveJoystick.getRawAxis(1))
+        * Math.pow(MathUtil.applyDeadband(ControllerConstants.m_driveJoystick.getRawAxis(1),
+            ControllerConstants.driveJoystickDeadband), ControllerConstants.driveJoystickExponent)
+        * -1 * DriveConstants.kMaxSpeed;
+  };
+  DoubleSupplier m_joystickSideways = () -> {
+    return Math.signum(ControllerConstants.m_driveJoystick.getRawAxis(0))
+        * Math.pow(MathUtil.applyDeadband(ControllerConstants.m_driveJoystick.getRawAxis(0),
+            ControllerConstants.driveJoystickDeadband), ControllerConstants.driveJoystickExponent)
+        * -1 * DriveConstants.kMaxSpeed;
+  };
+  DoubleSupplier m_joystickRotation = () -> {
+    return MathUtil.applyDeadband(ControllerConstants.m_driveJoystick.getRawAxis(4),
+        ControllerConstants.driveJoystickDeadband)
+        * -1
+        * DriveConstants.kMaxAngularSpeed;
+  };
+  Function<Double, Double> m_pidX = (Double target) -> {
+    return -MathUtil.clamp(m_xController.calculate(m_poseEstimator.getPose().getX(),
+        target), -1, 1);
+  };
+  Function<Double, Double> m_pidY = (Double target) -> {
+    return -MathUtil.clamp(m_yController.calculate(m_poseEstimator.getPose().getY(),
+        target), -1, 1);
+  };
+  Function<Rotation2d, Double> m_pidRotation = (Rotation2d targetAngle) -> {
+    return m_rotationController.calculate(m_poseEstimator.getPose().getRotation().getRadians(),
+        targetAngle.getRadians());
+  };
+
   public DriveSubsystem(PoseEstimatorSubsystem poseEstimator) {
     m_pGyro.getYaw().setUpdateFrequency(DriveConstants.odometryUpdateFrequency);
+
+    m_poseEstimator = poseEstimator;
+    m_pGyro.setYaw(0);
 
     try {
       m_config = RobotConfig.fromGUISettings();
@@ -106,6 +165,55 @@ public class DriveSubsystem extends SubsystemBase {
       // Handle exception as needed
       e.printStackTrace();
     }
+
+    PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
+      m_currentPose.setRobotPose(pose);
+    });
+    PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+      m_targetPose.setRobotPose(pose);
+    });
+
+    SmartDashboard.putData("Field", m_field);
+    m_rotationController = new PIDController(DriveConstants.rotationControllerkP, DriveConstants.rotationControllerkI,
+        DriveConstants.rotationControllerkD);
+    m_rotationController.enableContinuousInput(-Math.PI, Math.PI);
+    m_rotationController.setTolerance(DriveConstants.rotationControllerTolerance);
+    m_rotationController.setIZone(DriveConstants.rotationControllerIZone);
+
+    m_xController = new PIDController(DriveConstants.XControllerkP, DriveConstants.XControllerkI,
+        DriveConstants.XControllerkD);
+    m_xController.setTolerance(DriveConstants.XControllerTolerance);
+    m_xController.setIZone(DriveConstants.XControllerIZone);
+    m_yController = new PIDController(DriveConstants.YControllerkP, DriveConstants.YControllerkI,
+        DriveConstants.YControllerkD);
+    m_yController.setTolerance(DriveConstants.YControllerTolerance);
+    m_yController.setIZone(DriveConstants.YControllerIZone);
+
+    m_drivePublisher = m_poseEstimatorTable.getStructTopic("Drive Pose", Pose2d.struct).publish();
+    m_autoAlignPublisher = m_driveTrainTable.getStructTopic("Auto Align Setpoint", Pose2d.struct).publish();
+
+    if (SubsystemConstants.useDataManager) {
+      // SignalLogger.start(); //Phoenix hoot logger
+    }
+
+    m_setpointGenerator = new SwerveSetpointGenerator(
+        m_config, // The robot configuration
+        // This is the same config used for generating trajectories and running path
+        // following commands
+        Units.rotationsToRadians(DriveConstants.kModuleMaxAngularSpeed)
+    // The max rotation velocity of a swerve module in radians per second
+    );
+
+    m_previousSetpoint = new SwerveSetpoint(getRobotRelativeSpeeds(), m_swerveModuleStates,
+        DriveFeedforwards.zeros(m_config.numModules));
+
+    joystickTransPub = m_driveTrainTable.getStructTopic("Joystick Translation", Translation2d.struct).publish();
+
+    robotToReefPub = m_driveTrainTable.getStructTopic("Robot To Reef", Translation2d.struct).publish();
+
+  }
+
+  public void configureAutoBuilder() {
 
     // Configure AutoBuilder last
     AutoBuilder.configure(
@@ -135,49 +243,6 @@ public class DriveSubsystem extends SubsystemBase {
         },
         this // Reference to this subsystem to set requirements
     );
-    m_poseEstimator = poseEstimator;
-    m_pGyro.setYaw(0);
-
-    PathPlannerLogging.setLogCurrentPoseCallback((pose) -> {
-      m_currentPose.setRobotPose(pose);
-    });
-    PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
-      m_targetPose.setRobotPose(pose);
-    });
-
-    SmartDashboard.putData("Field", m_field);
-    m_rotationController = new PIDController(DriveConstants.rotationControllerkP, DriveConstants.rotationControllerkI,
-        DriveConstants.rotationControllerkD);
-    m_rotationController.enableContinuousInput(-Math.PI, Math.PI);
-    m_rotationController.setTolerance(DriveConstants.rotationControllerTolerance);
-    m_rotationController.setIZone(DriveConstants.rotationControllerIZone);
-
-    m_xController = new PIDController(DriveConstants.XControllerkP, DriveConstants.XControllerkI,
-        DriveConstants.XControllerkD);
-    m_xController.setTolerance(DriveConstants.XControllerTolerance);
-    m_xController.setIZone(DriveConstants.XControllerIZone);
-    m_yController = new PIDController(DriveConstants.YControllerkP, DriveConstants.YControllerkI,
-        DriveConstants.YControllerkD);
-    m_yController.setTolerance(DriveConstants.YControllerTolerance);
-    m_yController.setIZone(DriveConstants.YControllerIZone);
-
-    m_drivePublisher = m_poseEstimatorTable.getStructTopic("Drive Pose", Pose2d.struct).publish();
-
-    if (SubsystemConstants.useDataManager) {
-      // SignalLogger.start(); //Phoenix hoot logger
-    }
-
-    m_setpointGenerator = new SwerveSetpointGenerator(
-        m_config, // The robot configuration
-        // This is the same config used for generating trajectories and running path
-        // following commands
-        Units.rotationsToRadians(DriveConstants.kModuleMaxAngularSpeed)
-    // The max rotation velocity of a swerve module in radians per second
-    );
-
-    m_previousSetpoint = new SwerveSetpoint(getRobotRelativeSpeeds(), m_swerveModuleStates,
-        DriveFeedforwards.zeros(m_config.numModules));
-
   }
 
   public ChassisSpeeds getRobotRelativeSpeeds() {
@@ -185,7 +250,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void updateOdometry() {
-    StatusSignal.waitForAll(1.0 / DriveConstants.odometryUpdateFrequency,
+    StatusSignal.waitForAll(0,
         m_frontLeft.m_driveMotor.getRotorPosition(),
         m_frontRight.m_driveMotor.getRotorPosition(),
         m_backLeft.m_driveMotor.getRotorPosition(),
@@ -209,13 +274,32 @@ public class DriveSubsystem extends SubsystemBase {
       m_field.setRobotPose(getPose());
     }
 
+    m_sector = getCurrentSector(m_poseEstimator.getPose());
+    if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
+      if (m_poseEstimator.getPose().getY() > 4.02) {
+        m_feederSector = Optional.of(0);
+      } else {
+        m_feederSector = Optional.of(1);
+      }
+    } else {
+      if (m_poseEstimator.getPose().getY() > 4.02) {
+        m_feederSector = Optional.of(2);
+      } else {
+        m_feederSector = Optional.of(3);
+      }
+    }
+    m_autoAlignPublisher.set(DriveConstants.leftFeederAlignPoses[m_feederSector.get()]);
+
+    m_driveTrainTable.putValue("Reef sector",
+        NetworkTableValue.makeInteger(m_sector.isPresent() ? m_sector.get() : -1));
+    m_driveTrainTable.putValue("Feeder sector",
+        NetworkTableValue.makeInteger(m_feederSector.isPresent() ? m_feederSector.get() : -1));
+
     m_driveTrainTable.putValue("Robot theta",
         NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
-    m_driveTrainTable.putValue("is Drive Abs Working", NetworkTableValue.makeBoolean(
-        m_backLeft.m_absEncoder.get() != 0 &&
-            m_backRight.m_absEncoder.get() != 0 &&
-            m_frontLeft.m_absEncoder.get() != 0 &&
-            m_frontRight.m_absEncoder.get() != 0));
+    m_driveTrainTable.putValue("is Drive Abs Working",
+        NetworkTableValue.makeBoolean(m_backLeft.m_absEncoder.get() != 0 && m_backRight.m_absEncoder.get() != 0
+            && m_frontLeft.m_absEncoder.get() != 0 && m_frontRight.m_absEncoder.get() != 0));
 
     // TODO investigate why this takes so long
     m_frontLeft.updateShuffleboard();
@@ -227,6 +311,16 @@ public class DriveSubsystem extends SubsystemBase {
     m_driveTrainTable.putValue("Pigeon Pitch", NetworkTableValue.makeDouble(m_pGyroPitch.getValueAsDouble()));
     m_driveTrainTable.putValue("Pigeon Yaw", NetworkTableValue.makeDouble(m_pGyroYaw.getValueAsDouble()));
     m_driveTrainTable.putValue("Pigeon Roll", NetworkTableValue.makeDouble(m_pGyroRoll.getValueAsDouble()));
+
+    joystickTrans = new Translation2d(ControllerConstants.m_driveJoystick.getRawAxis(1),
+        ControllerConstants.m_driveJoystick.getRawAxis(0));
+    robotToReef = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
+        ? DriveConstants.redReefCenter
+        : DriveConstants.blueReefCenter).minus(m_poseEstimator.getPose().getTranslation());
+
+    joystickTransPub.set(joystickTrans);
+    robotToReefPub.set(robotToReef);
+
   }
 
   /**
@@ -265,33 +359,17 @@ public class DriveSubsystem extends SubsystemBase {
   // TODO: Refactor + get rid of magic numbers
   public void driveWithJoystick(CommandJoystick joystick) {
     drive(
-        Math.signum(joystick.getRawAxis(1))
-
-            * Math.pow(MathUtil.applyDeadband(joystick.getRawAxis(1),
-                ControllerConstants.driveJoystickDeadband), ControllerConstants.driveJoystickExponent)
-            * -1 * DriveConstants.kMaxSpeed,
-        Math.signum(joystick.getRawAxis(0))
-            * Math.pow(MathUtil.applyDeadband(joystick.getRawAxis(0),
-                ControllerConstants.driveJoystickDeadband), ControllerConstants.driveJoystickExponent)
-            * -1 * DriveConstants.kMaxSpeed,
-        MathUtil.applyDeadband(joystick.getRawAxis(4), ControllerConstants.driveJoystickDeadband)
-            * -1
-            * DriveConstants.kMaxAngularSpeed,
+        m_joystickForward.getAsDouble(),
+        m_joystickSideways.getAsDouble(),
+        m_joystickRotation.getAsDouble(),
         m_fieldRelative);
   }
 
   public void drivePointedTowardsAngle(CommandJoystick joystick, Rotation2d targetAngle) {
-    double rot = m_rotationController.calculate(m_poseEstimator.getPose().getRotation().getRadians(),
-        targetAngle.getRadians());
+    double rot = m_pidRotation.apply(targetAngle);
     drive(
-        Math.signum(joystick.getRawAxis(1))
-            * Math.pow(MathUtil.applyDeadband(joystick.getRawAxis(1),
-                ControllerConstants.driveJoystickDeadband), 2)
-            * -1 * DriveConstants.kMaxSpeed,
-        Math.signum(joystick.getRawAxis(0))
-            * Math.pow(MathUtil.applyDeadband(joystick.getRawAxis(0),
-                ControllerConstants.driveJoystickDeadband), 2)
-            * -1 * DriveConstants.kMaxSpeed,
+        m_joystickForward.getAsDouble(),
+        m_joystickSideways.getAsDouble(),
         rot * 1 * DriveConstants.kMaxAngularSpeed,
         m_fieldRelative);
 
@@ -309,18 +387,30 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void driveToPose(Pose2d target) {
-    double rot = m_rotationController.calculate(m_poseEstimator.getPose().getRotation().getRadians(),
-        target.getRotation().getRadians());
-    double x = -MathUtil.clamp(m_xController.calculate(m_poseEstimator.getPose().getX(),
-        target.getX()), -1, 1);
-    double y = -MathUtil.clamp(m_yController.calculate(m_poseEstimator.getPose().getY(),
-        target.getY()), -1, 1);
-    System.out.println(x + ", " + y);
+    int allianceVelocityMultiplier = DriverStation.getAlliance().isPresent()
+        && DriverStation.getAlliance().get() == Alliance.Red ? -1 : 1; // TODO: Consider renaming
+
+    TrapezoidProfile.State m_targetX = m_xProfile.calculate(TimedRobot.kDefaultPeriod,
+        new TrapezoidProfile.State(m_poseEstimator.getPose().getX(),
+            allianceVelocityMultiplier * getFieldRelativeSpeeds().vxMetersPerSecond),
+        new TrapezoidProfile.State(target.getX(), 0.0));
+
+    TrapezoidProfile.State m_targetY = m_yProfile.calculate(TimedRobot.kDefaultPeriod,
+        new TrapezoidProfile.State(m_poseEstimator.getPose().getY(),
+            allianceVelocityMultiplier * getFieldRelativeSpeeds().vyMetersPerSecond),
+        new TrapezoidProfile.State(target.getY(), 0.0));
+
+    double rot = m_pidRotation.apply(target.getRotation());
+    double x = m_pidX.apply(m_targetX.position);
+    double y = m_pidY.apply(m_targetY.position);
+
     drive(
-        MathUtil.isNear(0, x, 0.07) ? 0 : x * -1 * DriveConstants.kMaxSpeed,
-        MathUtil.isNear(0, y, 0.07) ? 0 : y * -1 * DriveConstants.kMaxSpeed,
+        allianceVelocityMultiplier * m_targetX.velocity, // x * 1 * DriveConstants.kMaxSpeed,
+        allianceVelocityMultiplier * m_targetY.velocity, // y * 1 * DriveConstants.kMaxSpeed,
         rot * DriveConstants.kMaxAngularSpeed,
         true);
+
+    m_autoAlignPublisher.set(target);
     m_driveTrainTable.putValue("X Error", NetworkTableValue.makeDouble(m_xController.getError()));
     m_driveTrainTable.putValue("X P Contribution",
         NetworkTableValue.makeDouble(m_xController.getError() * m_xController.getP()));
@@ -376,8 +466,12 @@ public class DriveSubsystem extends SubsystemBase {
     return m_poseEstimator.getPose();
   }
 
-  public ChassisSpeeds getCurrentspeeds() {
+  public ChassisSpeeds getCurrentSpeeds() {
     return DriveConstants.kDriveKinematics.toChassisSpeeds(m_swerveModuleStates);
+  }
+
+  public ChassisSpeeds getFieldRelativeSpeeds() {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(this.getCurrentSpeeds(), new Rotation2d(Math.toRadians(getYaw())));
   }
 
   public void setModuleStates(SwerveModuleState[] swerveModuleStates) {
@@ -448,7 +542,7 @@ public class DriveSubsystem extends SubsystemBase {
         pose);
   }
 
-  // TTODO: getDistanceToPose() and getAngleToPose() already in limelight
+  // TODO: getDistanceToPose() and getAngleToPose() already in limelight
   // subsystem, move to where?
 
   public double getDistanceToPose(Pose2d robot, Pose2d fieldPose) {
@@ -474,11 +568,13 @@ public class DriveSubsystem extends SubsystemBase {
     if (getDistanceToPose(reefCenter, pose) > DriveConstants.autoAlignSectorRadius) {
       return Optional.empty();
     }
-    double angle = getAngleBetweenPoses(reefCenter, pose) % 360;
+    double angle = MathUtil.inputModulus(getAngleBetweenPoses(reefCenter, pose) + DriveConstants.autoAlignSectorOffset,
+        0, 360);
     int sector = (int) (angle / (360 / DriveConstants.autoAlignSectorCount));
     if (isRed) {
       sector += DriveConstants.autoAlignSectorCount;
     }
+    // System.out.println(sector);
     return Optional.of(sector);
   }
 
@@ -486,10 +582,15 @@ public class DriveSubsystem extends SubsystemBase {
     return Math.abs(angle - targetAngle) <= tolerance;
   }
 
+  public boolean isNearTargetAngle(Translation2d a, Translation2d b, double tolerance) {
+    return Math.abs(Math.acos(a.getX() * b.getX() + a.getY() * b.getY()
+        / (a.getNorm() * b.getNorm()))) <= tolerance;
+  }
+
   /**
-   * Resets robot's conception of field orientation
+   * Sets robot's conception of field orientation
    */
-  public void resetYaw(double angle) {
+  public void setYaw(double angle) {
     m_gyroOffset = m_pGyro.getYaw().getValueAsDouble() - angle;
   }
 
@@ -498,6 +599,10 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void resetYaw() {
-    resetYaw(0);
+    setYaw(0);
+  }
+
+  public Command StayStillCommand() {
+    return new InstantCommand(() -> drive(0, 0, 0, true), this);
   }
 }

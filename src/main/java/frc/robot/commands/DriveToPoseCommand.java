@@ -71,7 +71,7 @@ public class DriveToPoseCommand extends Command {
             Constants.AutoConstants.kMaxAngularSpeedRadiansPerSecond,
             Constants.AutoConstants.kMaxAngularAcceleration),
         m_driveSubsystem::getPose,
-        m_driveSubsystem::getCurrentspeeds,
+        m_driveSubsystem::getCurrentSpeeds,
         m_driveSubsystem::driveRobotRelative,
         m_driveController = new PPHolonomicDriveController(
             PathplannerPIDConstants.translationConstants, PathplannerPIDConstants.rotationConstants),

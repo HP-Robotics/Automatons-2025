@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.4624999999999997,
+        "y": 7.213729508196722
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.529405737704918,
+        "y": 6.020952868852459
+      },
+      "isLocked": false,
+      "linkedName": "Upper Feeder"
+    },
+    {
+      "anchor": {
+        "x": 3.218723,
+        "y": 4.17989
+      },
+      "prevControl": {
+        "x": 1.7022540983606558,
+        "y": 4.066956967213113
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "F2L"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "GoToL4",
+      "waypointRelativePos": 0.8475783475783422,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 2.5,
+    "maxAcceleration": 1.5,
+    "maxAngularVelocity": 480.0,
+    "maxAngularAcceleration": 640.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Feeder to Reef",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -53.841999999999985
+  },
+  "useDefaultConstraints": true
+}

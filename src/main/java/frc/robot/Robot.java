@@ -4,7 +4,16 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.util.FlippingUtil;
+
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -19,7 +28,7 @@ import frc.robot.Constants.SubsystemConstants;
  * this project, you must also update the Main.java file in the project.
  */
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+  private PathPlannerAuto m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
 
@@ -36,11 +45,16 @@ public class Robot extends TimedRobot {
   }
 
   public void robotInit() {
+    if (SubsystemConstants.useDataManager) {
+      DataLogManager.start();
+    }
     if (SubsystemConstants.useDrive) {
       addPeriodic(() -> {
         m_robotContainer.m_driveSubsystem.updateOdometry();
       }, 1.0 / DriveConstants.odometryUpdateFrequency);
-      m_robotContainer.m_driveSubsystem.startPoseEstimator(new Pose2d());
+      m_robotContainer.m_driveSubsystem.startPoseEstimator(new Pose2d(0, 0, new Rotation2d(
+          DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red ? Math.PI : 0)));
+      FollowPathCommand.warmupCommand().schedule();
     }
   }
 
@@ -88,9 +102,12 @@ public class Robot extends TimedRobot {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command
+    m_robotContainer.m_driveSubsystem.setYaw(m_autonomousCommand.getStartingPose().getRotation().getDegrees());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+    m_robotContainer.m_inNOutSubsystem.m_state = "empty";
+
   }
 
   /** This function is called periodically during autonomous. */

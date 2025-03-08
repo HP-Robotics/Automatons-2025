@@ -5,39 +5,33 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "CageToC1"
+            "name": "InitializeElevator"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "C1ToFeeder"
+            "pathName": "Middle Cage to C2R"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "FeederToF1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "F1ToFeeder"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "FeederToF1"
+            "pathName": "C2R to Upper Feeder"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "1 Coral",
   "choreoAuto": false
 }
