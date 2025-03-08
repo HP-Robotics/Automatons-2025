@@ -250,7 +250,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void updateOdometry() {
-    StatusSignal.waitForAll(1.0 / DriveConstants.odometryUpdateFrequency,
+    StatusSignal.waitForAll(0,
         m_frontLeft.m_driveMotor.getRotorPosition(),
         m_frontRight.m_driveMotor.getRotorPosition(),
         m_backLeft.m_driveMotor.getRotorPosition(),

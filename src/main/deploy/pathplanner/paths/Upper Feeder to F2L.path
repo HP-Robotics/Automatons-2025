@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.9694999999999998,
-        "y": 6.25775
+        "x": 2.529405737704918,
+        "y": 6.020952868852459
       },
       "isLocked": false,
       "linkedName": "Upper Feeder"
@@ -20,8 +20,8 @@
         "y": 4.17989
       },
       "prevControl": {
-        "x": 2.6909443114754086,
-        "y": 5.127877704918033
+        "x": 1.7022540983606558,
+        "y": 4.066956967213113
       },
       "nextControl": null,
       "isLocked": false,
@@ -40,8 +40,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 2.5,
+    "maxAcceleration": 1.5,
     "maxAngularVelocity": 480.0,
     "maxAngularAcceleration": 640.0,
     "nominalVoltage": 12.0,

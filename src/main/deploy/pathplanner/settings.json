@@ -14,8 +14,8 @@
     "3 Coral",
     "Drive ForwardDo Nothing"
   ],
-  "defaultMaxVel": 5.0,
-  "defaultMaxAccel": 3.0,
+  "defaultMaxVel": 2.5,
+  "defaultMaxAccel": 1.5,
   "defaultMaxAngVel": 480.0,
   "defaultMaxAngAccel": 640.0,
   "defaultNominalVoltage": 12.0,
