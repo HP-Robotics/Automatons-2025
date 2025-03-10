@@ -254,7 +254,7 @@ public class RobotContainer {
 
       // Set state to outtaking if outtake button pressed and we are loaded
       ControllerConstants.outtakeTrigger
-          .and(new Trigger(() -> m_inNOutSubsystem.m_state == "loaded"))
+          .and(new Trigger(() -> m_inNOutSubsystem.m_state == "loaded" || m_inNOutSubsystem.m_state == "outtaking"))
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "outtaking";
           }));
