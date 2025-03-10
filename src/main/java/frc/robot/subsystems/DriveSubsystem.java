@@ -591,12 +591,12 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public boolean isNearTargetAngle(Translation2d a, Translation2d b, double tolerance) {
-    return Math.abs(Math.acos(a.getX() * b.getX() + a.getY() * b.getY()
+    return Math.abs(Math.acos((a.getX() * b.getX() + a.getY() * b.getY())
         / (a.getNorm() * b.getNorm()))) <= tolerance;
   }
 
   public double getAngleBetweenVectors(Translation2d a, Translation2d b) {
-    return Math.acos(a.getX() * b.getX() + a.getY() * b.getY()
+    return Math.acos((a.getX() * b.getX() + a.getY() * b.getY())
         / (a.getNorm() * b.getNorm()));
   }
 
@@ -613,16 +613,18 @@ public class DriveSubsystem extends SubsystemBase {
         double distanceToTarget = getDistanceToPose(getPose(), targetPose);
         double theta = getAngleBetweenVectors(
             getPose().minus(targetPose).getTranslation(),
-            new Translation2d(1, 0).rotateBy(targetPose.getRotation().plus(new Rotation2d(Math.PI))));
+            new Translation2d(1, 0).rotateBy(targetPose.getRotation()));
         double distance = distanceToTarget * Math.sin(theta);
-        if (distance < 0.5) {
-          distance = 0;
-        }
+        m_driveTrainTable.putValue("theta to target", NetworkTableValue.makeDouble(theta));
+        m_driveTrainTable.putValue("horizontal distance to target", NetworkTableValue.makeDouble(distance));
+        // if (distance < 0.05) {
+        // distance = 0;
+        // }
 
         Pose2d newPose = new Pose2d(
             targetPose.getTranslation()
                 .plus(
-                    new Translation2d(distance, 0)
+                    new Translation2d(DriveConstants.autoAlignDistanceMultiplier * distance, 0)
                         .rotateBy(targetPose.getRotation().plus(new Rotation2d(Math.PI)))),
             targetPose.getRotation());
         driveToPose(newPose);

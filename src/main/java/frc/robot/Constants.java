@@ -261,10 +261,11 @@ public final class Constants {
     public static final Translation2d blueUpperFeederCenter = new Translation2d();
     public static final Translation2d blueLowerFeederCenter = new Translation2d();
     public static final int autoAlignSectorCount = 6;
-    public static final double autoAlignSectorRadius = 3; // TODO: change
+    public static final double autoAlignSectorRadius = 3;
     public static final double autoAlignSectorOffset = 30;
     public static final double autoAlignTolerance = Math.PI / 4;
     public static final double autoAlignDistanceTolerance = 10; // TODO: this is almost certainly the wrong number,
+    public static final double autoAlignDistanceMultiplier = 2; // TODO: fix name
 
     // TODO: make comments with the corresponding april tags and red alliance
     public static final Pose2d[] leftAlignPoses = {
