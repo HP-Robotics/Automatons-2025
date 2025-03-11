@@ -239,7 +239,7 @@ public class RobotContainer {
       // Set state to intaking if intake or elevator beam break are broken
       ControllerConstants.m_opJoystick.povUp().whileTrue(m_inNOutSubsystem.Dealginate());
 
-      new Trigger(m_inNOutSubsystem::intakeHasCoral).and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
+      new Trigger(m_inNOutSubsystem::intakeHasCoral).and(m_inNOutSubsystem.isInState("empty"))
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "intaking"; // TODO: Make sure elevator is at bottom before intaking
           }));
@@ -248,33 +248,45 @@ public class RobotContainer {
       // Set state to loaded if isLoaded (elevator beam break not broken and outtake
       // beam break is broken)
       // is true and previous state is intaking
-      new Trigger(() -> m_inNOutSubsystem.m_state == "intaking" || m_inNOutSubsystem.m_state == "empty")
+      (m_inNOutSubsystem.isInState("intaking").or(m_inNOutSubsystem.isInState("empty")))
           .and(m_inNOutSubsystem::isLoaded)
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "loaded";
-          }));
+          }))
+          .onTrue(new InstantCommand(m_inNOutSubsystem::stopIntake))
+          .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
 
       // Set state to outtaking if outtake button pressed and we are loaded
       ControllerConstants.outtakeTrigger
-          .and(new Trigger(() -> m_inNOutSubsystem.m_state == "loaded"))
+          .and(m_inNOutSubsystem.isInState("loaded")
+              .or(m_inNOutSubsystem.isInState("outtaking")))
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "outtaking";
-          }));
+          }))
+          .onTrue(new InstantCommand(m_inNOutSubsystem::runOuttake));
+
+      new Trigger(m_inNOutSubsystem::isEmpty)
+          .and(m_inNOutSubsystem.isInState("loaded"))
+          .onTrue(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty"));
 
       // When it becomes empty (no beam breaks are broken)
       new Trigger(m_inNOutSubsystem::isEmpty)
-          .and(() -> m_inNOutSubsystem.m_state == "outtaking")
+          .and(m_inNOutSubsystem.isInState("outtaking"))
           .onTrue(new SequentialCommandGroup(
               new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty"),
               new WaitCommand(OuttakeConstants.scoreDelay),
-              m_elevatorSubsystem.GoToL1()));
+              m_elevatorSubsystem.GoToL1()))
+          .onTrue(new InstantCommand(
+              () -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, LEDConstants.defaultMiddlePattern)))
+          .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
 
       // ACTIONS
       // run intake if intake button pressed and state is empty or is intaking
-      (new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
-          .or(new Trigger(() -> m_inNOutSubsystem.m_state == "empty")))
-          .and(ControllerConstants.intakeTrigger)
+      (m_inNOutSubsystem.isInState("intaking"))
+          .or((m_inNOutSubsystem.isInState("empty"))
+              .and(ControllerConstants.intakeTrigger))
           .and(new Trigger(m_elevatorSubsystem::atDownPosition))
+
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::loadOuttake, m_inNOutSubsystem::stopOuttake))
           .whileTrue(new StartEndCommand(
@@ -282,12 +294,6 @@ public class RobotContainer {
               () -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, m_inNOutSubsystem.m_state == "loaded"
                   ? LEDConstants.hasCoralPattern
                   : LEDConstants.defaultMiddlePattern)));
-
-      // Shoot if outtaking and stop when done
-      new Trigger(() -> m_inNOutSubsystem.m_state == "outtaking")
-          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake))
-          .onFalse(new InstantCommand(
-              () -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, LEDConstants.defaultMiddlePattern)));
 
       // Manual override button
       ControllerConstants.overrideButton
@@ -299,10 +305,6 @@ public class RobotContainer {
           }))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
     }
-
-    new Trigger(() -> m_inNOutSubsystem.m_state == "loaded")
-        .onTrue(new InstantCommand(m_inNOutSubsystem::stopIntake))
-        .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
 
     if (SubsystemConstants.useDrive) {
 
@@ -430,7 +432,7 @@ public class RobotContainer {
     }
     if (SubsystemConstants.useClimber) {
       ControllerConstants.closePinnerTrigger.whileTrue(m_climberSubsystem.closePinner());
-      ControllerConstants.climberTrigger.and(new Trigger(() -> m_inNOutSubsystem.m_state == "folded"))
+      ControllerConstants.climberTrigger.and(m_inNOutSubsystem.isInState("folded"))
           .whileTrue(m_climberSubsystem.Climb())
           .onFalse(m_climberSubsystem.StopClimb());
       ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldDualKeyButton)

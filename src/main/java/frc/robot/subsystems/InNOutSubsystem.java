@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class InNOutSubsystem extends SubsystemBase {
     // TalonFX m_intakeMotor = new TalonFX(IDConstants.intakeMotorID);
@@ -97,5 +98,9 @@ public class InNOutSubsystem extends SubsystemBase {
         return new WaitCommand(0);
         // return new StartEndCommand(() -> m_dealginator.set(0.8), () ->
         // m_dealginator.set(0));
+    }
+
+    public Trigger isInState(String state) {
+        return new Trigger(() -> m_state == state);
     }
 }
