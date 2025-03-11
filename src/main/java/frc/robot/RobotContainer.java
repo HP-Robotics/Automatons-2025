@@ -136,7 +136,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Intake",
         new WaitUntilCommand(m_elevatorSubsystem::atDownPosition).andThen(m_inNOutSubsystem.IntakeCoral()));
     NamedCommands.registerCommand("Outtake", m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
-        .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")));
+        .andThen(m_inNOutSubsystem.setState("empty")));
     NamedCommands.registerCommand("SetElevatorLevel", m_elevatorSubsystem.SetPosition(1200));
     NamedCommands.registerCommand("GoToL4", m_elevatorSubsystem.GoToL4());
     NamedCommands.registerCommand("GoToL3", m_elevatorSubsystem.GoToL3());
@@ -154,7 +154,7 @@ public class RobotContainer {
         m_driveSubsystem.StayStillCommand(),
         new WaitUntilCommand(m_elevatorSubsystem::atPosition),
         m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
-            .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")),
+            .andThen(m_inNOutSubsystem.setState("empty")),
         m_elevatorSubsystem.GoToElevatorDown()));
     // TODO: this is just a random number, make it take a position based on the auto
     // somehow
@@ -164,7 +164,7 @@ public class RobotContainer {
     new EventTrigger("Intake")
         .onTrue(new WaitUntilCommand(m_elevatorSubsystem::atDownPosition).andThen(m_inNOutSubsystem.IntakeCoral()));
     new EventTrigger("Outtake").onTrue(m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
-        .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")));
+        .andThen(m_inNOutSubsystem.setState("empty")));
     new EventTrigger("SetElevatorLevel").onTrue(m_elevatorSubsystem.SetPosition(1200));
     new EventTrigger("GoToL4").onTrue(m_elevatorSubsystem.GoToL4());
     new EventTrigger("GoToL3").onTrue(m_elevatorSubsystem.GoToL3());
@@ -180,7 +180,7 @@ public class RobotContainer {
     new EventTrigger("Score").onTrue(new SequentialCommandGroup(
         new WaitUntilCommand(m_elevatorSubsystem::atPosition),
         m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
-            .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")),
+            .andThen(m_inNOutSubsystem.setState("empty")),
         m_elevatorSubsystem.GoToElevatorDown()));
   }
 
@@ -240,9 +240,8 @@ public class RobotContainer {
       ControllerConstants.m_opJoystick.povUp().whileTrue(m_inNOutSubsystem.Dealginate());
 
       new Trigger(m_inNOutSubsystem::intakeHasCoral).and(m_inNOutSubsystem.isInState("empty"))
-          .onTrue(new InstantCommand(() -> {
-            m_inNOutSubsystem.m_state = "intaking"; // TODO: Make sure elevator is at bottom before intaking
-          }));
+          .onTrue(m_inNOutSubsystem.setState("empty") // TODO: Make sure elevator is at bottom before intaking
+          );
       // TODO: manual override button
 
       // Set state to loaded if isLoaded (elevator beam break not broken and outtake
@@ -250,9 +249,7 @@ public class RobotContainer {
       // is true and previous state is intaking
       (m_inNOutSubsystem.isInState("intaking").or(m_inNOutSubsystem.isInState("empty")))
           .and(m_inNOutSubsystem::isLoaded)
-          .onTrue(new InstantCommand(() -> {
-            m_inNOutSubsystem.m_state = "loaded";
-          }))
+          .onTrue(m_inNOutSubsystem.setState("loaded"))
           .onTrue(new InstantCommand(m_inNOutSubsystem::stopIntake))
           .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
 
@@ -260,20 +257,18 @@ public class RobotContainer {
       ControllerConstants.outtakeTrigger
           .and(m_inNOutSubsystem.isInState("loaded")
               .or(m_inNOutSubsystem.isInState("outtaking")))
-          .onTrue(new InstantCommand(() -> {
-            m_inNOutSubsystem.m_state = "outtaking";
-          }))
+          .onTrue(m_inNOutSubsystem.setState("outtaking"))
           .onTrue(new InstantCommand(m_inNOutSubsystem::runOuttake));
 
       new Trigger(m_inNOutSubsystem::isEmpty)
           .and(m_inNOutSubsystem.isInState("loaded"))
-          .onTrue(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty"));
+          .onTrue(m_inNOutSubsystem.setState("empty"));
 
       // When it becomes empty (no beam breaks are broken)
       new Trigger(m_inNOutSubsystem::isEmpty)
           .and(m_inNOutSubsystem.isInState("outtaking"))
           .onTrue(new SequentialCommandGroup(
-              new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty"),
+              m_inNOutSubsystem.setState("empty"),
               new WaitCommand(OuttakeConstants.scoreDelay),
               m_elevatorSubsystem.GoToL1()))
           .onTrue(new InstantCommand(
@@ -297,7 +292,7 @@ public class RobotContainer {
 
       // Manual override button
       ControllerConstants.overrideButton
-          .whileTrue(new InstantCommand(() -> m_inNOutSubsystem.m_state = "override"))
+          .whileTrue(m_inNOutSubsystem.setState("override"))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, () -> {
             m_inNOutSubsystem.stopIntake();
             m_inNOutSubsystem.m_state = "empty";
@@ -428,7 +423,7 @@ public class RobotContainer {
       (ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldDualKeyButton))
           .and(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldButton))
           .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime)
-              .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "folded")));
+              .andThen(m_inNOutSubsystem.setState("folded")));
     }
     if (SubsystemConstants.useClimber) {
       ControllerConstants.closePinnerTrigger.whileTrue(m_climberSubsystem.closePinner());

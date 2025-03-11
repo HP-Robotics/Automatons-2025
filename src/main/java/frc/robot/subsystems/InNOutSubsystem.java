@@ -103,4 +103,8 @@ public class InNOutSubsystem extends SubsystemBase {
     public Trigger isInState(String state) {
         return new Trigger(() -> m_state == state);
     }
+
+    public Command setState(String state) {
+        return new InstantCommand(() -> m_state = state);
+    }
 }
