@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.Optional;
+
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -108,25 +110,12 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     }
 
-    public int getCurrentLevel() {
-        double[] positions = { ElevatorConstants.elevatorDownPosition, ElevatorConstants.L1Position,
-                ElevatorConstants.L2Position, ElevatorConstants.L3Position, ElevatorConstants.L4Position };
-        double currentPosition = m_elevatorMotor1.getRotorPosition().getValueAsDouble();
-        double minDistance = Math.abs(currentPosition - positions[0]);
-        int minIndex = 0;
-        for (int i = 1; i < positions.length; i++) {
-            double distance = Math.abs(currentPosition - positions[i]);
-            if (distance < minDistance) {
-                minIndex = i;
-                minDistance = distance;
-            }
-        }
-        return minIndex;
-    }
-
     public void updateLEDs() {
-        int currentLevel = getCurrentLevel();
-        m_ledSubsystem.m_sidePattern = LEDConstants.elevatorLevelPatterns[currentLevel];
+        if (atPosition()) {
+            m_ledSubsystem.m_overridePattern = Optional.empty();
+        } else {
+            m_ledSubsystem.m_overridePattern = Optional.of(LEDConstants.elevatorMovingPattern);
+        }
     }
 
     public void elevatorDown() {

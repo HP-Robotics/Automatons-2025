@@ -267,16 +267,16 @@ public class RobotContainer {
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::loadOuttake, m_inNOutSubsystem::stopOuttake))
           .whileTrue(new StartEndCommand(
-              () -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, LEDConstants.intakeRunningPattern),
+              () -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, LEDConstants.coralProcessingPattern),
               () -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, m_inNOutSubsystem.m_state == "loaded"
-                  ? LEDConstants.hasCoralPattern
+                  ? LEDConstants.coralReadyPattern
                   : LEDConstants.defaultMiddlePattern)));
+      (new Trigger(() -> m_inNOutSubsystem.m_state == "empty")).onTrue(
+          new InstantCommand(() -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, LEDConstants.noCoralPattern)));
 
       // Shoot if outtaking and stop when done
       new Trigger(() -> m_inNOutSubsystem.m_state == "outtaking")
-          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake))
-          .onFalse(new InstantCommand(
-              () -> LEDSubsystem.trySetMiddlePattern(m_LEDSubsystem, LEDConstants.defaultMiddlePattern)));
+          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
 
       // Manual override button
       ControllerConstants.overrideButton
@@ -305,24 +305,35 @@ public class RobotContainer {
             if (m_driveSubsystem.m_feederSector.isPresent()
                 && m_driveSubsystem.getDistanceToPose(m_poseEstimatorSubsystem.getPose(),
                     DriveConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector
-                        .get()]) <= DriveConstants.autoAlignDistanceTolerance
+                        .get()]) <= DriveConstants.autoAlignFeederRange
                 && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans,
                     DriveConstants.feederAlignAngles[m_driveSubsystem.m_feederSector.get()],
-                    DriveConstants.autoAlignTolerance)
+                    DriveConstants.autoAlignJoystickTolerance)
                     || ControllerConstants.m_driveJoystick
                         .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
-              m_driveSubsystem.driveToPose(DriveConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector.get()]);
+              Pose2d targetPose = DriveConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector.get()];
+              m_driveSubsystem.driveToPose(targetPose);
+              if (m_driveSubsystem.arePosesSimilar(m_driveSubsystem.getPose(), targetPose)) {
+                LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAlignReadyPattern);
+              } else {
+                LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAligningPattern);
+              }
             } else if (m_driveSubsystem.m_feederSector.isPresent()) {
               m_driveSubsystem.drivePointedTowardsAngle(
                   ControllerConstants.m_driveJoystick,
                   DriveConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector.get()].getRotation());
+              LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAligningPattern);
             } else {
               m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
+              LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.noAutoAlignPattern);
             }
             m_driveSubsystem.m_driveTrainTable.putValue("Joystick Degrees",
                 NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
           },
-              m_driveSubsystem));
+              m_driveSubsystem))
+          .whileTrue(new StartEndCommand(
+              () -> LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAligningPattern),
+              () -> LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.noAutoAlignPattern)));
 
       ControllerConstants.m_driveJoystick.button(ControllerConstants.rightAlignButton)
           .and(m_inNOutSubsystem::isEmpty)
@@ -334,24 +345,35 @@ public class RobotContainer {
             if (m_driveSubsystem.m_feederSector.isPresent()
                 && m_driveSubsystem.getDistanceToPose(m_poseEstimatorSubsystem.getPose(),
                     DriveConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector
-                        .get()]) <= DriveConstants.autoAlignDistanceTolerance
+                        .get()]) <= DriveConstants.autoAlignFeederRange
                 && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans,
                     DriveConstants.feederAlignAngles[m_driveSubsystem.m_feederSector.get()],
-                    DriveConstants.autoAlignTolerance)
+                    DriveConstants.autoAlignJoystickTolerance)
                     || ControllerConstants.m_driveJoystick
                         .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
-              m_driveSubsystem.driveToPose(DriveConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector.get()]);
+              Pose2d targetPose = DriveConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector.get()];
+              m_driveSubsystem.driveToPose(targetPose);
+              if (m_driveSubsystem.arePosesSimilar(m_driveSubsystem.getPose(), targetPose)) {
+                LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAlignReadyPattern);
+              } else {
+                LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAligningPattern);
+              }
             } else if (m_driveSubsystem.m_feederSector.isPresent()) {
               m_driveSubsystem.drivePointedTowardsAngle(
                   ControllerConstants.m_driveJoystick,
                   DriveConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector.get()].getRotation());
+              LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAligningPattern);
             } else {
               m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
+              LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.noAutoAlignPattern);
             }
             m_driveSubsystem.m_driveTrainTable.putValue("Joystick Degrees",
                 NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
           },
-              m_driveSubsystem));
+              m_driveSubsystem))
+          .whileTrue(new StartEndCommand(
+              () -> LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAligningPattern),
+              () -> LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.noAutoAlignPattern)));
 
       ControllerConstants.m_driveJoystick.button(ControllerConstants.rightAlignButton)
           .and(m_inNOutSubsystem::isLoaded)
@@ -362,10 +384,16 @@ public class RobotContainer {
 
             if (m_driveSubsystem.m_sector.isPresent()
                 && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans, m_driveSubsystem.robotToReef,
-                    DriveConstants.autoAlignTolerance)
+                    DriveConstants.autoAlignJoystickTolerance)
                     || ControllerConstants.m_driveJoystick
                         .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
-              m_driveSubsystem.driveToPose(DriveConstants.rightAlignPoses[m_driveSubsystem.m_sector.get()]);
+              Pose2d targetPose = DriveConstants.rightAlignPoses[m_driveSubsystem.m_sector.get()];
+              m_driveSubsystem.driveToPose(targetPose);
+              if (m_driveSubsystem.arePosesSimilar(m_driveSubsystem.getPose(), targetPose)) {
+                LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAlignReadyPattern);
+              } else {
+                LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAligningPattern);
+              }
             } else {
               m_driveSubsystem.drivePointedTowardsAngle(
                   ControllerConstants.m_driveJoystick,
@@ -375,10 +403,14 @@ public class RobotContainer {
                               ? DriveConstants.redReefCenter
                               : DriveConstants.blueReefCenter,
                           new Rotation2d()))));
+              LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAligningPattern);
             }
             m_driveSubsystem.m_driveTrainTable.putValue("Joystick Degrees",
                 NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
-          }, m_driveSubsystem));
+          }, m_driveSubsystem))
+          .whileTrue(new StartEndCommand(
+              () -> LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAligningPattern),
+              () -> LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.noAutoAlignPattern)));
 
       ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAlignButton)
           .and(m_inNOutSubsystem::isLoaded)
@@ -389,10 +421,16 @@ public class RobotContainer {
 
             if (m_driveSubsystem.m_sector.isPresent()
                 && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans, m_driveSubsystem.robotToReef,
-                    DriveConstants.autoAlignTolerance)
+                    DriveConstants.autoAlignJoystickTolerance)
                     || ControllerConstants.m_driveJoystick
                         .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
-              m_driveSubsystem.driveToPose(DriveConstants.leftAlignPoses[m_driveSubsystem.m_sector.get()]);
+              Pose2d targetPose = DriveConstants.leftAlignPoses[m_driveSubsystem.m_sector.get()];
+              m_driveSubsystem.driveToPose(targetPose);
+              if (m_driveSubsystem.arePosesSimilar(m_driveSubsystem.getPose(), targetPose)) {
+                LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAlignReadyPattern);
+              } else {
+                LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAligningPattern);
+              }
             } else {
               m_driveSubsystem.drivePointedTowardsAngle(
                   ControllerConstants.m_driveJoystick,
@@ -402,10 +440,14 @@ public class RobotContainer {
                               ? DriveConstants.redReefCenter
                               : DriveConstants.blueReefCenter,
                           new Rotation2d()))));
+              LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAligningPattern);
             }
             m_driveSubsystem.m_driveTrainTable.putValue("Joystick Degrees",
                 NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
-          }, m_driveSubsystem));
+          }, m_driveSubsystem))
+          .whileTrue(new StartEndCommand(
+              () -> LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.autoAligningPattern),
+              () -> LEDSubsystem.trySetSidePattern(m_LEDSubsystem, LEDConstants.noAutoAlignPattern)));
 
       // ControllerConstants.m_driveJoystick.button(1).whileTrue(new RunCommand(() ->
       // {

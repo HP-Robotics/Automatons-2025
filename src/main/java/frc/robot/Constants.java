@@ -103,8 +103,8 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final double L4Position = 76; // TODO: figure out what these are
-    public static final double L3Position = 51.5;
+    public static final double L4Position = 76; // 45 if low ceiling
+    public static final double L3Position = 51.5; // 40 if low ceiling
     public static final double L2Position = 36;
     public static final double L1Position = 20;
     public static final double elevatorDownPosition = 2.6; // Original: 3.5
@@ -265,8 +265,11 @@ public final class Constants {
     public static final int autoAlignSectorCount = 6;
     public static final double autoAlignSectorRadius = 3; // TODO: change
     public static final double autoAlignSectorOffset = 30;
-    public static final double autoAlignTolerance = Math.PI / 4;
-    public static final double autoAlignDistanceTolerance = 10; // TODO: this is almost certainly the wrong number,
+    public static final double autoAlignJoystickTolerance = Math.PI / 4;
+    public static final double autoAlignFeederRange = 10;
+
+    public static final double poseDistanceTolerance = 0.02; // TODO: this is almost certainly the wrong number,
+    public static final double poseAngleTolerance = Math.PI / 60;
 
     // TODO: make comments with the corresponding april tags and red alliance
     public static final Pose2d[] leftAlignPoses = {
@@ -436,18 +439,18 @@ public final class Constants {
     public static final int middleLastIndex = 49;
     public static final Time blinkInterval = Seconds.of(0.5);
 
-    public static final LEDPattern defaultSidePattern = LEDPattern.solid(Color.kRed).blink(blinkInterval);
-    public static final LEDPattern defaultMiddlePattern = LEDPattern.solid(Color.kGreen);
-    public static final Optional<LEDPattern> defaultOverridePattern = Optional.empty();
-    public static final LEDPattern hasCoralPattern = LEDPattern.solid(new Color(255, 32, 0)).blink(blinkInterval);
-    public static final LEDPattern elevatorDownPattern = LEDPattern.solid(Color.kGreen);
-    public static final LEDPattern intakeRunningPattern = LEDPattern.solid(Color.kWhite).blink(blinkInterval);
+    public static final LEDPattern noCoralPattern = LEDPattern.solid(Color.kRed);
+    public static final LEDPattern coralProcessingPattern = LEDPattern.solid(new Color(255, 32, 0))
+        .blink(blinkInterval);
+    public static final LEDPattern coralReadyPattern = LEDPattern.solid(Color.kWhite);
     public static final LEDPattern cagePattern = LEDPattern.solid(Color.kBlue);
-    public static final LEDPattern elevatorL1Pattern = LEDPattern.solid(Color.kWhite);
-    public static final LEDPattern elevatorL2Pattern = LEDPattern.solid(Color.kYellow);
-    public static final LEDPattern elevatorL3Pattern = LEDPattern.solid(new Color(255, 32, 0));
-    public static final LEDPattern elevatorL4Pattern = LEDPattern.solid(Color.kRed);
-    public static final LEDPattern[] elevatorLevelPatterns = { elevatorDownPattern, elevatorL1Pattern,
-        elevatorL2Pattern, elevatorL3Pattern, elevatorL4Pattern };
+    public static final LEDPattern elevatorMovingPattern = LEDPattern.solid(Color.kRed).blink(blinkInterval);
+    public static final LEDPattern autoAlignReadyPattern = LEDPattern.solid(Color.kGreen);
+    public static final LEDPattern autoAligningPattern = LEDPattern.solid(new Color(255, 32, 0)).blink(blinkInterval);
+    public static final LEDPattern noAutoAlignPattern = LEDPattern.solid(Color.kBlack);
+    public static final LEDPattern defaultSidePattern = LEDPattern.solid(Color.kRed).blink(blinkInterval);
+    public static final LEDPattern defaultMiddlePattern = noCoralPattern;
+    public static final Optional<LEDPattern> defaultOverridePattern = Optional.empty();
+
   }
 }

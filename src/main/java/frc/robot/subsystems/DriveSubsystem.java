@@ -545,6 +545,11 @@ public class DriveSubsystem extends SubsystemBase {
   // TODO: getDistanceToPose() and getAngleToPose() already in limelight
   // subsystem, move to where?
 
+  public boolean arePosesSimilar(Pose2d pose1, Pose2d pose2) {
+    return getDistanceToPose(pose1, pose2) <= DriveConstants.poseDistanceTolerance
+        && getAngleBetweenPoses(pose1, pose2) <= DriveConstants.poseAngleTolerance;
+  }
+
   public double getDistanceToPose(Pose2d robot, Pose2d fieldPose) {
     double distX = fieldPose.getX() - robot.getX();
     double distY = fieldPose.getY() - robot.getY();
