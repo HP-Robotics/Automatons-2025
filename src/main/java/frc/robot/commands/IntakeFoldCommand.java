@@ -5,20 +5,20 @@ import frc.robot.Constants;
 import frc.robot.subsystems.InNOutSubsystem;
 
 public class IntakeFoldCommand extends Command {
-    InNOutSubsystem m_intakeSubsystem;
+    InNOutSubsystem m_inNOutSubsystem;
 
     public IntakeFoldCommand(InNOutSubsystem intakeSubsystem) {
-        m_intakeSubsystem = intakeSubsystem;
+        m_inNOutSubsystem = intakeSubsystem;
     }
 
     public void initialize() {
         if (Constants.SubsystemConstants.useIntake) {
-            m_intakeSubsystem.m_intakeFoldMotor.set(Constants.ClimberConstants.foldSpeed);
+            m_inNOutSubsystem.m_intakeFoldMotor.set(Constants.ClimberConstants.foldSpeed);
         }
     }
 
     public void end(boolean interrupted) {
-        m_intakeSubsystem.m_intakeFoldMotor.set(0);
+        m_inNOutSubsystem.m_intakeFoldMotor.set(0);
     }
 
     public boolean isFinished() {

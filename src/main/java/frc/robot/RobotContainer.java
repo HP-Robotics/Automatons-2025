@@ -102,12 +102,14 @@ public class RobotContainer {
               },
               m_driveSubsystem));
 
-      ControllerConstants.testDriveToPoseTrigger.whileTrue(
-          new RunCommand(() -> m_driveSubsystem.driveToPose(new Pose2d(1, 0.5, new Rotation2d(Math.PI / 12))),
-              m_driveSubsystem));
-      ControllerConstants.testDriveBackTrigger
-          .whileTrue(new RunCommand(() -> m_driveSubsystem.driveToPose(new Pose2d(0.0, 0.0, new Rotation2d(0))),
-              m_driveSubsystem));
+      // ControllerConstants.testDriveToPoseTrigger.whileTrue(
+      // new RunCommand(() -> m_driveSubsystem.driveToPose(new Pose2d(1, 0.5, new
+      // Rotation2d(Math.PI / 12))),
+      // m_driveSubsystem));
+      // ControllerConstants.testDriveBackTrigger
+      // .whileTrue(new RunCommand(() -> m_driveSubsystem.driveToPose(new Pose2d(0.0,
+      // 0.0, new Rotation2d(0))),
+      // m_driveSubsystem));
 
       // Build an auto chooser. This will use Commands.none() as the default option.
       m_autoChooser = new SendableChooser<String>();
