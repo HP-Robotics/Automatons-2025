@@ -5,12 +5,17 @@
   "pathFolders": [
     "Drive Foward",
     "Feeder to Reef",
-    "New Folder",
+    "Cage to Reef",
     "Reef to Feeder"
   ],
-  "autoFolders": [],
-  "defaultMaxVel": 5.0,
-  "defaultMaxAccel": 3.0,
+  "autoFolders": [
+    "1 Coral",
+    "2 Coral",
+    "3 Coral",
+    "Drive ForwardDo Nothing"
+  ],
+  "defaultMaxVel": 2.5,
+  "defaultMaxAccel": 1.5,
   "defaultMaxAngVel": 480.0,
   "defaultMaxAngAccel": 640.0,
   "defaultNominalVoltage": 12.0,

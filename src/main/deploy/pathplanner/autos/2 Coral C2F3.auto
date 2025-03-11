@@ -7,31 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Cage to C2"
+            "pathName": "Bottom Cage to C2L"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "WaitForElevator"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Outtake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ElevatorDown"
+            "name": "Score"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "C2 to Lower Feeder"
+            "pathName": "C2L to Lower Feeder"
           }
         },
         {
@@ -55,19 +43,7 @@
         {
           "type": "named",
           "data": {
-            "name": "WaitForElevator"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Outtake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ElevatorDown"
+            "name": "Score"
           }
         },
         {
@@ -80,6 +56,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "2 Coral",
   "choreoAuto": false
 }

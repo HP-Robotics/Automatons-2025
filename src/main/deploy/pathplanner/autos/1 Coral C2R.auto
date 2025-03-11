@@ -11,15 +11,9 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 7.0
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "Middle Cage to C1"
+            "pathName": "Middle Cage to C2R"
           }
         },
         {
@@ -31,25 +25,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C1 to Upper Feeder"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Lower Feeder to F3"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "F3 to Lower Feeder"
+            "pathName": "C2R to Upper Feeder"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "1 Coral",
   "choreoAuto": false
 }

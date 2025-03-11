@@ -9,6 +9,8 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.util.FlippingUtil;
@@ -17,6 +19,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -26,9 +31,10 @@ public final class Constants {
     public static final boolean useDrive = true;
     public static final boolean useIntake = true;
     public static final boolean useOuttake = true;
-    public static final boolean useDataManager = false;
+    public static final boolean useDataManager = true;
     public static final boolean useLimelight = true;
-    public static final boolean useClimber = true;
+    public static final boolean useClimber = false;
+    public static final boolean useLED = true;
     public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
   }
@@ -63,6 +69,11 @@ public final class Constants {
     public static final int ElevatorMotor1ID = 60; // TODO: Fix the motor ID
     public static final int ElevatorMotor2ID = 61; // TODO: Fix the motor ID
 
+    public static final int climbMotorID = 11; // TODO: Find motor ID
+    public static final int pinnerMotorID = 12;
+    public static final int releaseMotorID = 13;
+
+    public static final int pinnerAbsEncoderID = 7;
     public static final int dealginatorMotorID = 35;
   }
 
@@ -92,10 +103,10 @@ public final class Constants {
   public static class ElevatorConstants {
     public static final double L4Position = 76; // TODO: figure out what these are
     public static final double L3Position = 51.5;
-    public static final double L2Position = 35.5;
+    public static final double L2Position = 36;
     public static final double L1Position = 20;
     public static final double elevatorDownPosition = 2.6; // Original: 3.5
-    public static final double bottomPosition = 0;
+    public static final double bottomPosition = 1.0;
     // TODO: this might be right but should be checked with the other two
     public static final double kP = 1.5;// TODO: tune these more
     public static final double kI = 0.3;
@@ -136,26 +147,28 @@ public final class Constants {
 
     // DRIVER BUTTONS
     public static final Trigger climberTrigger = m_driveJoystick.axisGreaterThan(2, 0.2);
-    public static final int intakeButton = 2;
     public static final Trigger outtakeTrigger = m_driveJoystick.button(4);
     public static final int leftAlignButton = 5;
     public static final int rightAlignButton = 6;
     public static final int intakeFoldButton = 7;
     public static final int intakeFoldDualKeyButton = 8;
+    public static final Trigger closePinnerTrigger = m_driveJoystick.axisGreaterThan(3, 0.2);
+    public static final Trigger resetYawTrigger = m_driveJoystick.povDownRight();
 
     // OPERATOR BUTTONS
     public static final Trigger elevatorL3Trigger = m_opJoystick.button(3);
     public static final Trigger elevatorL4Trigger = m_opJoystick.button(4);
-    public static final int elevatorDownButton = 7;
-    public static final int elevatorUpButton = 8;
-    public static final Trigger resetYawTrigger = m_opJoystick.button(5);
+    public static final Trigger elevatorDownButton = m_opJoystick.button(7);
+    public static final Trigger elevatorUpButton = m_opJoystick.button(8);
+    public static final Trigger intakeTrigger = m_opJoystick.button(5);
+
     // public static final int goToTargetButton = 0; // TODO: change this
-    public static final int overrideButton = 10; // TODO: fix this
-    public static final int goToL1Button = 3;
-    public static final int goToL2Button = 1;
-    public static final int goToL3Button = 2;
-    public static final int goToL4Button = 4;
-    public static final int goToElevatorDownButton = 6;
+    public static final Trigger overrideButton = m_opJoystick.button(10); // TODO: fix this
+    public static final Trigger goToL1Button = m_opJoystick.button(3);
+    public static final Trigger goToL2Button = m_opJoystick.button(1);
+    public static final Trigger goToL3Button = m_opJoystick.button(2);
+    public static final Trigger goToL4Button = m_opJoystick.button(4);
+    public static final Trigger goToElevatorDownButton = m_opJoystick.button(6);
 
     public static double getRotation(CommandJoystick stick) {
       if (useXbox) {
@@ -241,6 +254,8 @@ public final class Constants {
     // TODO: put actual values TODO: consider a field constants? doesn't go in drive
     public static final Translation2d blueReefCenter = new Translation2d(4.490323, -0.0001 + 4.02);
     public static final Translation2d redReefCenter = new Translation2d(13.059902, -0.0001 + 4.02);
+    public static final Translation2d leftC2 = new Translation2d(1.2716, -0.16);
+    public static final Translation2d rightC2 = new Translation2d(1.2716, 0.16);
     public static final Translation2d redUpperFeederCenter = new Translation2d(); // TODO: find these numbers
     public static final Translation2d redLowerFeederCenter = new Translation2d();
     public static final Translation2d blueUpperFeederCenter = new Translation2d();
@@ -253,38 +268,62 @@ public final class Constants {
 
     // TODO: make comments with the corresponding april tags and red alliance
     public static final Pose2d[] leftAlignPoses = {
-        new Pose2d(new Translation2d(1.2716, -0.16).plus(blueReefCenter), new Rotation2d(Math.PI)), // C2
-        new Pose2d(new Translation2d(0.774364, 1.02124).plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)), // C1
-        new Pose2d(new Translation2d(-0.497238, 1.18124).plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)), // F1
-        new Pose2d(new Translation2d(-1.2716, 0.15999).plus(blueReefCenter), new Rotation2d(0)), // F2
-        new Pose2d(new Translation2d(-0.774355, -1.02124).plus(blueReefCenter), new Rotation2d(Math.PI / 3)), // F3
-        new Pose2d(new Translation2d(0.497242, -1.18123).plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)), // C3
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(0))
+            .plus(blueReefCenter), new Rotation2d(Math.PI)), // C2
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)), // C1
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 2 / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)), // F1
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI))
+            .plus(blueReefCenter), new Rotation2d(0)), // F2
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 4 / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI / 3)), // F3
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 5 / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)), // C3
 
-        new Pose2d(new Translation2d(1.2716, -0.16).plus(redReefCenter), new Rotation2d(Math.PI)), // 7
-        new Pose2d(new Translation2d(0.774364, 1.02124).plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
-        new Pose2d(new Translation2d(-0.497238, 1.18124).plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
-        new Pose2d(new Translation2d(-1.2716, 0.15999).plus(redReefCenter), new Rotation2d(0)),
-        new Pose2d(new Translation2d(-0.774355, -1.02124).plus(redReefCenter), new Rotation2d(Math.PI / 3)),
-        new Pose2d(new Translation2d(0.497242, -1.18123).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(0))
+            .plus(redReefCenter), new Rotation2d(Math.PI)), // 7
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 2 / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI))
+            .plus(redReefCenter), new Rotation2d(0)),
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 4 / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI / 3)),
+        new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 5 / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
     };
     public static final Pose2d[] rightAlignPoses = {
-        new Pose2d(new Translation2d(1.2716, 0.16).plus(blueReefCenter), new Rotation2d(Math.PI)), // C2
-        new Pose2d(new Translation2d(0.497236, 1.18124).plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)), // C1
-        new Pose2d(new Translation2d(-0.774366, 1.02124).plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)), // F1
-        new Pose2d(new Translation2d(-1.2716, -0.16).plus(blueReefCenter), new Rotation2d(0)), // F2
-        new Pose2d(new Translation2d(-0.497236, -1.18124).plus(blueReefCenter), new Rotation2d(Math.PI / 3)), // F3
-        new Pose2d(new Translation2d(0.774366, -1.02124).plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)), // C3
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(0))
+            .plus(blueReefCenter), new Rotation2d(Math.PI)), // C2
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)), // C1
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 2 / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)), // F1
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI))
+            .plus(blueReefCenter), new Rotation2d(0)), // F2
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 4 / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI / 3)), // F3
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 5 / 3))
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)), // C3
 
-        new Pose2d(new Translation2d(1.2716, 0.16).plus(redReefCenter), new Rotation2d(Math.PI)), // 7
-        new Pose2d(new Translation2d(0.497236, 1.18124).plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
-        new Pose2d(new Translation2d(-0.774366, 1.02124).plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
-        new Pose2d(new Translation2d(-1.2716, -0.16).plus(redReefCenter), new Rotation2d(0)),
-        new Pose2d(new Translation2d(-0.497236, -1.18124).plus(redReefCenter), new Rotation2d(Math.PI / 3)),
-        new Pose2d(new Translation2d(0.774366, -1.02124).plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(0))
+            .plus(redReefCenter), new Rotation2d(Math.PI)), // 7
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 2 / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI))
+            .plus(redReefCenter), new Rotation2d(0)),
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 4 / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI / 3)),
+        new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 5 / 3))
+            .plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
     };
     public static final Pose2d[] leftFeederAlignPoses = {
-        FlippingUtil.flipFieldPose(new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(54.293))), // feeder sector 3
-        FlippingUtil.flipFieldPose(new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
+        FlippingUtil.flipFieldPose(new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(54.293))), // feeder sector 3
+        FlippingUtil.flipFieldPose(new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
         new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(-53.746)), // feeder sector 0
         new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(54.293)), // feeder sector 1
     };
@@ -305,8 +344,20 @@ public final class Constants {
   }
 
   public static class ClimberConstants {
-    public static final double foldSpeed = 0.5;
+    public static final double foldSpeed = 0.1;
     public static final double foldRunTime = 2; // TODO: Make this a number that makes sense
+
+    // TODO: find actual values
+    public static final double pinnerQuarterRotation = 10.5; // 42/4
+    public static final double pinnerkP = 0.05;
+    public static final double pinnerkI = 0.00001;
+    public static final double pinnerkD = 0;
+    public static final double pinnerkMinOutput = -1;
+    public static final double pinnerkMaxOutPut = 1;
+    public static final double pinnerGearRatio = 54.5;
+
+    public static final double pinnerVertical = 0.4;
+    public static final double pinnerHorizontal = 0.95;
 
     public static final double climbModulekP = 0.2;
     public static final double climbModulekI = 0.001;
@@ -315,7 +366,7 @@ public final class Constants {
 
     public static final double climberUpAbsolute = 0.27;
     public static final double climberUpRelative = 0.0;
-    public static final double climberDownRelative = 100.0;
+    public static final double climberDownRelative = 93.0;
     public static final double climberGearRatio = 243;
   }
 
@@ -330,8 +381,8 @@ public final class Constants {
     public static final double visionYStandardDev = 0.0005;
     public static final double visionHeadingStandardDev = 0.5;
 
-    public static final double maxAcceptableSkew = Math.PI / 3;
-    public static final double maxAcceptableDistance = 5.0;
+    public static final double maxAcceptableSkew = Math.PI / 3; // TODO: decrease this or only check one sector
+    public static final double maxAcceptableDistance = 5.0; // TODO: increase this
   }
 
   public static final class PathplannerPIDConstants {
@@ -350,7 +401,7 @@ public final class Constants {
         new Pose2d(2.78681 + 8.775, 4.02961 + 4.02, new Rotation2d(Math.PI * 3 / 2)), // 3
         new Pose2d(0.50208 + 8.775, 2.111656 + 4.02, new Rotation2d(Math.PI)), // 4
         new Pose2d(0.50208 + 8.775, -2.111094 + 4.02, new Rotation2d(Math.PI * 3 / 2)), // 5
-        new Pose2d(4.700446 + 8.775, -0.719682 + 4.02, new Rotation2d(Math.PI * 5 / 2)), // 6
+        new Pose2d(4.700446 + 8.775, -0.719682 + 4.02, new Rotation2d(Math.PI * 5 / 3)), // 6
         new Pose2d(5.116498 + 8.775, -0.0001 + 4.02, new Rotation2d(0)), // 7
         new Pose2d(4.700446 + 8.775, 0.719482 + 4.02, new Rotation2d(Math.PI / 3)), // 8
         new Pose2d(3.869358 + 8.775, 0.719482 + 4.02, new Rotation2d(Math.PI * 2 / 3)), // 9
@@ -373,7 +424,27 @@ public final class Constants {
   public static class OuttakeConstants {
     public static final double outtakeSpeed = -0.6;
     public static final double loadSpeed = -0.3;
-    public static final double scoreDelay = 0.5;
+    public static final double scoreDelay = 0.1;
   }
 
+  public static class LEDConstants {
+    public static final int port = 0;
+    public static final int length = 60;
+    public static final int middleFirstIndex = 10;
+    public static final int middleLastIndex = 49;
+    public static final Time blinkInterval = Seconds.of(0.5);
+
+    public static final LEDPattern defaultSidePattern = LEDPattern.solid(Color.kRed).blink(blinkInterval);
+    public static final LEDPattern defaultMiddlePattern = LEDPattern.solid(Color.kGreen);
+    public static final LEDPattern hasCoralPattern = LEDPattern.solid(new Color(255, 32, 0)).blink(blinkInterval);
+    public static final LEDPattern elevatorDownPattern = LEDPattern.solid(Color.kGreen);
+    public static final LEDPattern intakeRunningPattern = LEDPattern.solid(Color.kWhite).blink(blinkInterval);
+    public static final LEDPattern cagePattern = LEDPattern.solid(Color.kBlue);
+    public static final LEDPattern elevatorL1Pattern = LEDPattern.solid(Color.kWhite);
+    public static final LEDPattern elevatorL2Pattern = LEDPattern.solid(Color.kYellow);
+    public static final LEDPattern elevatorL3Pattern = LEDPattern.solid(new Color(255, 32, 0));
+    public static final LEDPattern elevatorL4Pattern = LEDPattern.solid(Color.kRed);
+    public static final LEDPattern[] elevatorLevelPatterns = { elevatorDownPattern, elevatorL1Pattern,
+        elevatorL2Pattern, elevatorL3Pattern, elevatorL4Pattern };
+  }
 }

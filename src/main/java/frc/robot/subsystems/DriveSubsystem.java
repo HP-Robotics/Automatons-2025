@@ -25,6 +25,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -47,6 +48,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.*;
@@ -250,7 +252,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void updateOdometry() {
-    StatusSignal.waitForAll(1.0 / DriveConstants.odometryUpdateFrequency,
+    StatusSignal.waitForAll(0,
         m_frontLeft.m_driveMotor.getRotorPosition(),
         m_frontRight.m_driveMotor.getRotorPosition(),
         m_backLeft.m_driveMotor.getRotorPosition(),
@@ -288,7 +290,6 @@ public class DriveSubsystem extends SubsystemBase {
         m_feederSector = Optional.of(3);
       }
     }
-    m_autoAlignPublisher.set(DriveConstants.leftFeederAlignPoses[m_feederSector.get()]);
 
     m_driveTrainTable.putValue("Reef sector",
         NetworkTableValue.makeInteger(m_sector.isPresent() ? m_sector.get() : -1));
@@ -400,13 +401,20 @@ public class DriveSubsystem extends SubsystemBase {
             allianceVelocityMultiplier * getFieldRelativeSpeeds().vyMetersPerSecond),
         new TrapezoidProfile.State(target.getY(), 0.0));
 
+    m_driveTrainTable.putValue("Real X Error",
+        NetworkTableValue.makeDouble(m_poseEstimator.getPose().getX() - m_xController.getSetpoint()));
+    m_driveTrainTable.putValue("Real Y Error",
+        NetworkTableValue.makeDouble(m_poseEstimator.getPose().getY() - m_yController.getSetpoint()));
+
     double rot = m_pidRotation.apply(target.getRotation());
     double x = m_pidX.apply(m_targetX.position);
     double y = m_pidY.apply(m_targetY.position);
 
     drive(
-        allianceVelocityMultiplier * m_targetX.velocity, // x * 1 * DriveConstants.kMaxSpeed,
-        allianceVelocityMultiplier * m_targetY.velocity, // y * 1 * DriveConstants.kMaxSpeed,
+        allianceVelocityMultiplier * m_targetX.velocity, // x * 1 *
+        // DriveConstants.kMaxSpeed,
+        allianceVelocityMultiplier * m_targetY.velocity, // y * 1 *
+        // DriveConstants.kMaxSpeed,
         rot * DriveConstants.kMaxAngularSpeed,
         true);
 
@@ -475,7 +483,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void setModuleStates(SwerveModuleState[] swerveModuleStates) {
-    this.m_swerveModuleStates = swerveModuleStates;
+    m_swerveModuleStates = swerveModuleStates;
     m_frontLeft.setDesiredState(swerveModuleStates[0]);
     m_frontRight.setDesiredState(swerveModuleStates[1]);
     m_backLeft.setDesiredState(swerveModuleStates[2]);
@@ -587,6 +595,52 @@ public class DriveSubsystem extends SubsystemBase {
         / (a.getNorm() * b.getNorm()))) <= tolerance;
   }
 
+  public double getAngleBetweenVectors(Translation2d a, Translation2d b) {
+    return Math.acos(a.getX() * b.getX() + a.getY() * b.getY()
+        / (a.getNorm() * b.getNorm()));
+  }
+
+  public Command AutoAlign(Pose2d[] targetList) {
+    return new RunCommand(() -> {
+      Pose2d targetPose;
+      if (m_sector.isPresent()
+          && (isNearTargetAngle(joystickTrans, robotToReef,
+              DriveConstants.autoAlignTolerance)
+              || ControllerConstants.m_driveJoystick
+                  .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
+        targetPose = targetList[m_sector.get()];
+
+        double distanceToTarget = getDistanceToPose(getPose(), targetPose);
+        double theta = getAngleBetweenVectors(
+            getPose().minus(targetPose).getTranslation(),
+            new Translation2d(1, 0).rotateBy(targetPose.getRotation().plus(new Rotation2d(Math.PI))));
+        double distance = distanceToTarget * Math.sin(theta);
+        if (distance < 0.5) {
+          distance = 0;
+        }
+
+        Pose2d newPose = new Pose2d(
+            targetPose.getTranslation()
+                .plus(
+                    new Translation2d(distance, 0)
+                        .rotateBy(targetPose.getRotation().plus(new Rotation2d(Math.PI)))),
+            targetPose.getRotation());
+        driveToPose(newPose);
+      } else {
+        drivePointedTowardsAngle(
+            ControllerConstants.m_driveJoystick,
+            Rotation2d.fromDegrees(getAngleBetweenPoses(getPose(),
+                new Pose2d(
+                    DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
+                        ? DriveConstants.redReefCenter
+                        : DriveConstants.blueReefCenter,
+                    new Rotation2d()))));
+      }
+      m_driveTrainTable.putValue("Joystick Degrees",
+          NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
+    }, this);
+  }
+
   /**
    * Sets robot's conception of field orientation
    */
@@ -603,6 +657,6 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public Command StayStillCommand() {
-    return new InstantCommand(() -> drive(0, 0, getYaw(), true));
+    return new InstantCommand(() -> drive(0, 0, 0, true), this);
   }
 }
