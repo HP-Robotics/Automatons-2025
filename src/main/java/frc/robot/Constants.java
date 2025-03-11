@@ -11,6 +11,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.util.Optional;
+
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.util.FlippingUtil;
@@ -436,6 +438,7 @@ public final class Constants {
 
     public static final LEDPattern defaultSidePattern = LEDPattern.solid(Color.kRed).blink(blinkInterval);
     public static final LEDPattern defaultMiddlePattern = LEDPattern.solid(Color.kGreen);
+    public static final Optional<LEDPattern> defaultOverridePattern = Optional.empty();
     public static final LEDPattern hasCoralPattern = LEDPattern.solid(new Color(255, 32, 0)).blink(blinkInterval);
     public static final LEDPattern elevatorDownPattern = LEDPattern.solid(Color.kGreen);
     public static final LEDPattern intakeRunningPattern = LEDPattern.solid(Color.kWhite).blink(blinkInterval);

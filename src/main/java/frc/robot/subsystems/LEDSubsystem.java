@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Optional;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.AddressableLEDBufferView;
@@ -17,6 +19,7 @@ public class LEDSubsystem extends SubsystemBase {
   /** Creates a new LEDSubsystem. */
   public LEDPattern m_sidePattern = LEDConstants.defaultSidePattern;
   public LEDPattern m_middlePattern = LEDConstants.defaultMiddlePattern;
+  public Optional<LEDPattern> m_overridePattern = LEDConstants.defaultOverridePattern;
 
   private final AddressableLED m_led;
   private final AddressableLEDBuffer m_buffer;
@@ -38,10 +41,13 @@ public class LEDSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    m_sidePattern.applyTo(m_leftView);
-    m_sidePattern.applyTo(m_rightView);
-    m_middlePattern.applyTo(m_middleView);
-
+    if (m_overridePattern.isEmpty()) {
+      m_sidePattern.applyTo(m_leftView);
+      m_sidePattern.applyTo(m_rightView);
+      m_middlePattern.applyTo(m_middleView);
+    } else {
+      m_overridePattern.get().applyTo(m_buffer);
+    }
     m_led.setData(m_buffer);
   }
 
