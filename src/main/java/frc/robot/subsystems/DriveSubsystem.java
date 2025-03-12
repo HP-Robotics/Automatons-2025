@@ -123,6 +123,8 @@ public class DriveSubsystem extends SubsystemBase {
   private double m_gyroOffset;
   RobotConfig m_config;
 
+  LEDSubsystem m_ledSubsystem;
+
   // TODO: move to constants?
   DoubleSupplier m_joystickForward = () -> {
     return Math.signum(ControllerConstants.m_driveJoystick.getRawAxis(1))
@@ -156,7 +158,8 @@ public class DriveSubsystem extends SubsystemBase {
     return m_rotationController.atSetpoint() ? 0 : output;
   };
 
-  public DriveSubsystem(PoseEstimatorSubsystem poseEstimator) {
+  public DriveSubsystem(PoseEstimatorSubsystem poseEstimator, LEDSubsystem ledSubsystem) {
+    m_ledSubsystem = ledSubsystem;
     m_pGyro.getYaw().setUpdateFrequency(DriveConstants.odometryUpdateFrequency);
 
     m_poseEstimator = poseEstimator;
@@ -554,6 +557,11 @@ public class DriveSubsystem extends SubsystemBase {
   // TODO: getDistanceToPose() and getAngleToPose() already in limelight
   // subsystem, move to where?
 
+  public boolean arePosesSimilar(Pose2d pose1, Pose2d pose2) {
+    return getDistanceToPose(pose1, pose2) <= DriveConstants.poseDistanceTolerance
+        && getAngleBetweenPoses(pose1, pose2) <= DriveConstants.poseAngleTolerance;
+  }
+
   public double getDistanceToPose(Pose2d robot, Pose2d fieldPose) {
     double distX = fieldPose.getX() - robot.getX();
     double distY = fieldPose.getY() - robot.getY();
@@ -606,7 +614,7 @@ public class DriveSubsystem extends SubsystemBase {
       Pose2d targetPose;
       if (m_sector.isPresent()
           && (isNearTargetAngle(joystickTrans, robotToReef,
-              DriveConstants.autoAlignTolerance)
+              DriveConstants.autoAlignJoystickTolerance)
               || ControllerConstants.m_driveJoystick
                   .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
         targetPose = targetList[m_sector.get()];
@@ -629,6 +637,11 @@ public class DriveSubsystem extends SubsystemBase {
                         .rotateBy(targetPose.getRotation().plus(new Rotation2d(Math.PI)))),
             targetPose.getRotation());
         driveToPose(newPose);
+        if (arePosesSimilar(getPose(), newPose)) {
+          LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAlignReadyPattern);
+        } else {
+          LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern);
+        }
       } else {
         drivePointedTowardsAngle(
             ControllerConstants.m_driveJoystick,
@@ -638,6 +651,8 @@ public class DriveSubsystem extends SubsystemBase {
                         ? DriveConstants.redReefCenter
                         : DriveConstants.blueReefCenter,
                     new Rotation2d()))));
+        LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern);
+
       }
       m_driveTrainTable.putValue("Joystick Degrees",
           NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
