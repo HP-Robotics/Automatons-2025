@@ -52,7 +52,7 @@ public class LimelightSubsystem extends SubsystemBase {
     Shuffleboard.getTab("shuffleboard")
         .add("Pose2d", m_field)
         .withWidget(BuiltInWidgets.kField);
-    m_table = NetworkTableInstance.getDefault().getTable("limelight-shpwrte");
+    m_table = NetworkTableInstance.getDefault().getTable("limelight-kite");
     m_table.getEntry("imumode_set").setDouble(0);
     botPoseBlue = m_table.getEntry("botpose_orb_wpiblue");
     m_poseEstimator = poseEstimatorSubsystem;

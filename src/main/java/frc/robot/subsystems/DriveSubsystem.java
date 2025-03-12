@@ -151,8 +151,9 @@ public class DriveSubsystem extends SubsystemBase {
         target), -1, 1);
   };
   Function<Rotation2d, Double> m_pidRotation = (Rotation2d targetAngle) -> {
-    return m_rotationController.calculate(m_poseEstimator.getPose().getRotation().getRadians(),
+    double output = m_rotationController.calculate(m_poseEstimator.getPose().getRotation().getRadians(),
         targetAngle.getRadians());
+    return m_rotationController.atSetpoint() ? 0 : output;
   };
 
   public DriveSubsystem(PoseEstimatorSubsystem poseEstimator) {
@@ -617,9 +618,9 @@ public class DriveSubsystem extends SubsystemBase {
         double distance = distanceToTarget * Math.sin(theta);
         m_driveTrainTable.putValue("theta to target", NetworkTableValue.makeDouble(theta));
         m_driveTrainTable.putValue("horizontal distance to target", NetworkTableValue.makeDouble(distance));
-        // if (distance < 0.05) {
-        // distance = 0;
-        // }
+        if (distance < 0.01) {
+          distance = 0;
+        }
 
         Pose2d newPose = new Pose2d(
             targetPose.getTranslation()

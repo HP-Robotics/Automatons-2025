@@ -224,8 +224,8 @@ public final class Constants {
     public static final double YControllerIZone = 0.5;
 
     public static final double rotationControllerkP = 2;
-    public static final double rotationControllerkI = 0.3;// 0.3;
-    public static final double rotationControllerkD = 0.15;// 0.15;
+    public static final double rotationControllerkI = 0.1;
+    public static final double rotationControllerkD = 0.15;
     public static final double rotationControllerTolerance = Math.toRadians(2);
     public static final double rotationControllerIZone = 0.15;
 
