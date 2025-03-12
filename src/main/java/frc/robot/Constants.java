@@ -263,12 +263,13 @@ public final class Constants {
     public static final Translation2d blueUpperFeederCenter = new Translation2d();
     public static final Translation2d blueLowerFeederCenter = new Translation2d();
     public static final int autoAlignSectorCount = 6;
-    public static final double autoAlignSectorRadius = 3; // TODO: change
+    public static final double autoAlignSectorRadius = 3;
     public static final double autoAlignSectorOffset = 30;
     public static final double autoAlignJoystickTolerance = Math.PI / 4;
-    public static final double autoAlignFeederRange = 10;
+    public static final double autoAlignFeederRange = 10; // TODO: this is almost certainly the wrong number,
+    public static final double autoAlignDistanceMultiplier = 2; // TODO: fix name
 
-    public static final double poseDistanceTolerance = 0.02; // TODO: this is almost certainly the wrong number,
+    public static final double poseDistanceTolerance = 0.02;
     public static final double poseAngleTolerance = Math.PI / 60;
 
     // TODO: make comments with the corresponding april tags and red alliance

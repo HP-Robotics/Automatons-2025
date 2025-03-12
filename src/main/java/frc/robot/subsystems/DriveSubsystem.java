@@ -25,6 +25,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -47,6 +48,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.*;
@@ -121,6 +123,8 @@ public class DriveSubsystem extends SubsystemBase {
   private double m_gyroOffset;
   RobotConfig m_config;
 
+  LEDSubsystem m_ledSubsystem;
+
   // TODO: move to constants?
   DoubleSupplier m_joystickForward = () -> {
     return Math.signum(ControllerConstants.m_driveJoystick.getRawAxis(1))
@@ -153,7 +157,8 @@ public class DriveSubsystem extends SubsystemBase {
         targetAngle.getRadians());
   };
 
-  public DriveSubsystem(PoseEstimatorSubsystem poseEstimator) {
+  public DriveSubsystem(PoseEstimatorSubsystem poseEstimator, LEDSubsystem ledSubsystem) {
+    m_ledSubsystem = ledSubsystem;
     m_pGyro.getYaw().setUpdateFrequency(DriveConstants.odometryUpdateFrequency);
 
     m_poseEstimator = poseEstimator;
@@ -288,7 +293,6 @@ public class DriveSubsystem extends SubsystemBase {
         m_feederSector = Optional.of(3);
       }
     }
-    m_autoAlignPublisher.set(DriveConstants.leftFeederAlignPoses[m_feederSector.get()]);
 
     m_driveTrainTable.putValue("Reef sector",
         NetworkTableValue.makeInteger(m_sector.isPresent() ? m_sector.get() : -1));
@@ -400,13 +404,20 @@ public class DriveSubsystem extends SubsystemBase {
             allianceVelocityMultiplier * getFieldRelativeSpeeds().vyMetersPerSecond),
         new TrapezoidProfile.State(target.getY(), 0.0));
 
+    m_driveTrainTable.putValue("Real X Error",
+        NetworkTableValue.makeDouble(m_poseEstimator.getPose().getX() - m_xController.getSetpoint()));
+    m_driveTrainTable.putValue("Real Y Error",
+        NetworkTableValue.makeDouble(m_poseEstimator.getPose().getY() - m_yController.getSetpoint()));
+
     double rot = m_pidRotation.apply(target.getRotation());
     double x = m_pidX.apply(m_targetX.position);
     double y = m_pidY.apply(m_targetY.position);
 
     drive(
-        allianceVelocityMultiplier * m_targetX.velocity, // x * 1 * DriveConstants.kMaxSpeed,
-        allianceVelocityMultiplier * m_targetY.velocity, // y * 1 * DriveConstants.kMaxSpeed,
+        allianceVelocityMultiplier * m_targetX.velocity, // x * 1 *
+        // DriveConstants.kMaxSpeed,
+        allianceVelocityMultiplier * m_targetY.velocity, // y * 1 *
+        // DriveConstants.kMaxSpeed,
         rot * DriveConstants.kMaxAngularSpeed,
         true);
 
@@ -588,8 +599,63 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public boolean isNearTargetAngle(Translation2d a, Translation2d b, double tolerance) {
-    return Math.abs(Math.acos(a.getX() * b.getX() + a.getY() * b.getY()
+    return Math.abs(Math.acos((a.getX() * b.getX() + a.getY() * b.getY())
         / (a.getNorm() * b.getNorm()))) <= tolerance;
+  }
+
+  public double getAngleBetweenVectors(Translation2d a, Translation2d b) {
+    return Math.acos((a.getX() * b.getX() + a.getY() * b.getY())
+        / (a.getNorm() * b.getNorm()));
+  }
+
+  public Command AutoAlign(Pose2d[] targetList) {
+    return new RunCommand(() -> {
+      Pose2d targetPose;
+      if (m_sector.isPresent()
+          && (isNearTargetAngle(joystickTrans, robotToReef,
+              DriveConstants.autoAlignJoystickTolerance)
+              || ControllerConstants.m_driveJoystick
+                  .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
+        targetPose = targetList[m_sector.get()];
+
+        double distanceToTarget = getDistanceToPose(getPose(), targetPose);
+        double theta = getAngleBetweenVectors(
+            getPose().minus(targetPose).getTranslation(),
+            new Translation2d(1, 0).rotateBy(targetPose.getRotation()));
+        double distance = distanceToTarget * Math.sin(theta);
+        m_driveTrainTable.putValue("theta to target", NetworkTableValue.makeDouble(theta));
+        m_driveTrainTable.putValue("horizontal distance to target", NetworkTableValue.makeDouble(distance));
+        // if (distance < 0.05) {
+        // distance = 0;
+        // }
+
+        Pose2d newPose = new Pose2d(
+            targetPose.getTranslation()
+                .plus(
+                    new Translation2d(DriveConstants.autoAlignDistanceMultiplier * distance, 0)
+                        .rotateBy(targetPose.getRotation().plus(new Rotation2d(Math.PI)))),
+            targetPose.getRotation());
+        driveToPose(newPose);
+        if (arePosesSimilar(getPose(), newPose)) {
+          LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAlignReadyPattern);
+        } else {
+          LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern);
+        }
+      } else {
+        drivePointedTowardsAngle(
+            ControllerConstants.m_driveJoystick,
+            Rotation2d.fromDegrees(getAngleBetweenPoses(getPose(),
+                new Pose2d(
+                    DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
+                        ? DriveConstants.redReefCenter
+                        : DriveConstants.blueReefCenter,
+                    new Rotation2d()))));
+        LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern);
+
+      }
+      m_driveTrainTable.putValue("Joystick Degrees",
+          NetworkTableValue.makeDouble(180 - ControllerConstants.m_driveJoystick.getDirectionDegrees()));
+    }, this);
   }
 
   /**
