@@ -322,10 +322,12 @@ public class DriveSubsystem extends SubsystemBase {
     robotToReef = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
         ? DriveConstants.redReefCenter
         : DriveConstants.blueReefCenter).minus(m_poseEstimator.getPose().getTranslation());
-
-    joystickTransPub.set(joystickTrans);
-    robotToReefPub.set(robotToReef);
-
+    if (m_sector.isPresent()) {
+      joystickTransPub.set(new Translation2d(1, 0)
+          .rotateBy(new Rotation2d()
+              .plus(DriveConstants.leftAlignPoses[m_sector.get()].getRotation().plus(new Rotation2d(Math.PI)))));
+      robotToReefPub.set(robotToReef);
+    }
   }
 
   /**
@@ -621,8 +623,9 @@ public class DriveSubsystem extends SubsystemBase {
 
         double distanceToTarget = getDistanceToPose(getPose(), targetPose);
         double theta = getAngleBetweenVectors(
-            getPose().minus(targetPose).getTranslation(),
-            new Translation2d(1, 0).rotateBy(targetPose.getRotation()));
+            getPose().getTranslation().minus(targetPose.getTranslation()),
+            new Translation2d(1, 0)
+                .rotateBy(new Rotation2d().plus(targetPose.getRotation().plus(new Rotation2d(Math.PI)))));
         double distance = distanceToTarget * Math.sin(theta);
         m_driveTrainTable.putValue("theta to target", NetworkTableValue.makeDouble(theta));
         m_driveTrainTable.putValue("horizontal distance to target", NetworkTableValue.makeDouble(distance));

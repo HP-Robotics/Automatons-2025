@@ -36,7 +36,7 @@ public final class Constants {
     public static final boolean useDataManager = true;
     public static final boolean useLimelight = true;
     public static final boolean useClimber = false;
-    public static final boolean useLED = true;
+    public static final boolean useLED = false;
     public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
   }
@@ -256,7 +256,7 @@ public final class Constants {
     // TODO: put actual values TODO: consider a field constants? doesn't go in drive
     public static final Translation2d blueReefCenter = new Translation2d(4.490323, -0.0001 + 4.02);
     public static final Translation2d redReefCenter = new Translation2d(13.059902, -0.0001 + 4.02);
-    public static final Translation2d leftC2 = new Translation2d(1.2716, -0.16);
+    public static final Translation2d leftC2 = new Translation2d(1.2716, -0.18);
     public static final Translation2d rightC2 = new Translation2d(1.2716, 0.16);
     public static final Translation2d redUpperFeederCenter = new Translation2d(); // TODO: find these numbers
     public static final Translation2d redLowerFeederCenter = new Translation2d();
@@ -430,7 +430,7 @@ public final class Constants {
   public static class OuttakeConstants {
     public static final double outtakeSpeed = -0.6;
     public static final double loadSpeed = -0.3;
-    public static final double scoreDelay = 0.1;
+    public static final double scoreDelay = 0.2;
   }
 
   public static class LEDConstants {
