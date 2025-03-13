@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import java.security.cert.PKIXRevocationChecker.Option;
+import java.util.Optional;
+
 import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -17,6 +20,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
@@ -132,6 +136,17 @@ public class ClimberSubsystem extends SubsystemBase {
                 () -> m_climbMotor.setControl(new PositionDutyCycle(ClimberConstants.climberUpRelative + m_offset)));
     }
 
+    public Optional<Double> getAbsEncoder() {
+        var encoderAbs = m_absEncoder.get();
+        if (Math.abs(encoderAbs) == 0 || Math.abs(encoderAbs) == 1) {
+            return Optional.empty();
+        } else {
+            return Optional.of(MathUtil.inputModulus(encoderAbs,
+                    ClimberConstants.climberUpAbsolute - 1 + ClimberConstants.encoderModulusTolerance,
+                    ClimberConstants.climberUpAbsolute + ClimberConstants.encoderModulusTolerance));
+        }
+    }
+
     @Override
     public void periodic() {
         m_climberTable.putValue("pinnerAbsEncoder", NetworkTableValue.makeDouble(m_pinnerAbsEncoder.get()));
@@ -149,9 +164,9 @@ public class ClimberSubsystem extends SubsystemBase {
          * and only if it is reading something sensible.
          */
         if (m_timer.hasElapsed(5)) {
-            var encoderAbs = m_absEncoder.get();
-            if (Math.abs(encoderAbs) > 0 && Math.abs(encoderAbs) < 1) {
-                m_offset = (encoderAbs - ClimberConstants.climberUpAbsolute) * ClimberConstants.climberGearRatio
+            var encoderAbs = getAbsEncoder();
+            if (encoderAbs.isPresent()) {
+                m_offset = (encoderAbs.get() - ClimberConstants.climberUpAbsolute) * ClimberConstants.climberGearRatio
                         /*
                          * Note that the logic here would more naturally be expressed a subtracting
                          * the current relative encoder. That is, what we do is compute where we think
@@ -164,12 +179,20 @@ public class ClimberSubsystem extends SubsystemBase {
                          * 'down')
                          */
                         + m_climbMotor.getRotorPosition().getValueAsDouble();
+                // double realOffset = 0.0;
+                // double newEncoderAbs = MathUtil.inputModulus(encoderAbs, 0.3, 1.05);
+                // realOffset = (newEncoderAbs - ClimberConstants.climberUpAbsolute) *
+                // ClimberConstants.climberGearRatio
+                // + realOffset;
+                // m_climberTable.putValue("new abs encoder",
+                // NetworkTableValue.makeDouble(newEncoderAbs));
+                // m_climberTable.putValue("real offset",
+                // NetworkTableValue.makeDouble(realOffset));
                 // setClimbMotorConfigs();
             }
             if (m_pinnerInit == false) {
-
-                encoderAbs = m_pinnerAbsEncoder.get();
-                if (Math.abs(encoderAbs) > 0 && Math.abs(encoderAbs) < 1) {
+                encoderAbs = Optional.of(m_pinnerAbsEncoder.get());
+                if (Math.abs(encoderAbs.get()) > 0 && Math.abs(encoderAbs.get()) < 1) {
                     initializePinnerRelativeEncoder();
                     m_pinnerInit = true;
                 }
