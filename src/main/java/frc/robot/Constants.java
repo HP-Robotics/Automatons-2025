@@ -105,12 +105,13 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final double L4Position = 76; // 45 if low ceiling
-    public static final double L3Position = 51.5; // 40 if low ceiling
-    public static final double L2Position = 36;
-    public static final double L1Position = 20;
-    public static final double elevatorDownPosition = 2.6; // Original: 3.5
-    public static final double bottomPosition = 1.0;
+    public static final double inchesToRotations = 5 / (Math.PI * 1.504);
+    public static final double L4Position = 71.82 * inchesToRotations; // 42.5 if low ceiling
+    public static final double L3Position = 48.6670401153 * inchesToRotations; // 37.7 if low ceiling
+    public static final double L2Position = 34.02 * inchesToRotations;
+    public static final double L1Position = 18.9 * inchesToRotations;
+    public static final double elevatorDownPosition = 2.457 * inchesToRotations;
+    public static final double bottomPosition = 0.945 * inchesToRotations;
     // TODO: this might be right but should be checked with the other two
     public static final double kP = 1.5;// TODO: tune these more
     public static final double kI = 0.3;
