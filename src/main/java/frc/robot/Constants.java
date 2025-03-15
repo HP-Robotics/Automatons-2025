@@ -363,10 +363,11 @@ public final class Constants {
     public static final double climbModulekD = 0;
     public static final double climbModulekF = 0;
 
-    public static final double climberUpAbsolute = 0.27;
-    public static final double climberUpRelative = 0.0;
-    public static final double climberDownRelative = 93.0;
     public static final double climberGearRatio = 243;
+    public static final double degreesToRelativeRotations = climberGearRatio / 360;
+    public static final double climberStartAbsolute = 0.27;
+    public static final double climberUpRelative = 0.0;
+    public static final double climberDownRelative = 137.78 * degreesToRelativeRotations;
   }
 
   public static class IntakeConstants {

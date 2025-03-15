@@ -31,7 +31,7 @@ public class ClimberSubsystem extends SubsystemBase {
     TalonFX m_climbMotor = new TalonFX(IDConstants.ClimberMotorID);
     DutyCycleEncoder m_absEncoder;
     NetworkTable m_table;
-    Double m_offset = 0.0;
+    double m_offset = 0.0;
     Timer m_timer;
 
     public ClimberSubsystem() {
@@ -99,7 +99,7 @@ public class ClimberSubsystem extends SubsystemBase {
         if (m_timer.hasElapsed(5)) {
             var encoderAbs = m_absEncoder.get();
             if (Math.abs(encoderAbs) > 0 && Math.abs(encoderAbs) < 1) {
-                m_offset = (encoderAbs - ClimberConstants.climberUpAbsolute) * ClimberConstants.climberGearRatio
+                m_offset = (encoderAbs - ClimberConstants.climberStartAbsolute) * ClimberConstants.climberGearRatio
                         /*
                          * Note that the logic here would more naturally be expressed a subtracting
                          * the current relative encoder. That is, what we do is compute where we think
