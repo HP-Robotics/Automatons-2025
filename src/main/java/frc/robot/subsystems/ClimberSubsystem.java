@@ -49,14 +49,7 @@ public class ClimberSubsystem extends SubsystemBase {
     private boolean m_pinnerInit = false;
 
     public ClimberSubsystem() {
-        m_pinnerAbsEncoder = new DutyCycleEncoder(IDConstants.pinnerAbsEncoderID);
         m_climberTable = NetworkTableInstance.getDefault().getTable("ClimberSubsystem");
-        m_pinnerConfig.closedLoop
-                .p(ClimberConstants.pinnerkP)
-                .i(ClimberConstants.pinnerkI)
-                .d(ClimberConstants.pinnerkD)
-                .outputRange(ClimberConstants.pinnerkMinOutput, ClimberConstants.pinnerkMaxOutPut);
-        m_pinnerMotor.configure(m_pinnerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         m_table = NetworkTableInstance.getDefault().getTable("ClimberSubsystem");
         m_climbMotor.getConfigurator().apply(new TalonFXConfiguration());
@@ -93,34 +86,6 @@ public class ClimberSubsystem extends SubsystemBase {
     public Command Climb() {
         return new RunCommand(
                 () -> m_climbMotor.setControl(new PositionDutyCycle(ClimberConstants.climberDownRelative + m_offset)));
-    }
-
-    public void initializePinnerRelativeEncoder() {
-        double position = (m_pinnerAbsEncoder.get() - ClimberConstants.pinnerVertical)
-                * ClimberConstants.pinnerGearRatio;
-        m_pinnerMotor.getEncoder().setPosition(-position);
-    }
-
-    public Command openPinner() {
-        return new InstantCommand(
-                () -> {
-                    m_pinnerController.setReference(0,
-                            // m_pinnerMotor.getEncoder().getPosition() +
-                            // ClimberConstants.pinnerQuarterRotation,
-                            ControlType.kPosition);
-                },
-                this);
-    }
-
-    public Command closePinner() {
-        return new InstantCommand(
-                () -> {
-                    m_pinnerController.setReference(ClimberConstants.pinnerGearRatio / 4.0,
-                            // m_pinnerMotor.getEncoder().getPosition() +
-                            // ClimberConstants.pinnerQuarterRotation,
-                            ControlType.kPosition);
-                },
-                this);
     }
 
     public Command StopClimb() {
@@ -166,20 +131,12 @@ public class ClimberSubsystem extends SubsystemBase {
                         + m_climbMotor.getRotorPosition().getValueAsDouble();
                 // setClimbMotorConfigs();
             }
-            if (m_pinnerInit == false) {
 
-                encoderAbs = m_pinnerAbsEncoder.get();
-                if (Math.abs(encoderAbs) > 0 && Math.abs(encoderAbs) < 1) {
-                    initializePinnerRelativeEncoder();
-                    m_pinnerInit = true;
-                }
-            }
+            m_table.putValue("AbsEncoder", NetworkTableValue.makeDouble(m_absEncoder.get()));
+            m_table.putValue("Relative encoder",
+                    NetworkTableValue.makeDouble(m_climbMotor.getRotorPosition().getValueAsDouble()));
+            m_table.putValue("Offset", NetworkTableValue.makeDouble(m_offset));
+
         }
-
-        m_table.putValue("AbsEncoder", NetworkTableValue.makeDouble(m_absEncoder.get()));
-        m_table.putValue("Relative encoder",
-                NetworkTableValue.makeDouble(m_climbMotor.getRotorPosition().getValueAsDouble()));
-        m_table.putValue("Offset", NetworkTableValue.makeDouble(m_offset));
-
     }
 }

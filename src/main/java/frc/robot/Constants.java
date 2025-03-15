@@ -352,19 +352,7 @@ public final class Constants {
 
   public static class ClimberConstants {
     public static final double foldSpeed = 0.1;
-    public static final double foldRunTime = 2; // TODO: Make this a number that makes sense
-
-    // TODO: find actual values
-    public static final double pinnerQuarterRotation = 10.5; // 42/4
-    public static final double pinnerkP = 0.05;
-    public static final double pinnerkI = 0.00001;
-    public static final double pinnerkD = 0;
-    public static final double pinnerkMinOutput = -1;
-    public static final double pinnerkMaxOutPut = 1;
-    public static final double pinnerGearRatio = 54.5;
-
-    public static final double pinnerVertical = 0.4;
-    public static final double pinnerHorizontal = 0.95;
+    public static final double foldRunTime = 2;
 
     public static final double climbModulekP = 0.2;
     public static final double climbModulekI = 0.001;
