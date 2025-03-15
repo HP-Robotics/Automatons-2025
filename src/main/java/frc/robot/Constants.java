@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -25,6 +27,7 @@ import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.LimelightSubsystem;
 
 public final class Constants {
 
@@ -201,7 +204,8 @@ public final class Constants {
 
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
         kFrontLeftLocation, kFrontRightLocation, kBackRightLocation, kBackLeftLocation);
-    // TODO: make these the same order as the swerve setpoint generator
+    // TODO: make these the same order as the swerve setpoint generator (we think
+    // they're in the right order but aren't sure)
 
     public static final double driveModulekP = 5; // TODO: tune these for 2025
     public static final double driveModulekI = 10;
@@ -258,7 +262,6 @@ public final class Constants {
   };
 
   public static class FieldConstants {
-    // TODO: put actual values
     public static final Translation2d blueReefCenter = new Translation2d(4.490323, -0.0001 + 4.02);
     public static final Translation2d redReefCenter = new Translation2d(13.059902, -0.0001 + 4.02);
     public static final Translation2d leftC2 = new Translation2d(1.2716, -0.16);
@@ -370,14 +373,13 @@ public final class Constants {
   }
 
   public static class PoseEstimatorConstants {
-    // TODO: this is all pasted from last year; PLEASE DON'T USE, FIND REAL VALUES
     public static final Matrix<N3, N1> statesStandardDev = VecBuilder.fill(0.001, 0.001, 0.005);
     public static final double visionXStandardDev = 0.0005; // TODO: adjust with framerate
     public static final double visionYStandardDev = 0.0005;
     public static final double visionHeadingStandardDev = 0.5;
 
     public static final double maxAcceptableSkew = Math.PI / 3; // TODO: decrease this or only check one sector
-    public static final double maxAcceptableDistance = 5.0; // TODO: increase this
+    public static final double maxAcceptableDistance = 5.0;
   }
 
   public static final class PathplannerPIDConstants {

@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -9,44 +7,32 @@ import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
-import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.IDConstants;
 
 public class ClimberSubsystem extends SubsystemBase {
 
-    SparkMax m_pinnerMotor = new SparkMax(IDConstants.pinnerMotorID, MotorType.kBrushless);
     SparkMax m_releaseMotor = new SparkMax(IDConstants.releaseMotorID, MotorType.kBrushless);
-    SparkClosedLoopController m_pinnerController = m_pinnerMotor.getClosedLoopController();
-    SparkMaxConfig m_pinnerConfig = new SparkMaxConfig();
 
     NetworkTable m_climberTable;
-    DutyCycleEncoder m_pinnerAbsEncoder;
 
     TalonFX m_climbMotor = new TalonFX(IDConstants.ClimberMotorID);
     DutyCycleEncoder m_absEncoder;
     NetworkTable m_table;
     Double m_offset = 0.0;
     Timer m_timer;
-    private boolean m_pinnerInit = false;
 
     public ClimberSubsystem() {
         m_climberTable = NetworkTableInstance.getDefault().getTable("ClimberSubsystem");
@@ -62,7 +48,7 @@ public class ClimberSubsystem extends SubsystemBase {
         m_climbMotor.getConfigurator().apply(slot0Configs);
 
         m_climbMotor.setNeutralMode(NeutralModeValue.Brake);
-        MotorOutputConfigs motorConfigs = new MotorOutputConfigs();
+        // MotorOutputConfigs motorConfigs = new MotorOutputConfigs();
 
         // motorConfigs.PeakForwardDutyCycle = 0.1;
         // motorConfigs.PeakReverseDutyCycle = -0.1;
@@ -99,9 +85,6 @@ public class ClimberSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        m_climberTable.putValue("pinnerAbsEncoder", NetworkTableValue.makeDouble(m_pinnerAbsEncoder.get()));
-        m_climberTable.putValue("pinnerRelativeEncoder",
-                NetworkTableValue.makeDouble(m_pinnerMotor.getEncoder().getPosition()));
 
         /*
          * We have observed the absolute encoder reading 1.0 immediately on program

@@ -6,11 +6,9 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.ForwardLimitValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.ReverseLimitValue;
@@ -130,7 +128,6 @@ public class ElevatorSubsystem extends SubsystemBase {
             // (ClimberConstants.topLeftPosition - m_offset));
             // climbMotorLeft.setSoftLimit(SoftLimitDirection.kReverse,
             // (float) (ClimberConstants.bottomPosition - m_offset));
-            // TODO: find these numbers
         }
     }
 
