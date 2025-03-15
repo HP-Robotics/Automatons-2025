@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Optional;
-
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.util.FlippingUtil;
@@ -68,10 +67,10 @@ public final class Constants {
 
     public static final int PigeonID = 57;
 
-    public static final int ElevatorMotor1ID = 60; // TODO: Fix the motor ID
-    public static final int ElevatorMotor2ID = 61; // TODO: Fix the motor ID
+    public static final int ElevatorMotor1ID = 60;
+    public static final int ElevatorMotor2ID = 61;
 
-    public static final int climbMotorID = 11; // TODO: Find motor ID
+    public static final int climbMotorID = 11;
     public static final int pinnerMotorID = 12;
     public static final int releaseMotorID = 13;
 
@@ -253,7 +252,13 @@ public final class Constants {
 
     public static final double odometryUpdateFrequency = 250;
 
-    // TODO: put actual values TODO: consider a field constants? doesn't go in drive
+    public static final double autoAlignJoystickTolerance = Math.PI / 4;
+    public static final double poseDistanceTolerance = 0.02;
+    public static final double poseAngleTolerance = Math.PI / 60;
+  };
+
+  public static class FieldConstants {
+    // TODO: put actual values
     public static final Translation2d blueReefCenter = new Translation2d(4.490323, -0.0001 + 4.02);
     public static final Translation2d redReefCenter = new Translation2d(13.059902, -0.0001 + 4.02);
     public static final Translation2d leftC2 = new Translation2d(1.2716, -0.16);
@@ -265,67 +270,63 @@ public final class Constants {
     public static final int autoAlignSectorCount = 6;
     public static final double autoAlignSectorRadius = 3;
     public static final double autoAlignSectorOffset = 30;
-    public static final double autoAlignJoystickTolerance = Math.PI / 4;
     public static final double autoAlignFeederRange = 10; // TODO: this is almost certainly the wrong number,
-    public static final double autoAlignDistanceMultiplier = 2; // TODO: fix name
+    public static final double autoAlignDistanceMultiplier = 2;
 
-    public static final double poseDistanceTolerance = 0.02;
-    public static final double poseAngleTolerance = Math.PI / 60;
-
-    // TODO: make comments with the corresponding april tags and red alliance
     public static final Pose2d[] leftAlignPoses = {
         new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(0))
-            .plus(blueReefCenter), new Rotation2d(Math.PI)), // C2
+            .plus(blueReefCenter), new Rotation2d(Math.PI)), // C2, 21
         new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI / 3))
-            .plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)), // C1
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)), // C1, 20
         new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 2 / 3))
-            .plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)), // F1
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)), // F1, 19
         new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI))
-            .plus(blueReefCenter), new Rotation2d(0)), // F2
+            .plus(blueReefCenter), new Rotation2d(0)), // F2, 18
         new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 4 / 3))
-            .plus(blueReefCenter), new Rotation2d(Math.PI / 3)), // F3
+            .plus(blueReefCenter), new Rotation2d(Math.PI / 3)), // F3, 17
         new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 5 / 3))
-            .plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)), // C3
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)), // C3, 22
 
         new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(0))
-            .plus(redReefCenter), new Rotation2d(Math.PI)), // 7
+            .plus(redReefCenter), new Rotation2d(Math.PI)), // F2, 7
         new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI / 3))
-            .plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+            .plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)), // F1, 8
         new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 2 / 3))
-            .plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+            .plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)), // C1, 9
         new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI))
-            .plus(redReefCenter), new Rotation2d(0)),
+            .plus(redReefCenter), new Rotation2d(0)), // C2, 10
         new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 4 / 3))
-            .plus(redReefCenter), new Rotation2d(Math.PI / 3)),
+            .plus(redReefCenter), new Rotation2d(Math.PI / 3)), // C3, 11
         new Pose2d(leftC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 5 / 3))
-            .plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+            .plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)), // F3, 6
     };
     public static final Pose2d[] rightAlignPoses = {
         new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(0))
-            .plus(blueReefCenter), new Rotation2d(Math.PI)), // C2
+            .plus(blueReefCenter), new Rotation2d(Math.PI)), // C2, 21
         new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI / 3))
-            .plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)), // C1
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 4 / 3)), // C1, 20
         new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 2 / 3))
-            .plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)), // F1
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 5 / 3)), // F1, 19
         new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI))
-            .plus(blueReefCenter), new Rotation2d(0)), // F2
+            .plus(blueReefCenter), new Rotation2d(0)), // F2, 18
         new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 4 / 3))
-            .plus(blueReefCenter), new Rotation2d(Math.PI / 3)), // F3
+            .plus(blueReefCenter), new Rotation2d(Math.PI / 3)), // F3, 17
         new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 5 / 3))
-            .plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)), // C3
+            .plus(blueReefCenter), new Rotation2d(Math.PI * 2 / 3)), // C3, 22
 
         new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(0))
-            .plus(redReefCenter), new Rotation2d(Math.PI)), // 7
+            .plus(redReefCenter), new Rotation2d(Math.PI)), // F2, 7
         new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI / 3))
-            .plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)),
+            .plus(redReefCenter), new Rotation2d(Math.PI * 4 / 3)), // F1, 8
         new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 2 / 3))
-            .plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)),
+            .plus(redReefCenter), new Rotation2d(Math.PI * 5 / 3)), // C1, 9
         new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI))
-            .plus(redReefCenter), new Rotation2d(0)),
+            .plus(redReefCenter), new Rotation2d(0)), // C2, 10
         new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 4 / 3))
-            .plus(redReefCenter), new Rotation2d(Math.PI / 3)),
+            .plus(redReefCenter), new Rotation2d(Math.PI / 3)), // C3, 11
         new Pose2d(rightC2.plus(new Translation2d()).rotateAround(new Translation2d(), new Rotation2d(Math.PI * 5 / 3))
-            .plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)),
+            .plus(redReefCenter), new Rotation2d(Math.PI * 2 / 3)), // F3, 6
+
     };
     public static final Pose2d[] leftFeederAlignPoses = {
         FlippingUtil.flipFieldPose(new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(54.293))), // feeder sector 3

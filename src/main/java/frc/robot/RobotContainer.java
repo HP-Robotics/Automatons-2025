@@ -13,6 +13,7 @@ import edu.wpi.first.networktables.NetworkTableValue;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.IDConstants;
 import frc.robot.Constants.LEDConstants;
 import frc.robot.Constants.OuttakeConstants;
@@ -316,14 +317,14 @@ public class RobotContainer {
 
             if (m_driveSubsystem.m_feederSector.isPresent()
                 && m_driveSubsystem.getDistanceToPose(m_poseEstimatorSubsystem.getPose(),
-                    DriveConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector
-                        .get()]) <= DriveConstants.autoAlignFeederRange
+                    FieldConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector
+                        .get()]) <= FieldConstants.autoAlignFeederRange
                 && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans,
-                    DriveConstants.feederAlignAngles[m_driveSubsystem.m_feederSector.get()],
+                    FieldConstants.feederAlignAngles[m_driveSubsystem.m_feederSector.get()],
                     DriveConstants.autoAlignJoystickTolerance)
                     || ControllerConstants.m_driveJoystick
                         .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
-              Pose2d targetPose = DriveConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector.get()];
+              Pose2d targetPose = FieldConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector.get()];
               m_driveSubsystem.driveToPose(targetPose);
               if (m_driveSubsystem.arePosesSimilar(m_driveSubsystem.getPose(), targetPose)) {
                 LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAlignReadyPattern);
@@ -333,7 +334,7 @@ public class RobotContainer {
             } else if (m_driveSubsystem.m_feederSector.isPresent()) {
               m_driveSubsystem.drivePointedTowardsAngle(
                   ControllerConstants.m_driveJoystick,
-                  DriveConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector.get()].getRotation());
+                  FieldConstants.leftFeederAlignPoses[m_driveSubsystem.m_feederSector.get()].getRotation());
               LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern);
             } else {
               m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
@@ -356,14 +357,14 @@ public class RobotContainer {
 
             if (m_driveSubsystem.m_feederSector.isPresent()
                 && m_driveSubsystem.getDistanceToPose(m_poseEstimatorSubsystem.getPose(),
-                    DriveConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector
-                        .get()]) <= DriveConstants.autoAlignFeederRange
+                    FieldConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector
+                        .get()]) <= FieldConstants.autoAlignFeederRange
                 && (m_driveSubsystem.isNearTargetAngle(m_driveSubsystem.joystickTrans,
-                    DriveConstants.feederAlignAngles[m_driveSubsystem.m_feederSector.get()],
+                    FieldConstants.feederAlignAngles[m_driveSubsystem.m_feederSector.get()],
                     DriveConstants.autoAlignJoystickTolerance)
                     || ControllerConstants.m_driveJoystick
                         .getMagnitude() < ControllerConstants.driveJoystickDeadband)) {
-              Pose2d targetPose = DriveConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector.get()];
+              Pose2d targetPose = FieldConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector.get()];
               m_driveSubsystem.driveToPose(targetPose);
               if (m_driveSubsystem.arePosesSimilar(m_driveSubsystem.getPose(), targetPose)) {
                 LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAlignReadyPattern);
@@ -373,7 +374,7 @@ public class RobotContainer {
             } else if (m_driveSubsystem.m_feederSector.isPresent()) {
               m_driveSubsystem.drivePointedTowardsAngle(
                   ControllerConstants.m_driveJoystick,
-                  DriveConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector.get()].getRotation());
+                  FieldConstants.rightFeederAlignPoses[m_driveSubsystem.m_feederSector.get()].getRotation());
               LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern);
             } else {
               m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
@@ -389,14 +390,14 @@ public class RobotContainer {
 
       ControllerConstants.m_driveJoystick.button(ControllerConstants.rightAlignButton)
           .and(m_inNOutSubsystem::isLoaded)
-          .whileTrue(m_driveSubsystem.AutoAlign(DriveConstants.rightAlignPoses))
+          .whileTrue(m_driveSubsystem.AutoAlign(FieldConstants.rightAlignPoses))
           .whileTrue(new StartEndCommand(
               () -> LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern),
               () -> LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.noAutoAlignPattern)));
 
       ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAlignButton)
           .and(m_inNOutSubsystem::isLoaded)
-          .whileTrue(m_driveSubsystem.AutoAlign(DriveConstants.leftAlignPoses))
+          .whileTrue(m_driveSubsystem.AutoAlign(FieldConstants.leftAlignPoses))
           .whileTrue(new StartEndCommand(
               () -> LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern),
               () -> LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.noAutoAlignPattern)));
@@ -458,15 +459,12 @@ public class RobotContainer {
               .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "folded")));
     }
     if (SubsystemConstants.useClimber) {
-      ControllerConstants.closePinnerTrigger.whileTrue(m_climberSubsystem.closePinner());
       ControllerConstants.climberTrigger.and(new Trigger(() -> m_inNOutSubsystem.m_state == "folded"))
           .whileTrue(m_climberSubsystem.Climb())
           .onFalse(m_climberSubsystem.StopClimb());
       ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldDualKeyButton)
           .onTrue(m_climberSubsystem.ResetClimber())
           .onFalse(m_climberSubsystem.StopClimb());
-      ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldButton)
-          .onTrue(m_climberSubsystem.openPinner());
     }
   }
 

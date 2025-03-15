@@ -320,8 +320,8 @@ public class DriveSubsystem extends SubsystemBase {
     joystickTrans = new Translation2d(ControllerConstants.m_driveJoystick.getRawAxis(1),
         ControllerConstants.m_driveJoystick.getRawAxis(0));
     robotToReef = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
-        ? DriveConstants.redReefCenter
-        : DriveConstants.blueReefCenter).minus(m_poseEstimator.getPose().getTranslation());
+        ? FieldConstants.redReefCenter
+        : FieldConstants.blueReefCenter).minus(m_poseEstimator.getPose().getTranslation());
 
     joystickTransPub.set(joystickTrans);
     robotToReefPub.set(robotToReef);
@@ -579,17 +579,17 @@ public class DriveSubsystem extends SubsystemBase {
 
   public Optional<Integer> getCurrentSector(Pose2d pose) {
     boolean isRed = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red;
-    Pose2d reefCenter = new Pose2d(isRed ? DriveConstants.redReefCenter : DriveConstants.blueReefCenter,
+    Pose2d reefCenter = new Pose2d(isRed ? FieldConstants.redReefCenter : FieldConstants.blueReefCenter,
         new Rotation2d());
 
-    if (getDistanceToPose(reefCenter, pose) > DriveConstants.autoAlignSectorRadius) {
+    if (getDistanceToPose(reefCenter, pose) > FieldConstants.autoAlignSectorRadius) {
       return Optional.empty();
     }
-    double angle = MathUtil.inputModulus(getAngleBetweenPoses(reefCenter, pose) + DriveConstants.autoAlignSectorOffset,
+    double angle = MathUtil.inputModulus(getAngleBetweenPoses(reefCenter, pose) + FieldConstants.autoAlignSectorOffset,
         0, 360);
-    int sector = (int) (angle / (360 / DriveConstants.autoAlignSectorCount));
+    int sector = (int) (angle / (360 / FieldConstants.autoAlignSectorCount));
     if (isRed) {
-      sector += DriveConstants.autoAlignSectorCount;
+      sector += FieldConstants.autoAlignSectorCount;
     }
     // System.out.println(sector);
     return Optional.of(sector);
@@ -633,7 +633,7 @@ public class DriveSubsystem extends SubsystemBase {
         Pose2d newPose = new Pose2d(
             targetPose.getTranslation()
                 .plus(
-                    new Translation2d(DriveConstants.autoAlignDistanceMultiplier * distance, 0)
+                    new Translation2d(FieldConstants.autoAlignDistanceMultiplier * distance, 0)
                         .rotateBy(targetPose.getRotation().plus(new Rotation2d(Math.PI)))),
             targetPose.getRotation());
         driveToPose(newPose);
@@ -648,8 +648,8 @@ public class DriveSubsystem extends SubsystemBase {
             Rotation2d.fromDegrees(getAngleBetweenPoses(getPose(),
                 new Pose2d(
                     DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
-                        ? DriveConstants.redReefCenter
-                        : DriveConstants.blueReefCenter,
+                        ? FieldConstants.redReefCenter
+                        : FieldConstants.blueReefCenter,
                     new Rotation2d()))));
         LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern);
 
