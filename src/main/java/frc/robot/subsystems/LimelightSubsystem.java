@@ -75,12 +75,17 @@ public class LimelightSubsystem extends SubsystemBase {
 
   public void doLimelight(NetworkTable limelightTable, DoubleArraySubscriber botPoseSub) {
     double[] robotOrientationEntries = new double[6];
+    if (m_poseEstimator != null) {
     robotOrientationEntries[0] = m_poseEstimator.getPose().getRotation().getDegrees();
+    } else {
+      robotOrientationEntries[0] = 0;
+    }
     robotOrientationEntries[1] = 0;
     robotOrientationEntries[2] = 0;
     robotOrientationEntries[3] = 0;
     robotOrientationEntries[4] = 0;
     robotOrientationEntries[5] = 0;
+
     limelightTable.getEntry("robot_orientation_set").setDoubleArray(robotOrientationEntries);
 
     double[] botPose = null;

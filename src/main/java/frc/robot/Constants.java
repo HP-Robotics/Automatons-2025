@@ -263,8 +263,8 @@ public final class Constants {
   };
 
   public static class FieldConstants {
-    public static final Translation2d blueReefCenter = new Translation2d(4.490323, -0.0001 + 4.02);
-    public static final Translation2d redReefCenter = new Translation2d(13.059902, -0.0001 + 4.02);
+    public static final Translation2d blueReefCenter = new Translation2d(4.490323, 4.02);
+    public static final Translation2d redReefCenter = new Translation2d(13.059902, 4.02);
     public static final Translation2d leftC2 = new Translation2d(1.2716, -0.18);
     public static final Translation2d rightC2 = new Translation2d(1.2716, 0.16);
     public static final Translation2d redUpperFeederCenter = new Translation2d(); // TODO: find these numbers
@@ -393,7 +393,8 @@ public final class Constants {
 
   public static class LimelightConstants {
     public static final double inToM = 0.0254;
-    public static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+    public static final AprilTagFieldLayout field = AprilTagFieldLayout
+        .loadField(AprilTagFields.k2025ReefscapeWelded);
     public static final Pose2d aprilTagList[] = LimelightSubsystem.getFieldTags(field);
   }
 
