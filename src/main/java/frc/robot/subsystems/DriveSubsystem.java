@@ -7,15 +7,11 @@ package frc.robot.subsystems;
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Function;
-import java.util.function.ToLongBiFunction;
-
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.estimator.PoseEstimator;
-
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
@@ -25,14 +21,12 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -42,8 +36,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -125,7 +117,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   LEDSubsystem m_ledSubsystem;
 
-  // TODO: move to constants?
   DoubleSupplier m_joystickForward = () -> {
     return Math.signum(ControllerConstants.m_driveJoystick.getRawAxis(1))
         * Math.pow(MathUtil.applyDeadband(ControllerConstants.m_driveJoystick.getRawAxis(1),
@@ -320,12 +311,12 @@ public class DriveSubsystem extends SubsystemBase {
     joystickTrans = new Translation2d(ControllerConstants.m_driveJoystick.getRawAxis(1),
         ControllerConstants.m_driveJoystick.getRawAxis(0));
     robotToReef = (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
-        ? DriveConstants.redReefCenter
-        : DriveConstants.blueReefCenter).minus(m_poseEstimator.getPose().getTranslation());
+        ? FieldConstants.redReefCenter
+        : FieldConstants.blueReefCenter).minus(m_poseEstimator.getPose().getTranslation());
     if (m_sector.isPresent()) {
       joystickTransPub.set(new Translation2d(1, 0)
           .rotateBy(new Rotation2d()
-              .plus(DriveConstants.leftAlignPoses[m_sector.get()].getRotation().plus(new Rotation2d(Math.PI)))));
+              .plus(FieldConstants.leftAlignPoses[m_sector.get()].getRotation().plus(new Rotation2d(Math.PI)))));
       robotToReefPub.set(robotToReef);
     }
   }
@@ -395,7 +386,8 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void driveToPose(Pose2d target) {
     int allianceVelocityMultiplier = DriverStation.getAlliance().isPresent()
-        && DriverStation.getAlliance().get() == Alliance.Red ? -1 : 1; // TODO: Consider renaming
+        && DriverStation.getAlliance().get() == Alliance.Red ? -1 : 1;
+    // Alliance velocity multiplier: if it's 1 or -1 based if you're red/blue
 
     TrapezoidProfile.State m_targetX = m_xProfile.calculate(TimedRobot.kDefaultPeriod,
         new TrapezoidProfile.State(m_poseEstimator.getPose().getX(),
@@ -413,8 +405,8 @@ public class DriveSubsystem extends SubsystemBase {
         NetworkTableValue.makeDouble(m_poseEstimator.getPose().getY() - m_yController.getSetpoint()));
 
     double rot = m_pidRotation.apply(target.getRotation());
-    double x = m_pidX.apply(m_targetX.position);
-    double y = m_pidY.apply(m_targetY.position);
+    // double x = m_pidX.apply(m_targetX.position);
+    // double y = m_pidY.apply(m_targetY.position);
 
     drive(
         allianceVelocityMultiplier * m_targetX.velocity, // x * 1 *
@@ -556,9 +548,6 @@ public class DriveSubsystem extends SubsystemBase {
         pose);
   }
 
-  // TODO: getDistanceToPose() and getAngleToPose() already in limelight
-  // subsystem, move to where?
-
   public boolean arePosesSimilar(Pose2d pose1, Pose2d pose2) {
     return getDistanceToPose(pose1, pose2) <= DriveConstants.poseDistanceTolerance
         && getAngleBetweenPoses(pose1, pose2) <= DriveConstants.poseAngleTolerance;
@@ -581,17 +570,17 @@ public class DriveSubsystem extends SubsystemBase {
 
   public Optional<Integer> getCurrentSector(Pose2d pose) {
     boolean isRed = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red;
-    Pose2d reefCenter = new Pose2d(isRed ? DriveConstants.redReefCenter : DriveConstants.blueReefCenter,
+    Pose2d reefCenter = new Pose2d(isRed ? FieldConstants.redReefCenter : FieldConstants.blueReefCenter,
         new Rotation2d());
 
-    if (getDistanceToPose(reefCenter, pose) > DriveConstants.autoAlignSectorRadius) {
+    if (getDistanceToPose(reefCenter, pose) > FieldConstants.autoAlignSectorRadius) {
       return Optional.empty();
     }
-    double angle = MathUtil.inputModulus(getAngleBetweenPoses(reefCenter, pose) + DriveConstants.autoAlignSectorOffset,
+    double angle = MathUtil.inputModulus(getAngleBetweenPoses(reefCenter, pose) + FieldConstants.autoAlignSectorOffset,
         0, 360);
-    int sector = (int) (angle / (360 / DriveConstants.autoAlignSectorCount));
+    int sector = (int) (angle / (360 / FieldConstants.autoAlignSectorCount));
     if (isRed) {
-      sector += DriveConstants.autoAlignSectorCount;
+      sector += FieldConstants.autoAlignSectorCount;
     }
     // System.out.println(sector);
     return Optional.of(sector);
@@ -636,7 +625,7 @@ public class DriveSubsystem extends SubsystemBase {
         Pose2d newPose = new Pose2d(
             targetPose.getTranslation()
                 .plus(
-                    new Translation2d(DriveConstants.autoAlignDistanceMultiplier * distance, 0)
+                    new Translation2d(FieldConstants.autoAlignDistanceMultiplier * distance, 0)
                         .rotateBy(targetPose.getRotation().plus(new Rotation2d(Math.PI)))),
             targetPose.getRotation());
         driveToPose(newPose);
@@ -651,8 +640,8 @@ public class DriveSubsystem extends SubsystemBase {
             Rotation2d.fromDegrees(getAngleBetweenPoses(getPose(),
                 new Pose2d(
                     DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
-                        ? DriveConstants.redReefCenter
-                        : DriveConstants.blueReefCenter,
+                        ? FieldConstants.redReefCenter
+                        : FieldConstants.blueReefCenter,
                     new Rotation2d()))));
         LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern);
 

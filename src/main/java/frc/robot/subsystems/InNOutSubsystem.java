@@ -2,13 +2,11 @@ package frc.robot.subsystems;
 
 import frc.robot.BeamBreak;
 import frc.robot.Constants.IDConstants;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OuttakeConstants;
 import frc.robot.Constants.PortConstants;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.networktables.NetworkTable;
