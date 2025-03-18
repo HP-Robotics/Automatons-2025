@@ -79,6 +79,9 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
+    if (SubsystemConstants.useLimelight) {
+      m_robotContainer.m_limelightSubsystem.setThrottle(200);
+    }
   }
 
   @Override
@@ -91,6 +94,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+    if (SubsystemConstants.useLimelight) {
+      m_robotContainer.m_limelightSubsystem.setThrottle(0);
+    }
     if (SubsystemConstants.useDrive) {
       m_robotContainer.resetModuleRotationOffsets();
     }
@@ -109,10 +115,14 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+
   }
 
   @Override
   public void teleopInit() {
+    if (SubsystemConstants.useLimelight) {
+      m_robotContainer.m_limelightSubsystem.setThrottle(0);
+    }
     if (SubsystemConstants.useDrive) {
       m_robotContainer.resetModuleRotationOffsets();
     }
@@ -132,6 +142,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
+    if (SubsystemConstants.useLimelight) {
+      m_robotContainer.m_limelightSubsystem.setThrottle(0);
+    }
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
   }

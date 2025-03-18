@@ -77,8 +77,9 @@ public class LimelightSubsystem extends SubsystemBase {
     return Math.toDegrees(angleRadians);
   }
 
-  @Override
-  public void periodic() {
+  public void setThrottle(int throttle) {
+    m_rightTable.getEntry("throttle_set").setDouble(throttle);
+  }
     double[] robotOrientationEntries = new double[6];
     robotOrientationEntries[0] = m_poseEstimator.getPose().getRotation().getDegrees();
     robotOrientationEntries[1] = 0;
