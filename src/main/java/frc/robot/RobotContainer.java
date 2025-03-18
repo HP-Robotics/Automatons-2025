@@ -171,6 +171,7 @@ public class RobotContainer {
     new EventTrigger("WaitForIntake").onTrue(new WaitUntilCommand(m_inNOutSubsystem::isLoaded));
     new EventTrigger("InitializeElevator").onTrue(InitializeElevator());
     new EventTrigger("Score").onTrue(new SequentialCommandGroup(
+        m_driveSubsystem.StayStillCommand(),
         new WaitUntilCommand(m_elevatorSubsystem::atPosition),
         m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
             .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")),

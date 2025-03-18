@@ -55,7 +55,7 @@
   "folder": "Feeder to Reef",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 130.0
+    "rotation": -53.841999999999985
   },
   "useDefaultConstraints": true
 }
