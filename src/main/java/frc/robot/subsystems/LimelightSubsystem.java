@@ -66,8 +66,8 @@ public class LimelightSubsystem extends SubsystemBase {
   }
 
   public static Pose2d[] getFieldTags(AprilTagFieldLayout field) {
-    Pose2d[] output = new Pose2d[field.getTags().size()];
-    for (int i = 0; i < field.getTags().size(); i++) {
+    Pose2d[] output = new Pose2d[field.getTags().size() + 1];
+    for (int i = 0; i <= field.getTags().size(); i++) {
       output[i] = field.getTagPose(i).isPresent() ? field.getTagPose(i).get().toPose2d() : new Pose2d();
     }
     return output;
@@ -76,7 +76,7 @@ public class LimelightSubsystem extends SubsystemBase {
   public void doLimelight(NetworkTable limelightTable, DoubleArraySubscriber botPoseSub) {
     double[] robotOrientationEntries = new double[6];
     if (m_poseEstimator != null) {
-    robotOrientationEntries[0] = m_poseEstimator.getPose().getRotation().getDegrees();
+      robotOrientationEntries[0] = m_poseEstimator.getPose().getRotation().getDegrees();
     } else {
       robotOrientationEntries[0] = 0;
     }
