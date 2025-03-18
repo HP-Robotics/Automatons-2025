@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "InitializeElevator"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Left Center Cage to C2L"
@@ -19,13 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C2L to Lower Feeder"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
+            "pathName": "C2L to Upper Feeder"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Lower Feeder to F3L"
+            "pathName": "Upper Feeder to F2L"
           }
         },
         {
@@ -49,13 +49,43 @@
         {
           "type": "path",
           "data": {
-            "pathName": "F3L to Lower Feeder"
+            "pathName": "F2L to Lower Feeder"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "WaitForIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Lower Feeder to F2R"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "F2R to Lower Feeder"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "WaitForIntake"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "2 Coral",
+  "folder": "3 Coral",
   "choreoAuto": false
 }

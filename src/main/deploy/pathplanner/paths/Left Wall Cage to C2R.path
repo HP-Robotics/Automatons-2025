@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.055737704918034,
-        "y": 4.744262295081968
+        "x": 7.1686475409836055,
+        "y": 7.561372950819671
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.046196618713061,
-        "y": 4.3659216720839815
+        "x": 6.508572540983611,
+        "y": 6.416722950819672
       },
       "isLocked": false,
-      "linkedName": "Bottom Cage"
+      "linkedName": "Top Cage"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 4.13225
       },
       "prevControl": {
-        "x": 6.038003755397637,
-        "y": 4.224472838172609
+        "x": 6.344213114754099,
+        "y": 4.975225409836064
       },
       "nextControl": null,
       "isLocked": false,
@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "GoToL4",
-      "waypointRelativePos": 0.5056980056979998,
+      "waypointRelativePos": 0.8959514170039957,
       "endWaypointRelativePos": null,
       "command": null
     }
