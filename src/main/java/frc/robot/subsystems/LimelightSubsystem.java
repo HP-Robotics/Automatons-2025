@@ -80,6 +80,15 @@ public class LimelightSubsystem extends SubsystemBase {
   public void setThrottle(int throttle) {
     m_rightTable.getEntry("throttle_set").setDouble(throttle);
   }
+
+  public static Pose2d[] getFieldTags(AprilTagFieldLayout field) {
+    Pose2d[] output = new Pose2d[field.getTags().size()];
+    for (int i = 0; i < field.getTags().size(); i++) {
+      output[i] = field.getTagPose(i).isPresent() ? field.getTagPose(i).get().toPose2d() : new Pose2d();
+    }
+    return output;
+  }
+
     double[] robotOrientationEntries = new double[6];
     robotOrientationEntries[0] = m_poseEstimator.getPose().getRotation().getDegrees();
     robotOrientationEntries[1] = 0;
