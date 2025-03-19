@@ -57,11 +57,11 @@ public class LimelightSubsystem extends SubsystemBase {
 
       m_tagDistance = getDistanceToPose(m_visionPose, LimelightConstants.aprilTagList[m_targetAprilTagID]);
       if (m_poseEstimator.getPose() != null) {
-      m_score = PoseEstimatorConstants.skewWeight * m_angleDiff
-          + PoseEstimatorConstants.headingWeight
-              * Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
-                  - m_visionPose.getRotation().getRadians())
-          + PoseEstimatorConstants.distanceWeight * m_tagDistance;
+        m_score = PoseEstimatorConstants.skewWeight * m_angleDiff
+            + PoseEstimatorConstants.headingWeight
+                * Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
+                    - m_visionPose.getRotation().getRadians())
+            + PoseEstimatorConstants.distanceWeight * m_tagDistance;
       } else {
         m_score = Double.MAX_VALUE;
       }
@@ -71,8 +71,10 @@ public class LimelightSubsystem extends SubsystemBase {
   public LimelightSubsystem(PoseEstimatorSubsystem poseEstimatorSubsystem) {
     m_leftTable = NetworkTableInstance.getDefault().getTable("limelight-shpwrte");
     m_rightTable = NetworkTableInstance.getDefault().getTable("limelight-kite");
-    m_leftTable.getEntry("imumode_set").setDouble(0);
-    m_rightTable.getEntry("imumode_set").setDouble(0); // 4 is scary
+    m_leftTable.getEntry("imumode_set").setDouble(4);
+    m_rightTable.getEntry("imumode_set").setDouble(4); // 3 is scary
+    m_leftTable.getEntry("imuassistalpha_set").setDouble(LimelightConstants.imuAssist);
+    m_rightTable.getEntry("imuassistalpha_set").setDouble(LimelightConstants.imuAssist);
     m_leftPosePublisher = m_leftTable.getStructTopic("Pose", Pose2d.struct).publish();
     m_rightPosePublisher = m_rightTable.getStructTopic("Pose", Pose2d.struct).publish();
     m_poseEstimator = poseEstimatorSubsystem;

@@ -400,6 +400,7 @@ public final class Constants {
         .loadField(AprilTagFields.k2025ReefscapeWelded);
     public static final Pose2d aprilTagList[] = LimelightSubsystem.getFieldTags(field);
     public static final int disabledThrottle = 200;
+    public static final double imuAssist = 0.005;
   }
 
   public static class OuttakeConstants {
