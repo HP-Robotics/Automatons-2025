@@ -270,7 +270,7 @@ public class RobotContainer {
 
       // Set state to outtaking if outtake button pressed and we are loaded
       ControllerConstants.outtakeTrigger
-          .and(new Trigger(() -> m_inNOutSubsystem.m_state == "loaded" || m_inNOutSubsystem.m_state == "outtaking"))
+          .and(new Trigger(() -> m_inNOutSubsystem.isLoaded() || m_inNOutSubsystem.m_state == "outtaking"))
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "outtaking";
           }));
@@ -287,8 +287,9 @@ public class RobotContainer {
       // run intake if intake button pressed and state is empty or is intaking
       (new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
           .or(new Trigger(() -> m_inNOutSubsystem.m_state == "empty")))
+          .or(new Trigger(() -> !m_inNOutSubsystem.isLoaded()))
           .and(ControllerConstants.intakeTrigger)
-          .and(new Trigger(m_elevatorSubsystem::atDownPosition))
+          // .and(new Trigger(m_elevatorSubsystem::atDownPosition))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::loadOuttake, m_inNOutSubsystem::stopOuttake))
           .whileTrue(new StartEndCommand(
@@ -299,7 +300,7 @@ public class RobotContainer {
       (new Trigger(() -> m_inNOutSubsystem.m_state == "empty")).onTrue(
           new InstantCommand(() -> LEDSubsystem.trySetMiddlePattern(m_ledSubsystem, LEDConstants.noCoralPattern)));
 
-      new Trigger(() -> m_inNOutSubsystem.m_state == "loaded")
+      new Trigger(m_inNOutSubsystem::isLoaded)
           .onTrue(new InstantCommand(m_inNOutSubsystem::stopIntake))
           .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
 
@@ -448,7 +449,7 @@ public class RobotContainer {
           // .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue((m_elevatorSubsystem.GoToL1()));
       ControllerConstants.goToElevatorDownButton
-          .or(ControllerConstants.intakeTrigger)
+          // .or(ControllerConstants.intakeTrigger)
           .onTrue(m_elevatorSubsystem.GoToElevatorDown());
 
       // TODO: Make elevator preset and use it after auto aligning

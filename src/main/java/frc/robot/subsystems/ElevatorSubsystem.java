@@ -263,64 +263,64 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void periodic() {
         // m_table.putValue("state", NetworkTableValue.makeString(elevatorPreset));
         if (SubsystemConstants.useLED && m_hasTouchedGrass) {
-            updateLEDs();
+            // updateLEDs();
         }
         boolean doUpdate = false;
-        for (double iterVal : kPSub.readQueueValues()) {
-            elevatorConfig.Slot0.kP = iterVal;
-            doUpdate = true;
-        }
-        for (double iterVal : kISub.readQueueValues()) {
-            elevatorConfig.Slot0.kI = iterVal;
-            doUpdate = true;
-        }
-        for (double iterVal : kDSub.readQueueValues()) {
-            elevatorConfig.Slot0.kD = iterVal;
-            doUpdate = true;
-        }
-        for (double iterVal : kASub.readQueueValues()) {
-            elevatorConfig.Slot0.kA = iterVal;
-            doUpdate = true;
-        }
-        for (double iterVal : kGSub.readQueueValues()) {
-            elevatorConfig.Slot0.kG = iterVal;
-            doUpdate = true;
-        }
-        for (double iterVal : kVSub.readQueueValues()) {
-            elevatorConfig.Slot0.kV = iterVal;
-            doUpdate = true;
-        }
-        for (double iterVal : kSSub.readQueueValues()) {
-            elevatorConfig.Slot0.kS = iterVal;
-            doUpdate = true;
-        }
-        for (double iterVal : setpointSub.readQueueValues()) {
-            m_targetRotation = iterVal;
-            doUpdate = true;
-        }
-        if (doUpdate) {
-            m_elevatorMotor1.getConfigurator().apply(elevatorConfig);
-            m_elevatorMotor2.getConfigurator().apply(elevatorConfig);
+        // for (double iterVal : kPSub.readQueueValues()) {
+        // elevatorConfig.Slot0.kP = iterVal;
+        // doUpdate = true;
+        // }
+        // for (double iterVal : kISub.readQueueValues()) {
+        // elevatorConfig.Slot0.kI = iterVal;
+        // doUpdate = true;
+        // }
+        // for (double iterVal : kDSub.readQueueValues()) {
+        // elevatorConfig.Slot0.kD = iterVal;
+        // doUpdate = true;
+        // }
+        // for (double iterVal : kASub.readQueueValues()) {
+        // elevatorConfig.Slot0.kA = iterVal;
+        // doUpdate = true;
+        // }
+        // for (double iterVal : kGSub.readQueueValues()) {
+        // elevatorConfig.Slot0.kG = iterVal;
+        // doUpdate = true;
+        // }
+        // for (double iterVal : kVSub.readQueueValues()) {
+        // elevatorConfig.Slot0.kV = iterVal;
+        // doUpdate = true;
+        // }
+        // for (double iterVal : kSSub.readQueueValues()) {
+        // elevatorConfig.Slot0.kS = iterVal;
+        // doUpdate = true;
+        // }
+        // for (double iterVal : setpointSub.readQueueValues()) {
+        // m_targetRotation = iterVal;
+        // doUpdate = true;
+        // }
+        // if (doUpdate) {
+        // m_elevatorMotor1.getConfigurator().apply(elevatorConfig);
+        // m_elevatorMotor2.getConfigurator().apply(elevatorConfig);
 
-        }
-        m_table.putValue("state", NetworkTableValue.makeString(m_elevatorPreset));
-        m_table.putValue("offset", NetworkTableValue.makeDouble(m_offset));
+        // }
+        // m_table.putValue("state", NetworkTableValue.makeString(m_elevatorPreset));
+        // m_table.putValue("offset", NetworkTableValue.makeDouble(m_offset));
         m_table.putValue("motor1position",
                 NetworkTableValue.makeDouble(m_elevatorMotor1.getRotorPosition().getValueAsDouble()));
-        m_table.putValue("motor2position",
-                NetworkTableValue.makeDouble(m_elevatorMotor2.getRotorPosition().getValueAsDouble()));
-        m_table.putValue("Error",
-                NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopError().getValueAsDouble()));
-        m_table.putValue("D term",
-                NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopDerivativeOutput().getValueAsDouble()));
-        m_table.putValue("I term",
-                NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopIntegratedOutput().getValueAsDouble()));
-        m_table.putValue("P term",
-                NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopProportionalOutput().getValueAsDouble()));
-        m_table.putValue("Closed loop output",
-                NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopOutput().getValueAsDouble()));
-        m_table.putValue("Feed forward output",
-                NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopFeedForward().getValueAsDouble()));
+        // m_table.putValue("motor2position",
+        // NetworkTableValue.makeDouble(m_elevatorMotor2.getRotorPosition().getValueAsDouble()));
+        // m_table.putValue("Error",
+        // NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopError().getValueAsDouble()));
+        // m_table.putValue("D term",
+        // NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopDerivativeOutput().getValueAsDouble()));
+        // m_table.putValue("I term",
+        // NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopIntegratedOutput().getValueAsDouble()));
+        // m_table.putValue("P term",
+        // NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopProportionalOutput().getValueAsDouble()));
+        // m_table.putValue("Closed loop output",
+        // NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopOutput().getValueAsDouble()));
+        // m_table.putValue("Feed forward output",
+        // NetworkTableValue.makeDouble(m_elevatorMotor1.getClosedLoopFeedForward().getValueAsDouble()));
 
         m_table.putValue("atBottom", NetworkTableValue.makeBoolean(this.atBottom()));
         m_table.putValue("atIntakePosition", NetworkTableValue.makeBoolean(this.atDownPosition()));
