@@ -110,6 +110,7 @@ public final class Constants {
     public static final double L3Position = 48.6670401153 * inchesToRotations; // 37.7 if low ceiling
     public static final double L2Position = 34.02 * inchesToRotations;
     public static final double L1Position = 18.9 * inchesToRotations;
+    public static final double elevatorTravelPosition = 4.457 * inchesToRotations;
     public static final double elevatorDownPosition = 2.457 * inchesToRotations;
     public static final double bottomPosition = 0.945 * inchesToRotations;
     // TODO: this might be right but should be checked with the other two
