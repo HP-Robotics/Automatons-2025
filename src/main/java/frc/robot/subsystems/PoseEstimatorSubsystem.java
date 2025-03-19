@@ -37,7 +37,8 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
 
   public void createPoseEstimator(SwerveDriveKinematics kinematics, Rotation2d angle,
       SwerveModulePosition[] swervePositions, Pose2d initialPose) {
-    poseEstimator = new SwerveDrivePoseEstimator(kinematics, angle, swervePositions, initialPose,
+    poseEstimator = new SwerveDrivePoseEstimator(
+        kinematics, angle, swervePositions, initialPose,
         PoseEstimatorConstants.statesStandardDev,
         VecBuilder.fill(0.1, 0.1, 0.1));
   }

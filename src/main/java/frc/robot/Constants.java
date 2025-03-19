@@ -37,8 +37,8 @@ public final class Constants {
     public static final boolean useOuttake = true;
     public static final boolean useDataManager = true;
     public static final boolean useLimelight = true;
-    public static final boolean useClimber = false;
-    public static final boolean useLED = true;
+    public static final boolean useClimber = true;
+    public static final boolean useLED = false;
     public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
   }
@@ -263,9 +263,9 @@ public final class Constants {
   };
 
   public static class FieldConstants {
-    public static final Translation2d blueReefCenter = new Translation2d(4.490323, -0.0001 + 4.02);
-    public static final Translation2d redReefCenter = new Translation2d(13.059902, -0.0001 + 4.02);
-    public static final Translation2d leftC2 = new Translation2d(1.2716, -0.16);
+    public static final Translation2d blueReefCenter = new Translation2d(4.490323, 4.02);
+    public static final Translation2d redReefCenter = new Translation2d(13.059902, 4.02);
+    public static final Translation2d leftC2 = new Translation2d(1.2716, -0.18);
     public static final Translation2d rightC2 = new Translation2d(1.2716, 0.16);
     public static final Translation2d redUpperFeederCenter = new Translation2d(); // TODO: find these numbers
     public static final Translation2d redLowerFeederCenter = new Translation2d();
@@ -364,6 +364,8 @@ public final class Constants {
     public static final double climbModulekF = 0;
 
     public static final double climberGearRatio = 243;
+
+    public static final double encoderModulusTolerance = 0.05;
     public static final double degreesToRelativeRotations = climberGearRatio / 360;
     public static final double climberStartAbsolute = 0.27;
     public static final double climberUpRelative = 0.0;
@@ -394,14 +396,15 @@ public final class Constants {
 
   public static class LimelightConstants {
     public static final double inToM = 0.0254;
-    public static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+    public static final AprilTagFieldLayout field = AprilTagFieldLayout
+        .loadField(AprilTagFields.k2025ReefscapeWelded);
     public static final Pose2d aprilTagList[] = LimelightSubsystem.getFieldTags(field);
   }
 
   public static class OuttakeConstants {
     public static final double outtakeSpeed = -0.6;
     public static final double loadSpeed = -0.3;
-    public static final double scoreDelay = 0.1;
+    public static final double scoreDelay = 0.2;
   }
 
   public static class LEDConstants {

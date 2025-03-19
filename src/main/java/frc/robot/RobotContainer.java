@@ -129,52 +129,72 @@ public class RobotContainer {
     }
   }
 
+  @SuppressWarnings("unused")
   private void configureNamedCommands() {
-    NamedCommands.registerCommand("Intake",
-        new WaitUntilCommand(m_elevatorSubsystem::atDownPosition).andThen(m_inNOutSubsystem.IntakeCoral()));
-    NamedCommands.registerCommand("Outtake", m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
-        .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")));
-    NamedCommands.registerCommand("GoToL4", m_elevatorSubsystem.GoToL4());
-    NamedCommands.registerCommand("GoToL3", m_elevatorSubsystem.GoToL3());
-    NamedCommands.registerCommand("GoToL2", m_elevatorSubsystem.GoToL2());
-    NamedCommands.registerCommand("GoToL1", m_elevatorSubsystem.GoToL1());
-    NamedCommands.registerCommand("ElevatorDown", m_elevatorSubsystem.GoToElevatorDown());
-    NamedCommands.registerCommand("WaitForElevator",
-        new WaitUntilCommand(m_elevatorSubsystem::atPosition));
-    NamedCommands.registerCommand("WaitForIntake",
-        new SequentialCommandGroup(
-            m_driveSubsystem.StayStillCommand(),
-            new WaitUntilCommand(m_inNOutSubsystem::isLoaded)));
-    NamedCommands.registerCommand("InitializeElevator", InitializeElevator());
-    NamedCommands.registerCommand("Score", new SequentialCommandGroup(
-        m_driveSubsystem.StayStillCommand(),
-        new WaitUntilCommand(m_elevatorSubsystem::atPosition),
-        m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
-            .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")),
-        m_elevatorSubsystem.GoToElevatorDown()));
+    if (SubsystemConstants.useElevator && SubsystemConstants.useIntake) {
+      NamedCommands.registerCommand("Intake",
+          new WaitUntilCommand(m_elevatorSubsystem::atDownPosition).andThen(m_inNOutSubsystem.IntakeCoral()));
+    }
+    if (SubsystemConstants.useIntake && SubsystemConstants.useDrive) {
+      NamedCommands.registerCommand("WaitForIntake",
+          new SequentialCommandGroup(
+              m_driveSubsystem.StayStillCommand(),
+              new WaitUntilCommand(m_inNOutSubsystem::isLoaded)));
+    }
+    if (SubsystemConstants.useOuttake) {
+      NamedCommands.registerCommand("Outtake", m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
+          .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")));
+    }
+    if (SubsystemConstants.useElevator) {
+      NamedCommands.registerCommand("GoToL4", m_elevatorSubsystem.GoToL4());
+      NamedCommands.registerCommand("GoToL3", m_elevatorSubsystem.GoToL3());
+      NamedCommands.registerCommand("GoToL2", m_elevatorSubsystem.GoToL2());
+      NamedCommands.registerCommand("GoToL1", m_elevatorSubsystem.GoToL1());
+      NamedCommands.registerCommand("ElevatorDown", m_elevatorSubsystem.GoToElevatorDown());
+      NamedCommands.registerCommand("WaitForElevator",
+          new WaitUntilCommand(m_elevatorSubsystem::atPosition));
+      NamedCommands.registerCommand("InitializeElevator", InitializeElevator());
+    }
+    if (SubsystemConstants.useDrive && SubsystemConstants.useElevator && SubsystemConstants.useOuttake) {
+      NamedCommands.registerCommand("Score", new SequentialCommandGroup(
+          m_driveSubsystem.StayStillCommand(),
+          new WaitUntilCommand(m_elevatorSubsystem::atPosition),
+          m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
+              .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")),
+          m_elevatorSubsystem.GoToElevatorDown()));
+    }
   }
 
+  @SuppressWarnings("unused")
   public void configureEventTriggers() {
-    new EventTrigger("Intake")
-        .onTrue(new WaitUntilCommand(m_elevatorSubsystem::atDownPosition).andThen(m_inNOutSubsystem.IntakeCoral()));
-    new EventTrigger("Outtake").onTrue(m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
-        .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")));
-    new EventTrigger("GoToL4").onTrue(m_elevatorSubsystem.GoToL4());
-    new EventTrigger("GoToL3").onTrue(m_elevatorSubsystem.GoToL3());
-    new EventTrigger("GoToL2").onTrue(m_elevatorSubsystem.GoToL2());
-    new EventTrigger("GoToL1").onTrue(m_elevatorSubsystem.GoToL1());
-    new EventTrigger("ElevatorDown").onTrue(m_elevatorSubsystem.GoToElevatorDown());
-    new EventTrigger("WaitForElevator").onTrue(new WaitUntilCommand(m_elevatorSubsystem::atPosition));
-    new EventTrigger("IWaited").onTrue(
-        new InstantCommand(() -> SmartDashboard.putString("I waited three", "yes")));
-    new EventTrigger("IFished").onTrue(new InstantCommand(() -> SmartDashboard.putString("I fished", "yes")));
-    new EventTrigger("WaitForIntake").onTrue(new WaitUntilCommand(m_inNOutSubsystem::isLoaded));
-    new EventTrigger("InitializeElevator").onTrue(InitializeElevator());
-    new EventTrigger("Score").onTrue(new SequentialCommandGroup(
-        new WaitUntilCommand(m_elevatorSubsystem::atPosition),
-        m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
-            .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")),
-        m_elevatorSubsystem.GoToElevatorDown()));
+    if (SubsystemConstants.useElevator && SubsystemConstants.useIntake) {
+      new EventTrigger("Intake")
+          .onTrue(new WaitUntilCommand(m_elevatorSubsystem::atDownPosition).andThen(m_inNOutSubsystem.IntakeCoral()));
+    }
+    if (SubsystemConstants.useOuttake) {
+      new EventTrigger("Outtake").onTrue(m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
+          .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")));
+    }
+    if (SubsystemConstants.useElevator) {
+      new EventTrigger("GoToL4").onTrue(m_elevatorSubsystem.GoToL4());
+      new EventTrigger("GoToL3").onTrue(m_elevatorSubsystem.GoToL3());
+      new EventTrigger("GoToL2").onTrue(m_elevatorSubsystem.GoToL2());
+      new EventTrigger("GoToL1").onTrue(m_elevatorSubsystem.GoToL1());
+      new EventTrigger("ElevatorDown").onTrue(m_elevatorSubsystem.GoToElevatorDown());
+      new EventTrigger("WaitForElevator").onTrue(new WaitUntilCommand(m_elevatorSubsystem::atPosition));
+      new EventTrigger("InitializeElevator").onTrue(InitializeElevator());
+    }
+    if (SubsystemConstants.useIntake) {
+      new EventTrigger("WaitForIntake").onTrue(new WaitUntilCommand(m_inNOutSubsystem::isLoaded));
+    }
+    if (SubsystemConstants.useDrive && SubsystemConstants.useElevator && SubsystemConstants.useOuttake) {
+      new EventTrigger("Score").onTrue(new SequentialCommandGroup(
+          m_driveSubsystem.StayStillCommand(),
+          new WaitUntilCommand(m_elevatorSubsystem::atPosition),
+          m_inNOutSubsystem.OuttakeCoral().withTimeout(0.5)
+              .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "empty")),
+          m_elevatorSubsystem.GoToElevatorDown()));
+    }
   }
 
   @SuppressWarnings("unused")
@@ -279,6 +299,10 @@ public class RobotContainer {
       (new Trigger(() -> m_inNOutSubsystem.m_state == "empty")).onTrue(
           new InstantCommand(() -> LEDSubsystem.trySetMiddlePattern(m_ledSubsystem, LEDConstants.noCoralPattern)));
 
+      new Trigger(() -> m_inNOutSubsystem.m_state == "loaded")
+          .onTrue(new InstantCommand(m_inNOutSubsystem::stopIntake))
+          .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
+
       // Shoot if outtaking and stop when done
       new Trigger(() -> m_inNOutSubsystem.m_state == "outtaking")
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
@@ -293,10 +317,6 @@ public class RobotContainer {
           }))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
     }
-
-    new Trigger(() -> m_inNOutSubsystem.m_state == "loaded")
-        .onTrue(new InstantCommand(m_inNOutSubsystem::stopIntake))
-        .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
 
     if (SubsystemConstants.useDrive) {
 

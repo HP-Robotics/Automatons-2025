@@ -97,8 +97,8 @@ public class LimelightSubsystem extends SubsystemBase {
   }
 
   public static Pose2d[] getFieldTags(AprilTagFieldLayout field) {
-    Pose2d[] output = new Pose2d[field.getTags().size()];
-    for (int i = 0; i < field.getTags().size(); i++) {
+    Pose2d[] output = new Pose2d[field.getTags().size() + 1];
+    for (int i = 0; i <= field.getTags().size(); i++) {
       output[i] = field.getTagPose(i).isPresent() ? field.getTagPose(i).get().toPose2d() : new Pose2d();
     }
     return output;
@@ -108,12 +108,17 @@ public class LimelightSubsystem extends SubsystemBase {
     Optional<PoseEstimation> output = Optional.empty();
 
     double[] robotOrientationEntries = new double[6];
-    robotOrientationEntries[0] = m_poseEstimator.getPose().getRotation().getDegrees();
+    if (m_poseEstimator != null) {
+      robotOrientationEntries[0] = m_poseEstimator.getPose().getRotation().getDegrees();
+    } else {
+      robotOrientationEntries[0] = 0;
+    }
     robotOrientationEntries[1] = 0;
     robotOrientationEntries[2] = 0;
     robotOrientationEntries[3] = 0;
     robotOrientationEntries[4] = 0;
     robotOrientationEntries[5] = 0;
+
     limelightTable.getEntry("robot_orientation_set").setDoubleArray(robotOrientationEntries);
 
     double[] botPose = null;

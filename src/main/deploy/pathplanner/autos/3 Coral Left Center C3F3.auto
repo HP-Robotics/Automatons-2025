@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Cage to C2L"
+            "pathName": "Left Center Cage to C3L"
           }
         },
         {
@@ -25,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C2L to Upper Feeder"
+            "pathName": "C3L to Lower Feeder"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Upper Feeder to F2L"
+            "pathName": "Lower Feeder to F3L"
           }
         },
         {
@@ -49,7 +49,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "F2L to Lower Feeder"
+            "pathName": "F3L to Lower Feeder"
           }
         },
         {
@@ -61,7 +61,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Lower Feeder to F2R"
+            "pathName": "Lower Feeder to F3R"
           }
         },
         {
@@ -73,7 +73,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "F2R to Lower Feeder"
+            "pathName": "F3R to Lower Feeder"
           }
         },
         {

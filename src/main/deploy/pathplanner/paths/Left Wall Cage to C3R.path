@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.011574999999995,
-        "y": 7.56815
+        "x": 7.1686475409836055,
+        "y": 7.561372950819671
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.880942622950819,
-        "y": 7.111834016393442
+        "x": 6.245594262295081,
+        "y": 5.655327868852458
       },
       "isLocked": false,
       "linkedName": "Top Cage"
     },
     {
       "anchor": {
-        "x": 5.2455,
-        "y": 5.097499999999999
+        "x": 5.29425,
+        "y": 2.972
       },
       "prevControl": {
-        "x": 5.911536885251667,
-        "y": 5.730131147542008
+        "x": 6.591235404510047,
+        "y": 3.2945593193235023
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "C1R"
+      "linkedName": "C3R"
     }
   ],
   "rotationTargets": [],
@@ -34,14 +34,14 @@
   "eventMarkers": [
     {
       "name": "GoToL4",
-      "waypointRelativePos": 0.7305755395683488,
+      "waypointRelativePos": 0.8311740890687876,
       "endWaypointRelativePos": null,
       "command": null
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 2.5,
-    "maxAcceleration": 1.5,
+    "maxVelocity": 5.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 480.0,
     "maxAngularAcceleration": 640.0,
     "nominalVoltage": 12.0,
@@ -49,13 +49,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": 122.0
   },
   "reversed": false,
   "folder": "Cage to Reef",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 178.9583733239901
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
