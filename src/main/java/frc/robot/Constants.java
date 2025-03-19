@@ -232,7 +232,7 @@ public final class Constants {
     public static final double rotationControllerkP = 2;
     public static final double rotationControllerkI = 0.1;
     public static final double rotationControllerkD = 0.15;
-    public static final double rotationControllerTolerance = Math.toRadians(2);
+    public static final double rotationControllerTolerance = Math.toRadians(0.5);
     public static final double rotationControllerIZone = 0.15;
 
     // Absolute encoder values that make the wheels point forward
@@ -382,6 +382,9 @@ public final class Constants {
 
     public static final double maxAcceptableSkew = Math.PI / 3; // TODO: decrease this or only check one sector
     public static final double maxAcceptableDistance = 5.0;
+    public static final double skewWeight = 1.0 / maxAcceptableSkew;
+    public static final double headingWeight = 180.0 / Math.PI;
+    public static final double distanceWeight = 1.0 / 10.0;
   }
 
   public static final class PathplannerPIDConstants {

@@ -25,12 +25,14 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
   NetworkTable poseEstimatorTable = inst.getTable("pose-estimator-table");
-  StructPublisher<Pose2d> posePublisher;
+  StructPublisher<Pose2d> fusedPosePublisher;
+  StructPublisher<Pose2d> visionPosePublisher;
 
   SwerveDrivePoseEstimator poseEstimator;
 
   public PoseEstimatorSubsystem() {
-    posePublisher = poseEstimatorTable.getStructTopic("Fused Pose", Pose2d.struct).publish();
+    fusedPosePublisher = poseEstimatorTable.getStructTopic("Fused Pose", Pose2d.struct).publish();
+    visionPosePublisher = poseEstimatorTable.getStructTopic("AprilTag Pose", Pose2d.struct).publish();
   }
 
   public void createPoseEstimator(SwerveDriveKinematics kinematics, Rotation2d angle,
@@ -56,6 +58,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
             PoseEstimatorConstants.visionHeadingStandardDev * distanceToTag));
         poseEstimator.addVisionMeasurement(vPose, vTime);
         // System.out.println(vTime);
+        visionPosePublisher.set(vPose);
       }
     }
   }
@@ -86,7 +89,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     if (poseEstimator != null) {
-      posePublisher.set(poseEstimator.getEstimatedPosition());
+      fusedPosePublisher.set(poseEstimator.getEstimatedPosition());
       VecBuilder.fill(0, 0, 0);
     }
   }

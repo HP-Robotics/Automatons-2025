@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.Optional;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,35 +15,63 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import frc.robot.Constants.LimelightConstants;
+import frc.robot.Constants.PoseEstimatorConstants;
 
 public class LimelightSubsystem extends SubsystemBase {
   CommandJoystick m_driveJoystick;
 
   NetworkTable m_leftTable;
   NetworkTable m_rightTable;
-  public int targetAprilTagID;
   private final DoubleArraySubscriber m_leftSub;
   private final DoubleArraySubscriber m_rightSub;
   private double[] defaultValues = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+  Optional<PoseEstimation> m_leftVisionData = Optional.empty();
+  Optional<PoseEstimation> m_rightVisionData = Optional.empty();
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
   NetworkTable poseEstimatorTable = inst.getTable("pose-estimator-table");
 
   StructPublisher<Pose2d> publisher;
+  StructPublisher<Pose2d> m_leftPosePublisher;
+  StructPublisher<Pose2d> m_rightPosePublisher;
 
   PoseEstimatorSubsystem m_poseEstimator;
+
+  public class PoseEstimation {
+    public Pose2d m_visionPose;
+    public double m_timeStamp;
+    public int m_targetAprilTagID;
+    public double m_angleDiff;
+    public double m_tagDistance;
+    public double m_score;
+
+    public PoseEstimation(Pose2d visionPose, double timeStamp, int targetAprilTagID, double angleDiff) {
+      m_visionPose = visionPose;
+      m_timeStamp = timeStamp;
+      m_targetAprilTagID = targetAprilTagID;
+      m_angleDiff = angleDiff;
+
+      m_tagDistance = getDistanceToPose(m_visionPose, LimelightConstants.aprilTagList[m_targetAprilTagID]);
+      m_score = PoseEstimatorConstants.skewWeight * m_angleDiff
+          + PoseEstimatorConstants.headingWeight
+              * Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
+                  - m_visionPose.getRotation().getRadians())
+          + PoseEstimatorConstants.distanceWeight * m_tagDistance;
+    }
+  }
 
   public LimelightSubsystem(PoseEstimatorSubsystem poseEstimatorSubsystem) {
     m_leftTable = NetworkTableInstance.getDefault().getTable("limelight-shpwrte");
     m_rightTable = NetworkTableInstance.getDefault().getTable("limelight-kite");
     m_leftTable.getEntry("imumode_set").setDouble(0);
     m_rightTable.getEntry("imumode_set").setDouble(0); // 4 is scary
+    m_leftPosePublisher = m_leftTable.getStructTopic("Pose", Pose2d.struct).publish();
+    m_rightPosePublisher = m_rightTable.getStructTopic("Pose", Pose2d.struct).publish();
     m_poseEstimator = poseEstimatorSubsystem;
-    publisher = poseEstimatorTable.getStructTopic("AprilTag Pose", Pose2d.struct).publish();
     m_leftSub = m_leftTable.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(defaultValues);
     m_rightSub = m_rightTable.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(defaultValues);
   }
@@ -62,6 +92,7 @@ public class LimelightSubsystem extends SubsystemBase {
   }
 
   public void setThrottle(int throttle) {
+    m_leftTable.getEntry("throttle_set").setDouble(throttle);
     m_rightTable.getEntry("throttle_set").setDouble(throttle);
   }
 
@@ -73,7 +104,9 @@ public class LimelightSubsystem extends SubsystemBase {
     return output;
   }
 
-  public void doLimelight(NetworkTable limelightTable, DoubleArraySubscriber botPoseSub) {
+  public Optional<PoseEstimation> getLimelightData(NetworkTable limelightTable, DoubleArraySubscriber botPoseSub) {
+    Optional<PoseEstimation> output = Optional.empty();
+
     double[] robotOrientationEntries = new double[6];
     robotOrientationEntries[0] = m_poseEstimator.getPose().getRotation().getDegrees();
     robotOrientationEntries[1] = 0;
@@ -92,7 +125,7 @@ public class LimelightSubsystem extends SubsystemBase {
       if ((int) botPose[7] == 0) {
         continue;
       }
-      timeStamp = Timer.getFPGATimestamp(); // TODO: tsValue.timestamp; test this
+      timeStamp = tsValue.timestamp;
       double botPosX = botPose[0];
       double botPosY = botPose[1];
       // double botPosZ = botpose[2];
@@ -101,35 +134,102 @@ public class LimelightSubsystem extends SubsystemBase {
       // somewhere (Store 3D)
       double botRotZ = botPose[5];
       latency = botPose[6];
-      targetAprilTagID = (int) botPose[11];
+      int targetAprilTagID = (int) botPose[11];
 
-      timeStamp -= latency / 1000;
-      Pose2d targetPoseRelative = new Pose2d(botPosX, botPosY, new Rotation2d(Math.toRadians(botRotZ)));
+      double adjustedTimeStamp = (timeStamp / 1000000.0) - (latency / 1000.0);
+
+      // timeStamp -= latency / 1000;
+      Pose2d visionPose = new Pose2d(botPosX, botPosY, new Rotation2d(Math.toRadians(botRotZ)));
       if (m_poseEstimator != null && 0 <= targetAprilTagID
           && targetAprilTagID < LimelightConstants.aprilTagList.length) {
         limelightTable.putValue("botPosX", NetworkTableValue.makeDouble(botPosX));
         limelightTable.putValue("botPosY", NetworkTableValue.makeDouble(botPosY));
         limelightTable.putValue("botPosZ", NetworkTableValue.makeDouble(botRotZ));
         if (botPosX != 0 || botPosY != 0 || botRotZ != 0) {
-          publisher.set(targetPoseRelative);
           Rotation2d aprilTagToRobotAngle = Rotation2d.fromDegrees(
-              getAngleToPose(targetPoseRelative, LimelightConstants.aprilTagList[targetAprilTagID]) - 180);
+              getAngleToPose(visionPose, LimelightConstants.aprilTagList[targetAprilTagID]) - 180);
           limelightTable.putValue("Angle to pose", NetworkTableValue
-              .makeDouble(getAngleToPose(targetPoseRelative, LimelightConstants.aprilTagList[targetAprilTagID]) - 180));
+              .makeDouble(getAngleToPose(visionPose, LimelightConstants.aprilTagList[targetAprilTagID]) - 180));
           double angleDiff = Math.abs(LimelightConstants.aprilTagList[targetAprilTagID].getRotation()
               .minus(aprilTagToRobotAngle)
               .getRadians());
-          m_poseEstimator.updateVision(targetPoseRelative, timeStamp,
-              getDistanceToPose(targetPoseRelative, LimelightConstants.aprilTagList[targetAprilTagID]),
-              angleDiff);
           // System.out.println("saw apriltag: " + timeStamp + " latency: " + latency);
+          output = Optional.of(new PoseEstimation(visionPose, adjustedTimeStamp, targetAprilTagID, angleDiff));
         }
       }
     }
+    return output;
   }
 
   @Override
   public void periodic() {
-    doLimelight(m_rightTable, m_rightSub);
+    m_leftVisionData = getLimelightData(m_leftTable, m_leftSub);
+    m_rightVisionData = getLimelightData(m_rightTable, m_rightSub);
+
+    if (m_leftVisionData.isPresent()) {
+      PoseEstimation p = m_leftVisionData.get();
+      m_leftTable.putValue("score", NetworkTableValue.makeDouble(p.m_score));
+
+      m_leftTable.putValue("unweighted skew",
+          NetworkTableValue.makeDouble(p.m_angleDiff));
+      m_leftTable.putValue("weighted skew",
+          NetworkTableValue.makeDouble(PoseEstimatorConstants.skewWeight * p.m_angleDiff));
+      m_leftTable.putValue("unweighted heading",
+          NetworkTableValue.makeDouble(Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
+              - p.m_visionPose.getRotation().getRadians())));
+      m_leftTable.putValue("weighted heading",
+          NetworkTableValue.makeDouble(PoseEstimatorConstants.headingWeight
+              * Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
+                  - p.m_visionPose.getRotation().getRadians())));
+      m_leftTable.putValue("unweighted distance",
+          NetworkTableValue.makeDouble(p.m_tagDistance));
+      m_leftTable.putValue("weighted distance",
+          NetworkTableValue.makeDouble(PoseEstimatorConstants.distanceWeight * p.m_tagDistance));
+
+      m_leftPosePublisher.set(p.m_visionPose);
+    }
+
+    if (m_rightVisionData.isPresent()) {
+      PoseEstimation p = m_rightVisionData.get();
+      m_rightTable.putValue("score", NetworkTableValue.makeDouble(p.m_score));
+
+      m_rightTable.putValue("unweighted skew",
+          NetworkTableValue.makeDouble(p.m_angleDiff));
+      m_rightTable.putValue("weighted skew",
+          NetworkTableValue.makeDouble(PoseEstimatorConstants.skewWeight * p.m_angleDiff));
+      m_rightTable.putValue("unweighted heading",
+          NetworkTableValue.makeDouble(Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
+              - p.m_visionPose.getRotation().getRadians())));
+      m_rightTable.putValue("weighted heading",
+          NetworkTableValue.makeDouble(PoseEstimatorConstants.headingWeight
+              * Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
+                  - p.m_visionPose.getRotation().getRadians())));
+      m_rightTable.putValue("unweighted distance",
+          NetworkTableValue.makeDouble(p.m_tagDistance));
+      m_rightTable.putValue("weighted distance",
+          NetworkTableValue.makeDouble(PoseEstimatorConstants.distanceWeight * p.m_tagDistance));
+
+      m_rightPosePublisher.set(p.m_visionPose);
+    }
+
+    if (m_leftVisionData.isPresent() && m_rightVisionData.isPresent()) {
+      PoseEstimation left = m_leftVisionData.get();
+      PoseEstimation right = m_rightVisionData.get();
+      double leftScore = left.m_score;
+      double rightScore = right.m_score;
+
+      if (leftScore < rightScore) {
+        m_poseEstimator.updateVision(left.m_visionPose, left.m_timeStamp, left.m_tagDistance, left.m_angleDiff);
+      } else {
+        m_poseEstimator.updateVision(right.m_visionPose, right.m_timeStamp, right.m_tagDistance, right.m_angleDiff);
+      }
+      // factor 1: facing tag, factor 2: matches our robot's angle, factor 3: tag dist
+    } else if (m_leftVisionData.isPresent()) {
+      PoseEstimation p = m_leftVisionData.get();
+      m_poseEstimator.updateVision(p.m_visionPose, p.m_timeStamp, p.m_tagDistance, p.m_angleDiff);
+    } else if (m_rightVisionData.isPresent()) {
+      PoseEstimation p = m_rightVisionData.get();
+      m_poseEstimator.updateVision(p.m_visionPose, p.m_timeStamp, p.m_tagDistance, p.m_angleDiff);
+    }
   }
 }
