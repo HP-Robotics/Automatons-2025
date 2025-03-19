@@ -223,7 +223,18 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void goToElevatorDown() {
         goToPosition(ElevatorConstants.elevatorDownPosition + m_offset);
         m_targetRotation = Constants.ElevatorConstants.elevatorDownPosition;
+    }
 
+    public void goToElevatorTravel() {
+        goToPosition(ElevatorConstants.elevatorTravelPosition + m_offset);
+        m_targetRotation = Constants.ElevatorConstants.elevatorTravelPosition;
+    }
+
+    public Command GoToElevatorTravel() {
+        return new InstantCommand(() -> {
+            this.goToElevatorTravel();
+            this.m_targetRotation = Constants.ElevatorConstants.elevatorTravelPosition;
+        });
     }
 
     public Command GoToElevatorDown() {
