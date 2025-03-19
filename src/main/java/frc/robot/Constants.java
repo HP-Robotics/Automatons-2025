@@ -399,6 +399,7 @@ public final class Constants {
     public static final AprilTagFieldLayout field = AprilTagFieldLayout
         .loadField(AprilTagFields.k2025ReefscapeWelded);
     public static final Pose2d aprilTagList[] = LimelightSubsystem.getFieldTags(field);
+    public static final int disabledThrottle = 200;
   }
 
   public static class OuttakeConstants {

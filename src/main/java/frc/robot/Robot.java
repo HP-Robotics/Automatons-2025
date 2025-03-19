@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.SubsystemConstants;
 
 /**
@@ -80,7 +81,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     if (SubsystemConstants.useLimelight) {
-      m_robotContainer.m_limelightSubsystem.setThrottle(200);
+      m_robotContainer.m_limelightSubsystem.setThrottle(LimelightConstants.disabledThrottle);
     }
   }
 
