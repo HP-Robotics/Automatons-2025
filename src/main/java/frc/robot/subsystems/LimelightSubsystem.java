@@ -56,11 +56,15 @@ public class LimelightSubsystem extends SubsystemBase {
       m_angleDiff = angleDiff;
 
       m_tagDistance = getDistanceToPose(m_visionPose, LimelightConstants.aprilTagList[m_targetAprilTagID]);
+      if (m_poseEstimator.getPose() != null) {
       m_score = PoseEstimatorConstants.skewWeight * m_angleDiff
           + PoseEstimatorConstants.headingWeight
               * Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
                   - m_visionPose.getRotation().getRadians())
           + PoseEstimatorConstants.distanceWeight * m_tagDistance;
+      } else {
+        m_score = Double.MAX_VALUE;
+      }
     }
   }
 
@@ -108,7 +112,7 @@ public class LimelightSubsystem extends SubsystemBase {
     Optional<PoseEstimation> output = Optional.empty();
 
     double[] robotOrientationEntries = new double[6];
-    if (m_poseEstimator != null) {
+    if (m_poseEstimator != null && m_poseEstimator.getPose() != null) {
       robotOrientationEntries[0] = m_poseEstimator.getPose().getRotation().getDegrees();
     } else {
       robotOrientationEntries[0] = 0;
@@ -145,7 +149,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
       // timeStamp -= latency / 1000;
       Pose2d visionPose = new Pose2d(botPosX, botPosY, new Rotation2d(Math.toRadians(botRotZ)));
-      if (m_poseEstimator != null && 0 <= targetAprilTagID
+      if (m_poseEstimator != null && m_poseEstimator.getPose() != null && 0 <= targetAprilTagID
           && targetAprilTagID < LimelightConstants.aprilTagList.length) {
         limelightTable.putValue("botPosX", NetworkTableValue.makeDouble(botPosX));
         limelightTable.putValue("botPosY", NetworkTableValue.makeDouble(botPosY));

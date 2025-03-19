@@ -70,7 +70,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     }
   }
 
-  public Pose2d getPose() {
+  public Pose2d getPose() { // TODO: Should be optional
     if (poseEstimator != null) {
       return poseEstimator.getEstimatedPosition();
     } else {
