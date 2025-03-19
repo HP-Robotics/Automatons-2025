@@ -318,7 +318,7 @@ public class RobotContainer {
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
     }
 
-    if (SubsystemConstants.useDrive) {
+    if (SubsystemConstants.useDrive && SubsystemConstants.useIntake) {
 
       ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAlignButton)
           .and(m_inNOutSubsystem::isEmpty)
