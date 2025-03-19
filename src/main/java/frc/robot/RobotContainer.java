@@ -205,9 +205,9 @@ public class RobotContainer {
           new InstantCommand(() -> m_elevatorSubsystem.m_elevatorMotor1.set(-0.2),
               m_elevatorSubsystem),
           new WaitUntilCommand(m_elevatorSubsystem::atBottom),
-          new InstantCommand(m_elevatorSubsystem::goToElevatorDown,
+          new InstantCommand(m_elevatorSubsystem::goToElevatorTravel,
               m_elevatorSubsystem),
-          new WaitUntilCommand(m_elevatorSubsystem::atDownPosition),
+          new WaitUntilCommand(m_elevatorSubsystem::atPosition),
           m_inNOutSubsystem.IntakeCoral(),
           new WaitUntilCommand(m_inNOutSubsystem::isLoaded));
     } else {
@@ -427,6 +427,20 @@ public class RobotContainer {
       // }, m_driveSubsystem));
 
       ControllerConstants.resetYawTrigger.onTrue(new InstantCommand(() -> m_driveSubsystem.resetYaw()));
+    }
+
+    if (SubsystemConstants.useElevator && SubsystemConstants.useIntake) {
+      new Trigger(m_inNOutSubsystem::intakeHasCoral)
+          .and(() -> m_inNOutSubsystem.m_state != "loaded")
+          .onTrue(m_elevatorSubsystem.GoToElevatorTravel());
+      (ControllerConstants.goToElevatorDownButton
+          .or(ControllerConstants.intakeTrigger))
+          .and(new Trigger(m_inNOutSubsystem::intakeHasCoral).negate())
+          .onTrue(m_elevatorSubsystem.GoToElevatorDown());
+      (ControllerConstants.goToElevatorDownButton
+          .or(ControllerConstants.intakeTrigger))
+          .and(new Trigger(m_inNOutSubsystem::intakeHasCoral))
+          .onTrue(m_elevatorSubsystem.GoToElevatorTravel());
     }
 
     if (SubsystemConstants.useElevator) {
