@@ -21,6 +21,8 @@ import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.PoseEstimatorConstants;
 
 public class LimelightSubsystem extends SubsystemBase {
+  Pose2d loadingPose; // This is needed because the april tag field causes a like 6-10 second loop
+                      // overrun the first time we see an april tag so we need to run it on boot
   CommandJoystick m_driveJoystick;
 
   NetworkTable m_leftTable;
@@ -80,6 +82,8 @@ public class LimelightSubsystem extends SubsystemBase {
     m_poseEstimator = poseEstimatorSubsystem;
     m_leftSub = m_leftTable.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(defaultValues);
     m_rightSub = m_rightTable.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(defaultValues);
+
+    loadingPose = LimelightConstants.aprilTagList[1];
   }
 
   public double getDistanceToPose(Pose2d robot, Pose2d fieldPose) {
