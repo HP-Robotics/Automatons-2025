@@ -154,8 +154,8 @@ public class SwerveModule {
                 // Relative or setpoint means that it's in kraken/falcon units
                 // Abs means that it's absolute encoder units
 
-                m_driveTrainTable.putValue(m_name + " desiredState",
-                                NetworkTableValue.makeDouble(desiredState.angle.getRadians()));
+                // m_driveTrainTable.putValue(m_name + " desiredState",
+                // NetworkTableValue.makeDouble(desiredState.angle.getRadians()));
                 double modifiedCurrentAngle = MathUtil.inputModulus(getRadiansAngle(),
                                 desiredState.angle.getRadians() - Math.PI,
                                 desiredState.angle.getRadians() + Math.PI); // Limit current robot angle within pi of
@@ -176,15 +176,16 @@ public class SwerveModule {
                 m_driveMotor.setControl(new VelocityTorqueCurrentFOC(metersToTicks(desiredState.speedMetersPerSecond)));
 
                 // TODO: Comment out the shuffleboard values we don't need
-                m_driveTrainTable.putValue(m_name + " optimizedDesiredState",
-                                NetworkTableValue.makeDouble(desiredState.angle.getRadians()));
-                m_driveTrainTable.putValue(m_name + " relativeTurningOffset",
-                                NetworkTableValue.makeDouble(m_relativeTurningOffset));
-                m_driveTrainTable.putValue(m_name + " modifiedCurrentAngle",
-                                NetworkTableValue.makeDouble(modifiedCurrentAngle));
-                m_driveTrainTable.putValue(m_name + " desiredSetpoint", NetworkTableValue.makeDouble(desiredSetpoint));
-                m_driveTrainTable.putValue(m_name + " speedSetpoint",
-                                NetworkTableValue.makeDouble(metersToTicks(desiredState.speedMetersPerSecond)));
+                // m_driveTrainTable.putValue(m_name + " optimizedDesiredState",
+                // NetworkTableValue.makeDouble(desiredState.angle.getRadians()));
+                // m_driveTrainTable.putValue(m_name + " relativeTurningOffset",
+                // NetworkTableValue.makeDouble(m_relativeTurningOffset));
+                // m_driveTrainTable.putValue(m_name + " modifiedCurrentAngle",
+                // NetworkTableValue.makeDouble(modifiedCurrentAngle));
+                // m_driveTrainTable.putValue(m_name + " desiredSetpoint",
+                // NetworkTableValue.makeDouble(desiredSetpoint));
+                // m_driveTrainTable.putValue(m_name + " speedSetpoint",
+                // NetworkTableValue.makeDouble(metersToTicks(desiredState.speedMetersPerSecond)));
         }
 
         public double getModifiedAbsolute() {

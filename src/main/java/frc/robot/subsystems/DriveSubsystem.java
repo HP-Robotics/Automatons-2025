@@ -170,7 +170,7 @@ public class DriveSubsystem extends SubsystemBase {
       m_targetPose.setRobotPose(pose);
     });
 
-    SmartDashboard.putData("Field", m_field);
+    // SmartDashboard.putData("Field", m_field);
     m_rotationController = new PIDController(DriveConstants.rotationControllerkP, DriveConstants.rotationControllerkI,
         DriveConstants.rotationControllerkD);
     m_rotationController.enableContinuousInput(-Math.PI, Math.PI);
@@ -286,16 +286,19 @@ public class DriveSubsystem extends SubsystemBase {
       }
     }
 
-    m_driveTrainTable.putValue("Reef sector",
-        NetworkTableValue.makeInteger(m_sector.isPresent() ? m_sector.get() : -1));
-    m_driveTrainTable.putValue("Feeder sector",
-        NetworkTableValue.makeInteger(m_feederSector.isPresent() ? m_feederSector.get() : -1));
+    // m_driveTrainTable.putValue("Reef sector",
+    // NetworkTableValue.makeInteger(m_sector.isPresent() ? m_sector.get() : -1));
+    // m_driveTrainTable.putValue("Feeder sector",
+    // NetworkTableValue.makeInteger(m_feederSector.isPresent() ?
+    // m_feederSector.get() : -1));
 
-    m_driveTrainTable.putValue("Robot theta",
-        NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
-    m_driveTrainTable.putValue("is Drive Abs Working",
-        NetworkTableValue.makeBoolean(m_backLeft.m_absEncoder.get() != 0 && m_backRight.m_absEncoder.get() != 0
-            && m_frontLeft.m_absEncoder.get() != 0 && m_frontRight.m_absEncoder.get() != 0));
+    // m_driveTrainTable.putValue("Robot theta",
+    // NetworkTableValue.makeDouble(m_poseEstimator.getPose().getRotation().getDegrees()));
+    // m_driveTrainTable.putValue("is Drive Abs Working",
+    // NetworkTableValue.makeBoolean(m_backLeft.m_absEncoder.get() != 0 &&
+    // m_backRight.m_absEncoder.get() != 0
+    // && m_frontLeft.m_absEncoder.get() != 0 && m_frontRight.m_absEncoder.get() !=
+    // 0));
 
     // TODO investigate why this takes so long
     m_frontLeft.updateShuffleboard();
@@ -304,9 +307,12 @@ public class DriveSubsystem extends SubsystemBase {
     m_backLeft.updateShuffleboard();
 
     // BaseStatusSignal.refreshAll(m_pGyroPitch, m_pGyroYaw, m_pGyroRoll);
-    m_driveTrainTable.putValue("Pigeon Pitch", NetworkTableValue.makeDouble(m_pGyroPitch.getValueAsDouble()));
-    m_driveTrainTable.putValue("Pigeon Yaw", NetworkTableValue.makeDouble(m_pGyroYaw.getValueAsDouble()));
-    m_driveTrainTable.putValue("Pigeon Roll", NetworkTableValue.makeDouble(m_pGyroRoll.getValueAsDouble()));
+    // m_driveTrainTable.putValue("Pigeon Pitch",
+    // NetworkTableValue.makeDouble(m_pGyroPitch.getValueAsDouble()));
+    // m_driveTrainTable.putValue("Pigeon Yaw",
+    // NetworkTableValue.makeDouble(m_pGyroYaw.getValueAsDouble()));
+    // m_driveTrainTable.putValue("Pigeon Roll",
+    // NetworkTableValue.makeDouble(m_pGyroRoll.getValueAsDouble()));
 
     joystickTrans = new Translation2d(ControllerConstants.m_driveJoystick.getRawAxis(1),
         ControllerConstants.m_driveJoystick.getRawAxis(0));

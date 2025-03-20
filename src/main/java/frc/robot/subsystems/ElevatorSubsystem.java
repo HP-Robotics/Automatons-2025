@@ -277,6 +277,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             // updateLEDs();
         }
         boolean doUpdate = false;
+
         // for (double iterVal : kPSub.readQueueValues()) {
         // elevatorConfig.Slot0.kP = iterVal;
         // doUpdate = true;
