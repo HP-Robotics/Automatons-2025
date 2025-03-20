@@ -179,46 +179,50 @@ public class LimelightSubsystem extends SubsystemBase {
 
     if (m_leftVisionData.isPresent()) {
       PoseEstimation p = m_leftVisionData.get();
-      m_leftTable.putValue("score", NetworkTableValue.makeDouble(p.m_score));
+      // m_leftTable.putValue("score", NetworkTableValue.makeDouble(p.m_score));
 
-      m_leftTable.putValue("unweighted skew",
-          NetworkTableValue.makeDouble(p.m_angleDiff));
-      m_leftTable.putValue("weighted skew",
-          NetworkTableValue.makeDouble(PoseEstimatorConstants.skewWeight * p.m_angleDiff));
-      m_leftTable.putValue("unweighted heading",
-          NetworkTableValue.makeDouble(Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
-              - p.m_visionPose.getRotation().getRadians())));
-      m_leftTable.putValue("weighted heading",
-          NetworkTableValue.makeDouble(PoseEstimatorConstants.headingWeight
-              * Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
-                  - p.m_visionPose.getRotation().getRadians())));
-      m_leftTable.putValue("unweighted distance",
-          NetworkTableValue.makeDouble(p.m_tagDistance));
-      m_leftTable.putValue("weighted distance",
-          NetworkTableValue.makeDouble(PoseEstimatorConstants.distanceWeight * p.m_tagDistance));
+      // m_leftTable.putValue("unweighted skew",
+      // NetworkTableValue.makeDouble(p.m_angleDiff));
+      // m_leftTable.putValue("weighted skew",
+      // NetworkTableValue.makeDouble(PoseEstimatorConstants.skewWeight *
+      // p.m_angleDiff));
+      // m_leftTable.putValue("unweighted heading",
+      // NetworkTableValue.makeDouble(Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
+      // - p.m_visionPose.getRotation().getRadians())));
+      // m_leftTable.putValue("weighted heading",
+      // NetworkTableValue.makeDouble(PoseEstimatorConstants.headingWeight
+      // * Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
+      // - p.m_visionPose.getRotation().getRadians())));
+      // m_leftTable.putValue("unweighted distance",
+      // NetworkTableValue.makeDouble(p.m_tagDistance));
+      // m_leftTable.putValue("weighted distance",
+      // NetworkTableValue.makeDouble(PoseEstimatorConstants.distanceWeight *
+      // p.m_tagDistance));
 
       m_leftPosePublisher.set(p.m_visionPose);
     }
 
     if (m_rightVisionData.isPresent()) {
       PoseEstimation p = m_rightVisionData.get();
-      m_rightTable.putValue("score", NetworkTableValue.makeDouble(p.m_score));
+      // m_rightTable.putValue("score", NetworkTableValue.makeDouble(p.m_score));
 
-      m_rightTable.putValue("unweighted skew",
-          NetworkTableValue.makeDouble(p.m_angleDiff));
-      m_rightTable.putValue("weighted skew",
-          NetworkTableValue.makeDouble(PoseEstimatorConstants.skewWeight * p.m_angleDiff));
-      m_rightTable.putValue("unweighted heading",
-          NetworkTableValue.makeDouble(Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
-              - p.m_visionPose.getRotation().getRadians())));
-      m_rightTable.putValue("weighted heading",
-          NetworkTableValue.makeDouble(PoseEstimatorConstants.headingWeight
-              * Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
-                  - p.m_visionPose.getRotation().getRadians())));
-      m_rightTable.putValue("unweighted distance",
-          NetworkTableValue.makeDouble(p.m_tagDistance));
-      m_rightTable.putValue("weighted distance",
-          NetworkTableValue.makeDouble(PoseEstimatorConstants.distanceWeight * p.m_tagDistance));
+      // m_rightTable.putValue("unweighted skew",
+      // NetworkTableValue.makeDouble(p.m_angleDiff));
+      // m_rightTable.putValue("weighted skew",
+      // NetworkTableValue.makeDouble(PoseEstimatorConstants.skewWeight *
+      // p.m_angleDiff));
+      // m_rightTable.putValue("unweighted heading",
+      // NetworkTableValue.makeDouble(Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
+      // - p.m_visionPose.getRotation().getRadians())));
+      // m_rightTable.putValue("weighted heading",
+      // NetworkTableValue.makeDouble(PoseEstimatorConstants.headingWeight
+      // * Math.abs(m_poseEstimator.getPose().getRotation().getRadians()
+      // - p.m_visionPose.getRotation().getRadians())));
+      // m_rightTable.putValue("unweighted distance",
+      // NetworkTableValue.makeDouble(p.m_tagDistance));
+      // m_rightTable.putValue("weighted distance",
+      // NetworkTableValue.makeDouble(PoseEstimatorConstants.distanceWeight *
+      // p.m_tagDistance));
 
       m_rightPosePublisher.set(p.m_visionPose);
     }
