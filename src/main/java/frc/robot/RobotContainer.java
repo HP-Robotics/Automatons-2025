@@ -271,6 +271,8 @@ public class RobotContainer {
       // Set state to outtaking if outtake button pressed and we are loaded
       ControllerConstants.outtakeTrigger
           .and(new Trigger(() -> m_inNOutSubsystem.isLoaded() || m_inNOutSubsystem.m_state == "outtaking"))
+          .and(new Trigger(() -> m_elevatorSubsystem.m_targetRotation > ElevatorConstants.elevatorTravelPosition
+              && m_elevatorSubsystem.atPosition()))
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "outtaking";
           }));
@@ -285,10 +287,10 @@ public class RobotContainer {
 
       // ACTIONS
       // run intake if intake button pressed and state is empty or is intaking
-      (new Trigger(() -> m_inNOutSubsystem.m_state == "intaking"))
+      (new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
           .or((new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
-              .or(new Trigger(() -> !m_inNOutSubsystem.isLoaded()))
-              .and(ControllerConstants.intakeTrigger))
+              .or(new Trigger(() -> !m_inNOutSubsystem.isLoaded())))
+          .and(ControllerConstants.intakeTrigger))
           // .and(new Trigger(m_elevatorSubsystem::atDownPosition))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::loadOuttake, m_inNOutSubsystem::stopOuttake))
@@ -297,7 +299,7 @@ public class RobotContainer {
               () -> LEDSubsystem.trySetMiddlePattern(m_ledSubsystem, m_inNOutSubsystem.m_state == "loaded"
                   ? LEDConstants.coralReadyPattern
                   : LEDConstants.defaultMiddlePattern)));
-      (new Trigger(() -> m_inNOutSubsystem.m_state == "empty")).onTrue(
+      (new Trigger(m_inNOutSubsystem::isEmpty)).onTrue(
           new InstantCommand(() -> LEDSubsystem.trySetMiddlePattern(m_ledSubsystem, LEDConstants.noCoralPattern)));
 
       new Trigger(m_inNOutSubsystem::isLoaded)
@@ -433,6 +435,7 @@ public class RobotContainer {
       new Trigger(m_inNOutSubsystem::outtakeHasCoral)
           .and(() -> m_inNOutSubsystem.m_state != "outtaking")
           .and(() -> m_inNOutSubsystem.m_state != "loaded")
+          .and(() -> m_inNOutSubsystem.m_state != "folded")
           .onTrue(m_elevatorSubsystem.GoToElevatorTravel());
       (ControllerConstants.goToElevatorDownButton
           .or(ControllerConstants.intakeTrigger))

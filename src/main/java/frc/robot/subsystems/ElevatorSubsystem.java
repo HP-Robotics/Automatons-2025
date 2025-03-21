@@ -175,7 +175,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void goToL2() {
         goToPosition(Constants.ElevatorConstants.L2Position +
                 m_offset);
-        this.m_targetRotation = Constants.ElevatorConstants.L1Position;
+        this.m_targetRotation = Constants.ElevatorConstants.L2Position;
     }
 
     public Command GoToL2() {
@@ -338,6 +338,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_table.putValue("atIntakePosition", NetworkTableValue.makeBoolean(this.atDownPosition()));
         m_table.putValue("targetRotation", NetworkTableValue.makeDouble(m_targetRotation));
         m_table.putValue("preset", NetworkTableValue.makeString(m_elevatorPreset));
+        m_table.putValue("atSetpoint", NetworkTableValue.makeBoolean(this.atPosition()));
 
     }
 }
