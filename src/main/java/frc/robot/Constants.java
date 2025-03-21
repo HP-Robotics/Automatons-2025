@@ -359,19 +359,18 @@ public final class Constants {
     public static final double foldSpeed = 0.1;
     public static final double foldRunTime = 2;
 
-    public static final double climbModulekP = 0.2;
+    public static final double climbModulekP = 0.4;
     public static final double climbModulekI = 0.001;
-    public static final double climbModulekD = 0;
+    public static final double climbModulekD = 0.04;
     public static final double climbModulekF = 0;
 
     public static final double climberGearRatio = 473.5; // 243;
 
-    public static final double encoderModulusTolerance = 0.05;
+    public static final double encoderModulusTolerance = 0.2;
     public static final double degreesToRelativeRotations = climberGearRatio / 360;
-    public static final double climberStartAbsolute = 0.27;
+    public static final double climberStartAbsolute = 0.8;
     public static final double climberUpRelative = 0.0;
-    public static final double climberDownRelative = 40.0 * degreesToRelativeRotations; // TEMP TEMP 137.78 *
-                                                                                        // degreesToRelativeRotations;
+    public static final double climberDownRelative = 118.0 * degreesToRelativeRotations; // TEMP TEMP 137.78 *
   }
 
   public static class IntakeConstants {
