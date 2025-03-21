@@ -86,6 +86,7 @@ public class LimelightSubsystem extends SubsystemBase {
     loadingPose = LimelightConstants.aprilTagList[1];
   }
 
+  // TODO: move all geometry code to a geometry util file
   public double getDistanceToPose(Pose2d robot, Pose2d fieldPose) {
     double distX = fieldPose.getX() - robot.getX();
     double distY = fieldPose.getY() - robot.getY();
