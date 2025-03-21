@@ -37,7 +37,7 @@ public final class Constants {
     public static final boolean useOuttake = true;
     public static final boolean useDataManager = true;
     public static final boolean useLimelight = true;
-    public static final boolean useClimber = false;
+    public static final boolean useClimber = true;
     public static final boolean useLED = true;
     public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
@@ -371,6 +371,9 @@ public final class Constants {
     public static final double climberStartAbsolute = 0.8;
     public static final double climberUpRelative = 0.0;
     public static final double climberDownRelative = 118.0 * degreesToRelativeRotations; // TEMP TEMP 137.78 *
+                                                                                         // degreesToRelativeRotations;
+
+    public static final double offsetErrorThreshold = 5;
   }
 
   public static class IntakeConstants {

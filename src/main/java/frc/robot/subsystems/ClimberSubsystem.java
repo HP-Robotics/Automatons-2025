@@ -34,7 +34,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     NetworkTable m_climberTable;
 
-    TalonFX m_climbMotor = new TalonFX(IDConstants.ClimberMotorID);
+    TalonFX m_climbMotor = new TalonFX(IDConstants.ClimberMotorID, "CANivore");
     DutyCycleEncoder m_absEncoder;
     NetworkTable m_table;
     double m_offset = 0.0;
@@ -116,37 +116,34 @@ public class ClimberSubsystem extends SubsystemBase {
         if (m_timer.hasElapsed(5)) {
             var encoderAbs = getAbsEncoder();
             if (encoderAbs.isPresent()) {
-                m_offset = (encoderAbs.get() - ClimberConstants.climberStartAbsolute)
-                        * ClimberConstants.climberGearRatio
-                        /*
-                         * Note that the logic here would more naturally be expressed a subtracting
-                         * the current relative encoder. That is, what we do is compute where we think
-                         * the relative encoder should be, given where the absolute encoder is. Then, it
-                         * would be natural to subtract the current value of the relative encoder.
-                         * However, because the absolute encoder and relative encoder go opposite
-                         * directions, we need
-                         * one more negative sign. (To be clear, the absolute
-                         * increases counter clockwise, or up, and relative increases clockwise, or
-                         * 'down')
-                         */
-                        + m_climbMotor.getRotorPosition().getValueAsDouble();
-                // double realOffset = 0.0;
-                // double newEncoderAbs = MathUtil.inputModulus(encoderAbs, 0.3, 1.05);
-                // realOffset = (newEncoderAbs - ClimberConstants.climberUpAbsolute) *
-                // ClimberConstants.climberGearRatio
-                // + realOffset;
-                // m_climberTable.putValue("new abs encoder",
-                // NetworkTableValue.makeDouble(newEncoderAbs));
-                // m_climberTable.putValue("real offset",
-                // NetworkTableValue.makeDouble(realOffset));
-                // setClimbMotorConfigs();
+                if (m_offset == 0
+                        || Math.abs(ClimberConstants.climberDownRelative + m_offset - m_climbMotor.getRotorPosition()
+                                .getValueAsDouble()) > ClimberConstants.offsetErrorThreshold) {
+                    m_offset = (encoderAbs.get() - ClimberConstants.climberStartAbsolute)
+                            * ClimberConstants.climberGearRatio
+                            /*
+                             * Note that the logic here would more naturally be expressed a subtracting
+                             * the current relative encoder. That is, what we do is compute where we think
+                             * the relative encoder should be, given where the absolute encoder is. Then, it
+                             * would be natural to subtract the current value of the relative encoder.
+                             * However, because the absolute encoder and relative encoder go opposite
+                             * directions, we need
+                             * one more negative sign. (To be clear, the absolute
+                             * increases counter clockwise, or up, and relative increases clockwise, or
+                             * 'down')
+                             */
+                            + m_climbMotor.getRotorPosition().getValueAsDouble();
+                }
             }
 
             m_table.putValue("AbsEncoder", NetworkTableValue.makeDouble(m_absEncoder.get()));
             m_table.putValue("Relative encoder",
                     NetworkTableValue.makeDouble(m_climbMotor.getRotorPosition().getValueAsDouble()));
             m_table.putValue("Offset", NetworkTableValue.makeDouble(m_offset));
-
+            m_table.putValue("Error",
+                    NetworkTableValue.makeDouble(m_climbMotor.getClosedLoopError().getValueAsDouble()));
+            m_table.putValue("Down Setpoint",
+                    NetworkTableValue.makeDouble(ClimberConstants.climberDownRelative + m_offset));
         }
     }
 }
