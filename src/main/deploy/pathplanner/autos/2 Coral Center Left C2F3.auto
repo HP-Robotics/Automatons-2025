@@ -17,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Right Wall Cage to C3L"
+                  "pathName": "Left Center Cage to C2L"
                 }
               }
             ]
@@ -32,7 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C3L to Lower Feeder"
+            "pathName": "C2L to Lower Feeder"
           }
         },
         {
@@ -44,7 +44,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Lower Feeder to F3R"
+            "pathName": "Lower Feeder to F3L"
           }
         },
         {
@@ -56,13 +56,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "F3R to Lower Feeder"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "WaitForIntake"
+            "pathName": "F3L to Lower Feeder"
           }
         }
       ]
