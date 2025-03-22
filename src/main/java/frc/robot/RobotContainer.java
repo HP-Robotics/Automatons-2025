@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableValue;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ControllerConstants;
@@ -31,7 +32,9 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -428,7 +431,17 @@ public class RobotContainer {
       // new Rotation2d()))));
       // }, m_driveSubsystem));
 
-      ControllerConstants.resetYawTrigger.onTrue(new InstantCommand(() -> m_driveSubsystem.resetYaw()));
+      ControllerConstants.resetYawTrigger
+          .onTrue(new InstantCommand(() -> {
+            m_driveSubsystem.resetYaw();
+            m_driveSubsystem.resetPose(
+                new Pose2d(
+                    m_driveSubsystem.getPose().getTranslation(),
+                    new Rotation2d(
+                        DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
+                            ? Math.PI
+                            : 0)));
+          }));
     }
 
     if (SubsystemConstants.useElevator && SubsystemConstants.useIntake) {
