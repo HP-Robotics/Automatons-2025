@@ -405,14 +405,16 @@ public class RobotContainer {
               () -> LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.noAutoAlignPattern)));
 
       ControllerConstants.m_driveJoystick.button(ControllerConstants.rightAlignButton)
-          .and(m_inNOutSubsystem::isLoaded)
+          .and(new Trigger(m_inNOutSubsystem::outtakeHasCoral)
+              .or(m_inNOutSubsystem::intakeHasCoral))
           .whileTrue(m_driveSubsystem.AutoAlign(FieldConstants.rightAlignPoses))
           .whileTrue(new StartEndCommand(
               () -> LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern),
               () -> LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.noAutoAlignPattern)));
 
       ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAlignButton)
-          .and(m_inNOutSubsystem::isLoaded)
+          .and(new Trigger(m_inNOutSubsystem::outtakeHasCoral)
+              .or(m_inNOutSubsystem::intakeHasCoral))
           .whileTrue(m_driveSubsystem.AutoAlign(FieldConstants.leftAlignPoses))
           .whileTrue(new StartEndCommand(
               () -> LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern),
