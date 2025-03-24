@@ -110,7 +110,7 @@ public final class Constants {
     public static final double L3Position = (48.6670401153 + 3) * inchesToRotations; // 37.7 if low ceiling
     public static final double L2Position = (34.02 + 1) * inchesToRotations;
     public static final double L1Position = (18.9 + 5) * inchesToRotations;
-    public static final double elevatorDownPosition = (2.8 - 0.1 + 0.5) * inchesToRotations; // testing
+    public static final double elevatorDownPosition = (1.95) * inchesToRotations; // testing
     public static final double elevatorTravelPosition = 4.457 * inchesToRotations;
     public static final double bottomPosition = (0.945 + 1) * inchesToRotations;
     // TODO: this might be right but should be checked with the other two
@@ -266,8 +266,8 @@ public final class Constants {
   public static class FieldConstants {
     public static final Translation2d blueReefCenter = new Translation2d(4.490323, 4.02);
     public static final Translation2d redReefCenter = new Translation2d(13.059902, 4.02);
-    public static final Translation2d leftC2 = new Translation2d(1.2716 + 0.04, -0.18); // + 0.04 untested
-    public static final Translation2d rightC2 = new Translation2d(1.2716 + 0.04, 0.16);
+    public static final Translation2d leftC2 = new Translation2d(1.2716 + 0.03, -0.18); // + 0.04 untested
+    public static final Translation2d rightC2 = new Translation2d(1.2716 + 0.03, 0.16);
     public static final Translation2d redUpperFeederCenter = new Translation2d(); // TODO: find these numbers
     public static final Translation2d redLowerFeederCenter = new Translation2d();
     public static final Translation2d blueUpperFeederCenter = new Translation2d();
@@ -335,8 +335,8 @@ public final class Constants {
     };
     public static final Pose2d[] leftFeederAlignPoses = {
         FlippingUtil.flipFieldPose(new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(54.293))), // feeder sector 3
-        FlippingUtil.flipFieldPose(new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
-        new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(-53.746)), // feeder sector 0
+        FlippingUtil.flipFieldPose(new Pose2d(0.707, 6.704, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
+        new Pose2d(0.707, 6.704, Rotation2d.fromDegrees(-53.746)), // feeder sector 0
         new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(54.293)), // feeder sector 1
     };
     public static final Translation2d[] feederAlignAngles = {
@@ -349,8 +349,8 @@ public final class Constants {
 
     public static final Pose2d[] rightFeederAlignPoses = {
         FlippingUtil.flipFieldPose(new Pose2d(1.654, 0.626, Rotation2d.fromDegrees(54.293))), // feeder sector 3
-        FlippingUtil.flipFieldPose(new Pose2d(0.707, 6.704, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
-        new Pose2d(0.707, 6.704, Rotation2d.fromDegrees(-53.746)), // feeder sector 0
+        FlippingUtil.flipFieldPose(new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
+        new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(-53.746)), // feeder sector 0
         new Pose2d(1.654, 0.626, Rotation2d.fromDegrees(54.293)), // feeder sector 1
     };
   }
@@ -409,7 +409,7 @@ public final class Constants {
 
   public static class OuttakeConstants {
     public static final double outtakeSpeed = -0.6;
-    public static final double loadSpeed = -0.3;
+    public static final double loadSpeed = -0.5;
     public static final double scoreDelay = 0.2;
   }
 
