@@ -157,6 +157,8 @@ public class RobotContainer {
       NamedCommands.registerCommand("WaitForElevator",
           new WaitUntilCommand(m_elevatorSubsystem::atPosition));
       NamedCommands.registerCommand("InitializeElevator", InitializeElevator());
+      NamedCommands.registerCommand("ElevatorWiggle",
+          m_elevatorSubsystem.ElevatorWiggle().until(m_inNOutSubsystem::isLoaded));
     }
     if (SubsystemConstants.useDrive && SubsystemConstants.useElevator && SubsystemConstants.useOuttake) {
       NamedCommands.registerCommand("Score", new SequentialCommandGroup(

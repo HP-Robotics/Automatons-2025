@@ -19,7 +19,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IDConstants;
@@ -235,6 +237,18 @@ public class ElevatorSubsystem extends SubsystemBase {
             this.goToElevatorTravel();
             this.m_targetRotation = Constants.ElevatorConstants.elevatorTravelPosition;
         });
+    }
+
+    public Command ElevatorWiggle() {
+        return new SequentialCommandGroup(
+                new InstantCommand(() -> {
+                    goToPosition(m_targetRotation + ElevatorConstants.elevatorWiggleAmount);
+                }),
+                new WaitCommand(ElevatorConstants.elevatorWiggleWait),
+                new InstantCommand(() -> {
+                    goToPosition(m_targetRotation - ElevatorConstants.elevatorWiggleAmount);
+                }),
+                new WaitCommand(ElevatorConstants.elevatorWiggleWait)).repeatedly();
     }
 
     public Command GoToElevatorDown() {
