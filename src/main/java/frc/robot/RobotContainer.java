@@ -499,16 +499,21 @@ public class RobotContainer {
     }
 
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
-      (ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldDualKeyButton))
-          .and(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldButton))
+      ((ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldDualKeyButton))
+          .and(ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldButton)))
+          .or((ControllerConstants.opDualKeyIntakeFoldTrigger)
+              .and(ControllerConstants.opTripleKeyIntakeFoldTrigger)
+              .and(ControllerConstants.opIntakeFold))
           .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime)
               .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "folded")));
+
     }
     if (SubsystemConstants.useClimber) {
       ControllerConstants.climberTrigger.and(new Trigger(() -> m_inNOutSubsystem.m_state == "folded"))
           .whileTrue(m_climberSubsystem.Climb())
           .onFalse(m_climberSubsystem.StopClimb());
       ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldDualKeyButton)
+          .or(ControllerConstants.opIntakeFold)
           .onTrue(m_climberSubsystem.ResetClimber())
           .onFalse(m_climberSubsystem.StopClimb());
     }

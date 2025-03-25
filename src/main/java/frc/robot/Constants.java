@@ -179,6 +179,10 @@ public final class Constants {
     public static final Trigger goToL4Button = m_opJoystick.button(4);
     public static final Trigger goToElevatorDownButton = m_opJoystick.button(6);
 
+    public static final Trigger opIntakeFold = m_opJoystick.povLeft();
+    public static final Trigger opDualKeyIntakeFoldTrigger = m_opJoystick.axisGreaterThan(3, 0.2);
+    public static final Trigger opTripleKeyIntakeFoldTrigger = m_opJoystick.axisGreaterThan(2, 0.2);
+
     public static double getRotation(CommandJoystick stick) {
       if (useXbox) {
         return stick.getRawAxis(4);
