@@ -270,6 +270,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return new InstantCommand(() -> goToPosition(position));
     }
 
+    @SuppressWarnings("unused")
     @Override
     public void periodic() {
         // m_table.putValue("state", NetworkTableValue.makeString(elevatorPreset));
