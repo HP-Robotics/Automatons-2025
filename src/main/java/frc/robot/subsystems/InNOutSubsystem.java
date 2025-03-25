@@ -71,6 +71,10 @@ public class InNOutSubsystem extends SubsystemBase {
         return m_elevatorBeamBreak.beamBroken(); // || m_intakeBeamBreak.beamBroken();
     }
 
+    public boolean outtakeHasCoral() {
+        return m_outtakeBeamBreak.beamBroken();
+    }
+
     public boolean isLoaded() {
         return m_outtakeBeamBreak.beamBroken() && !m_elevatorBeamBreak.beamBroken();
     }

@@ -37,8 +37,8 @@ public final class Constants {
     public static final boolean useOuttake = true;
     public static final boolean useDataManager = true;
     public static final boolean useLimelight = true;
-    public static final boolean useClimber = true;
-    public static final boolean useLED = false;
+    public static final boolean useClimber = false;
+    public static final boolean useLED = true;
     public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
   }
@@ -106,12 +106,12 @@ public final class Constants {
 
   public static class ElevatorConstants {
     public static final double inchesToRotations = 5 / (Math.PI * 1.504);
-    public static final double L4Position = 71.82 * inchesToRotations; // 42.5 if low ceiling
-    public static final double L3Position = 48.6670401153 * inchesToRotations; // 37.7 if low ceiling
-    public static final double L2Position = 34.02 * inchesToRotations;
-    public static final double L1Position = 18.9 * inchesToRotations;
+    public static final double L4Position = (71.82 + 3.5) * inchesToRotations; // 42.5 if low ceiling
+    public static final double L3Position = (48.6670401153 + 3) * inchesToRotations; // 37.7 if low ceiling
+    public static final double L2Position = (34.02 + 1) * inchesToRotations;
+    public static final double L1Position = (18.9 + 5) * inchesToRotations;
+    public static final double elevatorDownPosition = (2.8 - 1.5) * inchesToRotations; // testing
     public static final double elevatorTravelPosition = 4.457 * inchesToRotations;
-    public static final double elevatorDownPosition = 2.457 * inchesToRotations;
     public static final double bottomPosition = 0.945 * inchesToRotations;
     // TODO: this might be right but should be checked with the other two
     public static final double kP = 1.5;// TODO: tune these more
@@ -266,8 +266,8 @@ public final class Constants {
   public static class FieldConstants {
     public static final Translation2d blueReefCenter = new Translation2d(4.490323, 4.02);
     public static final Translation2d redReefCenter = new Translation2d(13.059902, 4.02);
-    public static final Translation2d leftC2 = new Translation2d(1.2716, -0.18);
-    public static final Translation2d rightC2 = new Translation2d(1.2716, 0.16);
+    public static final Translation2d leftC2 = new Translation2d(1.2716 + 0.04, -0.18); // + 0.04 untested
+    public static final Translation2d rightC2 = new Translation2d(1.2716 + 0.04, 0.16);
     public static final Translation2d redUpperFeederCenter = new Translation2d(); // TODO: find these numbers
     public static final Translation2d redLowerFeederCenter = new Translation2d();
     public static final Translation2d blueUpperFeederCenter = new Translation2d();
@@ -364,13 +364,14 @@ public final class Constants {
     public static final double climbModulekD = 0;
     public static final double climbModulekF = 0;
 
-    public static final double climberGearRatio = 243;
+    public static final double climberGearRatio = 473.5; // 243;
 
     public static final double encoderModulusTolerance = 0.05;
     public static final double degreesToRelativeRotations = climberGearRatio / 360;
     public static final double climberStartAbsolute = 0.27;
     public static final double climberUpRelative = 0.0;
-    public static final double climberDownRelative = 137.78 * degreesToRelativeRotations;
+    public static final double climberDownRelative = 40.0 * degreesToRelativeRotations; // TEMP TEMP 137.78 *
+                                                                                        // degreesToRelativeRotations;
   }
 
   public static class IntakeConstants {

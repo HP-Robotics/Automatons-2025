@@ -275,9 +275,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void periodic() {
         // m_table.putValue("state", NetworkTableValue.makeString(elevatorPreset));
         if (SubsystemConstants.useLED && m_hasTouchedGrass) {
-            updateLEDs();
+            // updateLEDs();
         }
-        // boolean doUpdate = false;
+        boolean doUpdate = false;
+
         // for (double iterVal : kPSub.readQueueValues()) {
         // elevatorConfig.Slot0.kP = iterVal;
         // doUpdate = true;

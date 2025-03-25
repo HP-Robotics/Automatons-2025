@@ -285,10 +285,10 @@ public class RobotContainer {
 
       // ACTIONS
       // run intake if intake button pressed and state is empty or is intaking
-      (new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
-          .or(new Trigger(() -> m_inNOutSubsystem.m_state == "empty")))
-          .or(new Trigger(m_inNOutSubsystem::isLoaded).negate())
-          .and(ControllerConstants.intakeTrigger)
+      (new Trigger(() -> m_inNOutSubsystem.m_state == "intaking"))
+          .or((new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
+              .or(new Trigger(() -> !m_inNOutSubsystem.isLoaded()))
+              .and(ControllerConstants.intakeTrigger))
           // .and(new Trigger(m_elevatorSubsystem::atDownPosition))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::loadOuttake, m_inNOutSubsystem::stopOuttake))
@@ -300,7 +300,7 @@ public class RobotContainer {
       (new Trigger(() -> m_inNOutSubsystem.m_state == "empty")).onTrue(
           new InstantCommand(() -> LEDSubsystem.trySetMiddlePattern(m_ledSubsystem, LEDConstants.noCoralPattern)));
 
-      new Trigger(() -> m_inNOutSubsystem.isLoaded())
+      new Trigger(m_inNOutSubsystem::isLoaded)
           .onTrue(new InstantCommand(m_inNOutSubsystem::stopIntake))
           .onTrue(new InstantCommand(m_inNOutSubsystem::stopOuttake));
 
@@ -430,16 +430,17 @@ public class RobotContainer {
     }
 
     if (SubsystemConstants.useElevator && SubsystemConstants.useIntake) {
-      new Trigger(m_inNOutSubsystem::intakeHasCoral)
+      new Trigger(m_inNOutSubsystem::outtakeHasCoral)
+          .and(() -> m_inNOutSubsystem.m_state != "outtaking")
           .and(() -> m_inNOutSubsystem.m_state != "loaded")
           .onTrue(m_elevatorSubsystem.GoToElevatorTravel());
       (ControllerConstants.goToElevatorDownButton
           .or(ControllerConstants.intakeTrigger))
-          .and(new Trigger(m_inNOutSubsystem::intakeHasCoral).negate())
+          .and(new Trigger(m_inNOutSubsystem::outtakeHasCoral).negate())
           .onTrue(m_elevatorSubsystem.GoToElevatorDown());
       (ControllerConstants.goToElevatorDownButton
           .or(ControllerConstants.intakeTrigger))
-          .and(new Trigger(m_inNOutSubsystem::intakeHasCoral))
+          .and(new Trigger(m_inNOutSubsystem::outtakeHasCoral))
           .onTrue(m_elevatorSubsystem.GoToElevatorTravel());
     }
 
@@ -462,6 +463,9 @@ public class RobotContainer {
       ControllerConstants.goToL1Button
           // .and(new Trigger(m_inNOutSubsystem::isLoaded))
           .onTrue((m_elevatorSubsystem.GoToL1()));
+      ControllerConstants.goToElevatorDownButton
+          // .or(ControllerConstants.intakeTrigger)
+          .onTrue(m_elevatorSubsystem.GoToElevatorDown());
 
       // TODO: Make elevator preset and use it after auto aligning
       // ControllerConstants.m_opJoystick.button(14)
