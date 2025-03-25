@@ -133,7 +133,7 @@ public final class Constants {
     public static final double motionMagicAcceleration = 120;
     public static final double motionMagicJerk = motionMagicCruiseVelocity * 10;
 
-    public static final double elevatorWiggleAmount = 1 * inchesToRotations;
+    public static final double elevatorWiggleAmount = 0.5 * inchesToRotations;
     public static final double elevatorWiggleWait = 0.1;
   }
 
