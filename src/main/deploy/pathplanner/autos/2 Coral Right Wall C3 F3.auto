@@ -24,9 +24,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "deadline",
           "data": {
-            "name": "Score"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Score"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Dealginate"
+                }
+              }
+            ]
           }
         },
         {
@@ -36,9 +49,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "deadline",
           "data": {
-            "name": "WaitForIntake"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitForIntake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorWiggle"
+                }
+              }
+            ]
           }
         },
         {
@@ -48,9 +74,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "deadline",
           "data": {
-            "name": "Score"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Score"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Dealginate"
+                }
+              }
+            ]
           }
         },
         {
@@ -60,9 +99,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "deadline",
           "data": {
-            "name": "WaitForIntake"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitForIntake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorWiggle"
+                }
+              }
+            ]
           }
         }
       ]
