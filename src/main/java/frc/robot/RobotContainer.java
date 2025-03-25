@@ -414,6 +414,16 @@ public class RobotContainer {
               () -> LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern),
               () -> LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.noAutoAlignPattern)));
 
+      ControllerConstants.m_driveJoystick.button(ControllerConstants.rightAlignButton)
+          .and(new Trigger(() -> m_inNOutSubsystem.m_state == "folded"))
+          .whileTrue(new RunCommand(() -> {
+            m_driveSubsystem.drivePointedTowardsAngle(ControllerConstants.m_driveJoystick,
+                new Rotation2d(
+                    DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
+                        ? Math.PI / 2
+                        : -Math.PI / 2));
+          }));
+
       ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAlignButton)
           .and(new Trigger(m_inNOutSubsystem::outtakeHasCoral)
               .or(m_inNOutSubsystem::intakeHasCoral))
