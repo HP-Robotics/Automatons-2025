@@ -165,14 +165,13 @@ public final class Constants {
     public static final Trigger resetYawTrigger = m_driveJoystick.povDownRight();
 
     // OPERATOR BUTTONS
-    public static final Trigger elevatorL3Trigger = m_opJoystick.button(3);
-    public static final Trigger elevatorL4Trigger = m_opJoystick.button(4);
+    // public static final Trigger elevatorL3Trigger = m_opJoystick.button(3);
+    // public static final Trigger elevatorL4Trigger = m_opJoystick.button(4);
     public static final Trigger elevatorDownButton = m_opJoystick.button(7);
     public static final Trigger elevatorUpButton = m_opJoystick.button(8);
     public static final Trigger intakeTrigger = m_opJoystick.button(5);
 
-    // public static final int goToTargetButton = 0; // TODO: change this
-    public static final Trigger overrideButton = m_opJoystick.button(10); // TODO: fix this
+    public static final Trigger overrideButton = m_opJoystick.povDown();
     public static final Trigger goToL1Button = m_opJoystick.button(3);
     public static final Trigger goToL2Button = m_opJoystick.button(1);
     public static final Trigger goToL3Button = m_opJoystick.button(2);
