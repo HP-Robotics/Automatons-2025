@@ -41,6 +41,7 @@ public final class Constants {
     public static final boolean useLED = true;
     public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
+    public static final boolean useDealginator = false;
   }
 
   public static class RobotConfigConstants {
@@ -170,6 +171,7 @@ public final class Constants {
     public static final Trigger elevatorDownButton = m_opJoystick.button(7);
     public static final Trigger elevatorUpButton = m_opJoystick.button(8);
     public static final Trigger intakeTrigger = m_opJoystick.button(5);
+    public static final Trigger dealginateButton = m_opJoystick.povUp();
 
     // public static final int goToTargetButton = 0; // TODO: change this
     public static final Trigger overrideButton = m_opJoystick.button(10); // TODO: fix this
