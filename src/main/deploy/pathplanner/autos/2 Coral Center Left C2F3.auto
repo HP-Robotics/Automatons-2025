@@ -5,15 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "InitializeElevator"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Left Center Cage to C2L"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "InitializeElevator"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left Center Cage to C2L"
+                }
+              }
+            ]
           }
         },
         {
@@ -26,12 +33,6 @@
           "type": "path",
           "data": {
             "pathName": "C2L to Lower Feeder"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
           }
         },
         {

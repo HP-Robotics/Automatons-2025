@@ -19,7 +19,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.IDConstants;
@@ -175,7 +177,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void goToL2() {
         goToPosition(Constants.ElevatorConstants.L2Position +
                 m_offset);
-        this.m_targetRotation = Constants.ElevatorConstants.L1Position;
+        this.m_targetRotation = Constants.ElevatorConstants.L2Position;
     }
 
     public Command GoToL2() {
@@ -235,6 +237,18 @@ public class ElevatorSubsystem extends SubsystemBase {
             this.goToElevatorTravel();
             this.m_targetRotation = Constants.ElevatorConstants.elevatorTravelPosition;
         });
+    }
+
+    public Command ElevatorWiggle() {
+        return new SequentialCommandGroup(
+                new InstantCommand(() -> {
+                    goToPosition(m_targetRotation + ElevatorConstants.elevatorWiggleAmount);
+                }),
+                new WaitCommand(ElevatorConstants.elevatorWiggleWait),
+                new InstantCommand(() -> {
+                    goToPosition(m_targetRotation - ElevatorConstants.elevatorWiggleAmount);
+                }),
+                new WaitCommand(ElevatorConstants.elevatorWiggleWait)).repeatedly();
     }
 
     public Command GoToElevatorDown() {
@@ -339,6 +353,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_table.putValue("atIntakePosition", NetworkTableValue.makeBoolean(this.atDownPosition()));
         m_table.putValue("targetRotation", NetworkTableValue.makeDouble(m_targetRotation));
         m_table.putValue("preset", NetworkTableValue.makeString(m_elevatorPreset));
+        m_table.putValue("atSetpoint", NetworkTableValue.makeBoolean(this.atPosition()));
 
     }
 }

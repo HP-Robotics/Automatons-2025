@@ -17,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Right Wall Cage to C3L"
+                  "pathName": "Left Wall Cage to C1L"
                 }
               }
             ]
@@ -32,19 +32,32 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C3L to Lower Feeder"
+            "pathName": "C1L to Upper Feeder"
           }
         },
         {
-          "type": "named",
+          "type": "deadline",
           "data": {
-            "name": "WaitForIntake"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitForIntake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorWiggle"
+                }
+              }
+            ]
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Lower Feeder to F3R"
+            "pathName": "Upper Feeder to C1R"
           }
         },
         {
@@ -56,13 +69,26 @@
         {
           "type": "path",
           "data": {
-            "pathName": "F3R to Lower Feeder"
+            "pathName": "C1R to Upper Feeder"
           }
         },
         {
-          "type": "named",
+          "type": "deadline",
           "data": {
-            "name": "WaitForIntake"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitForIntake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorWiggle"
+                }
+              }
+            ]
           }
         }
       ]

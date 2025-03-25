@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableValue;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ControllerConstants;
@@ -31,7 +32,9 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -154,6 +157,8 @@ public class RobotContainer {
       NamedCommands.registerCommand("WaitForElevator",
           new WaitUntilCommand(m_elevatorSubsystem::atPosition));
       NamedCommands.registerCommand("InitializeElevator", InitializeElevator());
+      NamedCommands.registerCommand("ElevatorWiggle",
+          m_elevatorSubsystem.ElevatorWiggle().until(m_inNOutSubsystem::isLoaded));
     }
     if (SubsystemConstants.useDrive && SubsystemConstants.useElevator && SubsystemConstants.useOuttake) {
       NamedCommands.registerCommand("Score", new SequentialCommandGroup(
@@ -271,6 +276,8 @@ public class RobotContainer {
       // Set state to outtaking if outtake button pressed and we are loaded
       ControllerConstants.outtakeTrigger
           .and(new Trigger(() -> m_inNOutSubsystem.isLoaded() || m_inNOutSubsystem.m_state == "outtaking"))
+          .and(new Trigger(() -> m_elevatorSubsystem.m_targetRotation > ElevatorConstants.elevatorTravelPosition
+              && m_elevatorSubsystem.atPosition()))
           .onTrue(new InstantCommand(() -> {
             m_inNOutSubsystem.m_state = "outtaking";
           }));
@@ -285,10 +292,10 @@ public class RobotContainer {
 
       // ACTIONS
       // run intake if intake button pressed and state is empty or is intaking
-      (new Trigger(() -> m_inNOutSubsystem.m_state == "intaking"))
+      (new Trigger(() -> m_inNOutSubsystem.m_state == "intaking")
           .or((new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
-              .or(new Trigger(() -> !m_inNOutSubsystem.isLoaded()))
-              .and(ControllerConstants.intakeTrigger))
+              .or(new Trigger(() -> !m_inNOutSubsystem.isLoaded())))
+          .and(ControllerConstants.intakeTrigger))
           // .and(new Trigger(m_elevatorSubsystem::atDownPosition))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runIntake, m_inNOutSubsystem::stopIntake))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::loadOuttake, m_inNOutSubsystem::stopOuttake))
@@ -297,7 +304,7 @@ public class RobotContainer {
               () -> LEDSubsystem.trySetMiddlePattern(m_ledSubsystem, m_inNOutSubsystem.m_state == "loaded"
                   ? LEDConstants.coralReadyPattern
                   : LEDConstants.defaultMiddlePattern)));
-      (new Trigger(() -> m_inNOutSubsystem.m_state == "empty")).onTrue(
+      (new Trigger(m_inNOutSubsystem::isEmpty)).onTrue(
           new InstantCommand(() -> LEDSubsystem.trySetMiddlePattern(m_ledSubsystem, LEDConstants.noCoralPattern)));
 
       new Trigger(m_inNOutSubsystem::isLoaded)
@@ -400,14 +407,16 @@ public class RobotContainer {
               () -> LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.noAutoAlignPattern)));
 
       ControllerConstants.m_driveJoystick.button(ControllerConstants.rightAlignButton)
-          .and(m_inNOutSubsystem::isLoaded)
+          .and(new Trigger(m_inNOutSubsystem::outtakeHasCoral)
+              .or(m_inNOutSubsystem::intakeHasCoral))
           .whileTrue(m_driveSubsystem.AutoAlign(FieldConstants.rightAlignPoses))
           .whileTrue(new StartEndCommand(
               () -> LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern),
               () -> LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.noAutoAlignPattern)));
 
       ControllerConstants.m_driveJoystick.button(ControllerConstants.leftAlignButton)
-          .and(m_inNOutSubsystem::isLoaded)
+          .and(new Trigger(m_inNOutSubsystem::outtakeHasCoral)
+              .or(m_inNOutSubsystem::intakeHasCoral))
           .whileTrue(m_driveSubsystem.AutoAlign(FieldConstants.leftAlignPoses))
           .whileTrue(new StartEndCommand(
               () -> LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern),
@@ -426,13 +435,24 @@ public class RobotContainer {
       // new Rotation2d()))));
       // }, m_driveSubsystem));
 
-      ControllerConstants.resetYawTrigger.onTrue(new InstantCommand(() -> m_driveSubsystem.resetYaw()));
+      ControllerConstants.resetYawTrigger
+          .onTrue(new InstantCommand(() -> {
+            m_driveSubsystem.resetYaw();
+            m_driveSubsystem.resetPose(
+                new Pose2d(
+                    m_driveSubsystem.getPose().getTranslation(),
+                    new Rotation2d(
+                        DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red
+                            ? Math.PI
+                            : 0)));
+          }));
     }
 
     if (SubsystemConstants.useElevator && SubsystemConstants.useIntake) {
       new Trigger(m_inNOutSubsystem::outtakeHasCoral)
           .and(() -> m_inNOutSubsystem.m_state != "outtaking")
           .and(() -> m_inNOutSubsystem.m_state != "loaded")
+          .and(() -> m_inNOutSubsystem.m_state != "folded")
           .onTrue(m_elevatorSubsystem.GoToElevatorTravel());
       (ControllerConstants.goToElevatorDownButton
           .or(ControllerConstants.intakeTrigger))

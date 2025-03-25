@@ -37,7 +37,7 @@ public final class Constants {
     public static final boolean useOuttake = true;
     public static final boolean useDataManager = true;
     public static final boolean useLimelight = true;
-    public static final boolean useClimber = false;
+    public static final boolean useClimber = true;
     public static final boolean useLED = true;
     public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
@@ -110,9 +110,9 @@ public final class Constants {
     public static final double L3Position = (48.6670401153 + 3) * inchesToRotations; // 37.7 if low ceiling
     public static final double L2Position = (34.02 + 1) * inchesToRotations;
     public static final double L1Position = (18.9 + 5) * inchesToRotations;
-    public static final double elevatorDownPosition = (2.8 - 1.5) * inchesToRotations; // testing
+    public static final double elevatorDownPosition = (1.95) * inchesToRotations; // testing
     public static final double elevatorTravelPosition = 4.457 * inchesToRotations;
-    public static final double bottomPosition = 0.945 * inchesToRotations;
+    public static final double bottomPosition = (0.945 + 1) * inchesToRotations;
     // TODO: this might be right but should be checked with the other two
     public static final double kP = 1.5;// TODO: tune these more
     public static final double kI = 0.3;
@@ -132,6 +132,9 @@ public final class Constants {
     public static final double motionMagicCruiseVelocity = 150;
     public static final double motionMagicAcceleration = 120;
     public static final double motionMagicJerk = motionMagicCruiseVelocity * 10;
+
+    public static final double elevatorWiggleAmount = 1 * inchesToRotations;
+    public static final double elevatorWiggleWait = 0.1;
   }
 
   public static class ControllerConstants {
@@ -266,8 +269,8 @@ public final class Constants {
   public static class FieldConstants {
     public static final Translation2d blueReefCenter = new Translation2d(4.490323, 4.02);
     public static final Translation2d redReefCenter = new Translation2d(13.059902, 4.02);
-    public static final Translation2d leftC2 = new Translation2d(1.2716 + 0.04, -0.18); // + 0.04 untested
-    public static final Translation2d rightC2 = new Translation2d(1.2716 + 0.04, 0.16);
+    public static final Translation2d leftC2 = new Translation2d(1.2716 + 0.03, -0.18); // + 0.04 untested
+    public static final Translation2d rightC2 = new Translation2d(1.2716 + 0.03, 0.16);
     public static final Translation2d redUpperFeederCenter = new Translation2d(); // TODO: find these numbers
     public static final Translation2d redLowerFeederCenter = new Translation2d();
     public static final Translation2d blueUpperFeederCenter = new Translation2d();
@@ -335,8 +338,8 @@ public final class Constants {
     };
     public static final Pose2d[] leftFeederAlignPoses = {
         FlippingUtil.flipFieldPose(new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(54.293))), // feeder sector 3
-        FlippingUtil.flipFieldPose(new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
-        new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(-53.746)), // feeder sector 0
+        FlippingUtil.flipFieldPose(new Pose2d(0.707, 6.704, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
+        new Pose2d(0.707, 6.704, Rotation2d.fromDegrees(-53.746)), // feeder sector 0
         new Pose2d(0.731, 1.310, Rotation2d.fromDegrees(54.293)), // feeder sector 1
     };
     public static final Translation2d[] feederAlignAngles = {
@@ -349,8 +352,8 @@ public final class Constants {
 
     public static final Pose2d[] rightFeederAlignPoses = {
         FlippingUtil.flipFieldPose(new Pose2d(1.654, 0.626, Rotation2d.fromDegrees(54.293))), // feeder sector 3
-        FlippingUtil.flipFieldPose(new Pose2d(0.707, 6.704, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
-        new Pose2d(0.707, 6.704, Rotation2d.fromDegrees(-53.746)), // feeder sector 0
+        FlippingUtil.flipFieldPose(new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(-53.746))), // feeder sector 2
+        new Pose2d(1.642, 7.376, Rotation2d.fromDegrees(-53.746)), // feeder sector 0
         new Pose2d(1.654, 0.626, Rotation2d.fromDegrees(54.293)), // feeder sector 1
     };
   }
@@ -359,19 +362,21 @@ public final class Constants {
     public static final double foldSpeed = 0.1;
     public static final double foldRunTime = 2;
 
-    public static final double climbModulekP = 0.2;
+    public static final double climbModulekP = 0.4;
     public static final double climbModulekI = 0.001;
-    public static final double climbModulekD = 0;
+    public static final double climbModulekD = 0.04;
     public static final double climbModulekF = 0;
 
     public static final double climberGearRatio = 473.5; // 243;
 
-    public static final double encoderModulusTolerance = 0.05;
+    public static final double encoderModulusTolerance = 0.2;
     public static final double degreesToRelativeRotations = climberGearRatio / 360;
-    public static final double climberStartAbsolute = 0.27;
+    public static final double climberStartAbsolute = 0.8;
     public static final double climberUpRelative = 0.0;
-    public static final double climberDownRelative = 40.0 * degreesToRelativeRotations; // TEMP TEMP 137.78 *
-                                                                                        // degreesToRelativeRotations;
+    public static final double climberDownRelative = 118.0 * degreesToRelativeRotations; // TEMP TEMP 137.78 *
+                                                                                         // degreesToRelativeRotations;
+
+    public static final double offsetErrorThreshold = 5;
   }
 
   public static class IntakeConstants {
@@ -407,7 +412,7 @@ public final class Constants {
 
   public static class OuttakeConstants {
     public static final double outtakeSpeed = -0.6;
-    public static final double loadSpeed = -0.3;
+    public static final double loadSpeed = -0.5;
     public static final double scoreDelay = 0.2;
   }
 

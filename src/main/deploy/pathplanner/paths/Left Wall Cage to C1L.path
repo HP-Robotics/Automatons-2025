@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 5.2455,
-        "y": 5.097499999999999
+        "x": 5.280405966307524,
+        "y": 5.050658371245998
       },
       "prevControl": {
-        "x": 5.838012295081967,
-        "y": 5.823155737704918
+        "x": 5.872918261389491,
+        "y": 5.776314108950917
       },
       "nextControl": null,
       "isLocked": false,
@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "GoToL4",
-      "waypointRelativePos": 0.7305755395683488,
+      "waypointRelativePos": 0.8751339764201437,
       "endWaypointRelativePos": null,
       "command": null
     }
