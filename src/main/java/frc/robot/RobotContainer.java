@@ -217,13 +217,13 @@ public class RobotContainer {
 
       return new ParallelDeadlineGroup(
           new SequentialCommandGroup(
-          new InstantCommand(() -> m_elevatorSubsystem.m_elevatorMotor1.set(-0.2),
-              m_elevatorSubsystem),
-          new WaitUntilCommand(m_elevatorSubsystem::atBottom),
-          new InstantCommand(m_elevatorSubsystem::goToElevatorTravel,
-              m_elevatorSubsystem),
-          new WaitUntilCommand(m_elevatorSubsystem::atPosition),
-          m_inNOutSubsystem.IntakeCoral(),
+              new InstantCommand(() -> m_elevatorSubsystem.m_elevatorMotor1.set(-0.2),
+                  m_elevatorSubsystem),
+              new WaitUntilCommand(m_elevatorSubsystem::atBottom),
+              new InstantCommand(m_elevatorSubsystem::goToElevatorTravel,
+                  m_elevatorSubsystem),
+              new WaitUntilCommand(m_elevatorSubsystem::atPosition),
+              m_inNOutSubsystem.IntakeCoral(),
               new WaitUntilCommand(m_inNOutSubsystem::isLoaded)),
           m_elevatorSubsystem.Dealginate().withTimeout(1));
     } else {
@@ -512,7 +512,7 @@ public class RobotContainer {
       ControllerConstants.dealginateButton.whileTrue(m_elevatorSubsystem.Dealginate());
       new Trigger(() -> (m_elevatorMotor1.getRotorPosition().getValueAsDouble() < m_elevatorSubsystem.m_targetRotation)
           && !m_elevatorSubsystem.atPosition()
-          && m_elevatorMotor1.getRotorPosition().getValueAsDouble() > ElevatorConstants.L1Position)
+          && m_elevatorSubsystem.m_targetRotation > ElevatorConstants.dealginatePosition)
           .whileTrue(m_elevatorSubsystem.Dealginate());
     }
 

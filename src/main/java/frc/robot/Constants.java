@@ -113,6 +113,7 @@ public final class Constants {
     public static final double L1Position = (18.9 + 5) * inchesToRotations;
     public static final double elevatorDownPosition = (2.95) * inchesToRotations; // testing
     public static final double elevatorTravelPosition = 4.457 * inchesToRotations;
+    public static final double dealginatePosition = elevatorTravelPosition + 2 * inchesToRotations;
     public static final double bottomPosition = (0.945 + 1) * inchesToRotations;
     // TODO: this might be right but should be checked with the other two
     public static final double kP = 1.5;// TODO: tune these more
