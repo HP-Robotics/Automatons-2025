@@ -41,6 +41,7 @@ public final class Constants {
     public static final boolean useLED = true;
     public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
+    public static final boolean useDealginator = true;
   }
 
   public static class RobotConfigConstants {
@@ -110,15 +111,16 @@ public final class Constants {
     public static final double L3Position = (48.6670401153 + 3) * inchesToRotations; // 37.7 if low ceiling
     public static final double L2Position = (34.02 + 1) * inchesToRotations;
     public static final double L1Position = (18.9 + 5) * inchesToRotations;
-    public static final double elevatorDownPosition = (1.95) * inchesToRotations; // testing
+    public static final double elevatorDownPosition = (2.95) * inchesToRotations; // testing
     public static final double elevatorTravelPosition = 4.457 * inchesToRotations;
+    public static final double dealginatePosition = elevatorTravelPosition + 2 * inchesToRotations;
     public static final double bottomPosition = (0.945 + 1) * inchesToRotations;
     // TODO: this might be right but should be checked with the other two
     public static final double kP = 1.5;// TODO: tune these more
     public static final double kI = 0.3;
     public static final double kD = 0;
 
-    public static final double errorTolerance = 1.0;
+    public static final double errorTolerance = 0.5;
 
     public static final double upperLimit = 20;
 
@@ -165,19 +167,23 @@ public final class Constants {
     public static final Trigger resetYawTrigger = m_driveJoystick.povDownRight();
 
     // OPERATOR BUTTONS
-    public static final Trigger elevatorL3Trigger = m_opJoystick.button(3);
-    public static final Trigger elevatorL4Trigger = m_opJoystick.button(4);
+    // public static final Trigger elevatorL3Trigger = m_opJoystick.button(3);
+    // public static final Trigger elevatorL4Trigger = m_opJoystick.button(4);
     public static final Trigger elevatorDownButton = m_opJoystick.button(7);
     public static final Trigger elevatorUpButton = m_opJoystick.button(8);
     public static final Trigger intakeTrigger = m_opJoystick.button(5);
+    public static final Trigger dealginateButton = m_opJoystick.povUp();
 
-    // public static final int goToTargetButton = 0; // TODO: change this
-    public static final Trigger overrideButton = m_opJoystick.button(10); // TODO: fix this
+    public static final Trigger overrideButton = m_opJoystick.povDown();
     public static final Trigger goToL1Button = m_opJoystick.button(3);
     public static final Trigger goToL2Button = m_opJoystick.button(1);
     public static final Trigger goToL3Button = m_opJoystick.button(2);
     public static final Trigger goToL4Button = m_opJoystick.button(4);
     public static final Trigger goToElevatorDownButton = m_opJoystick.button(6);
+
+    public static final Trigger opIntakeFold = m_opJoystick.povLeft();
+    public static final Trigger opDualKeyIntakeFoldTrigger = m_opJoystick.axisGreaterThan(3, 0.2);
+    public static final Trigger opTripleKeyIntakeFoldTrigger = m_opJoystick.axisGreaterThan(2, 0.2);
 
     public static double getRotation(CommandJoystick stick) {
       if (useXbox) {

@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 public class InNOutSubsystem extends SubsystemBase {
     // TalonFX m_intakeMotor = new TalonFX(IDConstants.intakeMotorID);
     TalonFX m_outtakeMotor = new TalonFX(IDConstants.outtakeMotorID);
-    // TalonFX m_dealginator = new TalonFX(IDConstants.dealginatorMotorID);
     public SparkMax m_intakeFoldMotor = new SparkMax(IDConstants.intakeFoldMotorID, MotorType.kBrushless);
     public String m_state = "empty";
     NetworkTable m_table;
@@ -95,9 +94,4 @@ public class InNOutSubsystem extends SubsystemBase {
         return new StartEndCommand(this::runOuttake, this::stopOuttake);
     }
 
-    public Command Dealginate() {
-        return new WaitCommand(0);
-        // return new StartEndCommand(() -> m_dealginator.set(0.8), () ->
-        // m_dealginator.set(0));
-    }
 }
