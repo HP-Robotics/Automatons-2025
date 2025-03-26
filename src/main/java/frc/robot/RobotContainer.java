@@ -43,6 +43,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -160,6 +161,10 @@ public class RobotContainer {
       NamedCommands.registerCommand("ElevatorWiggle",
           m_elevatorSubsystem.ElevatorWiggle().until(m_inNOutSubsystem::isLoaded));
     }
+
+    if (SubsystemConstants.useElevator && SubsystemConstants.useDealginator) {
+      NamedCommands.registerCommand("Dealginate", m_elevatorSubsystem.Dealginate());
+    }
     if (SubsystemConstants.useDrive && SubsystemConstants.useElevator && SubsystemConstants.useOuttake) {
       NamedCommands.registerCommand("Score", new SequentialCommandGroup(
           m_driveSubsystem.StayStillCommand(),
@@ -191,6 +196,9 @@ public class RobotContainer {
     }
     if (SubsystemConstants.useIntake) {
       new EventTrigger("WaitForIntake").onTrue(new WaitUntilCommand(m_inNOutSubsystem::isLoaded));
+    }
+    if (SubsystemConstants.useDealginator) {
+      new EventTrigger("Dealginate").onTrue(m_elevatorSubsystem.Dealginate());
     }
     if (SubsystemConstants.useDrive && SubsystemConstants.useElevator && SubsystemConstants.useOuttake) {
       new EventTrigger("Score").onTrue(new SequentialCommandGroup(
@@ -257,7 +265,6 @@ public class RobotContainer {
     if (SubsystemConstants.useIntake) {
       // SETTING STATES
       // Set state to intaking if intake or elevator beam break are broken
-      ControllerConstants.m_opJoystick.povUp().whileTrue(m_inNOutSubsystem.Dealginate());
 
       new Trigger(m_inNOutSubsystem::intakeHasCoral).and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
           .onTrue(new InstantCommand(() -> {
@@ -496,6 +503,14 @@ public class RobotContainer {
       // .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L2ButtonIsPressed()));
       // ControllerConstants.m_opJoystick.button(13)
       // .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L1ButtonIsPressed()));
+    }
+
+    if (SubsystemConstants.useElevator && SubsystemConstants.useDealginator) {
+      ControllerConstants.dealginateButton.whileTrue(m_elevatorSubsystem.Dealginate());
+      new Trigger(() -> (m_elevatorMotor1.getRotorPosition().getValueAsDouble() < m_elevatorSubsystem.m_targetRotation)
+          && !m_elevatorSubsystem.atPosition()
+          && m_elevatorMotor1.getRotorPosition().getValueAsDouble() > ElevatorConstants.L1Position)
+          .whileTrue(m_elevatorSubsystem.Dealginate());
     }
 
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
