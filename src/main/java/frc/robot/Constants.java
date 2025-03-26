@@ -268,7 +268,7 @@ public final class Constants {
     public static final double odometryUpdateFrequency = 250;
 
     public static final double autoAlignJoystickTolerance = Math.PI / 4;
-    public static final double poseDistanceTolerance = 0.02;
+    public static final double poseDistanceTolerance = 0.01;
     public static final double poseAngleTolerance = Math.PI / 60;
   };
 
