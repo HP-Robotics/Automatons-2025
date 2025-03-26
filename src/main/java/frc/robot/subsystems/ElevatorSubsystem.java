@@ -288,7 +288,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public Command Dealginate() {
         if (SubsystemConstants.useDealginator) {
-            return new StartEndCommand(() -> m_dealginator.set(0.8), () -> m_dealginator.set(0));
+            return new StartEndCommand(() -> m_dealginator.set(1), () -> m_dealginator.set(0));
         } else {
             return new WaitCommand(0);
         }
