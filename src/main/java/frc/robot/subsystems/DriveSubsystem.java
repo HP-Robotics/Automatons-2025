@@ -35,9 +35,7 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -88,11 +86,11 @@ public class DriveSubsystem extends SubsystemBase {
   public final Field2d m_targetPose = new Field2d();
 
   private final Pigeon2 m_pGyro = new Pigeon2(IDConstants.PigeonID, "CANivore");
-
-  private StatusSignal<Angle> m_pGyroPitch = m_pGyro.getPitch();
-  private StatusSignal<Angle> m_pGyroYaw = m_pGyro.getYaw();
-  private StatusSignal<Angle> m_pGyroRoll = m_pGyro.getRoll();
-
+  /*
+   * private StatusSignal<Angle> m_pGyroPitch = m_pGyro.getPitch();
+   * private StatusSignal<Angle> m_pGyroYaw = m_pGyro.getYaw();
+   * private StatusSignal<Angle> m_pGyroRoll = m_pGyro.getRoll();
+   */
   private final TrapezoidProfile m_xProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
       DriveConstants.kMaxSpeed / 2.0, AutoConstants.kMaxAccelerationMetersPerSecondSquared / 2.0));
   private final TrapezoidProfile m_yProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(

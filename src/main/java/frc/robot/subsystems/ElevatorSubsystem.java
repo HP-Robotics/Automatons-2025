@@ -295,6 +295,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
     }
 
+    @SuppressWarnings("unused")
     @Override
     public void periodic() {
         // m_table.putValue("state", NetworkTableValue.makeString(elevatorPreset));

@@ -44,7 +44,6 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -523,7 +522,8 @@ public class RobotContainer {
               .and(ControllerConstants.opTripleKeyIntakeFoldTrigger)
               .and(ControllerConstants.opIntakeFold))
           .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime)
-              .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "folded")));
+              .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "folded")))
+          .onTrue(new InstantCommand(() -> m_limelightSubsystem.setLEDs(0)));
 
     }
     if (SubsystemConstants.useClimber) {
