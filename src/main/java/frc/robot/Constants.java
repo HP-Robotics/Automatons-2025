@@ -270,6 +270,8 @@ public final class Constants {
     public static final double autoAlignJoystickTolerance = Math.PI / 4;
     public static final double poseDistanceTolerance = 0.01;
     public static final double poseAngleTolerance = Math.PI / 60;
+
+    public static final double velocityThreshold = 0.01;
   };
 
   public static class FieldConstants {

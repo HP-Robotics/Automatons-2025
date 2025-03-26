@@ -603,6 +603,11 @@ public class DriveSubsystem extends SubsystemBase {
         / (a.getNorm() * b.getNorm()));
   }
 
+  public boolean isStopped(ChassisSpeeds speeds, double threshold) {
+    return Math.sqrt(speeds.vxMetersPerSecond * speeds.vxMetersPerSecond
+        + speeds.vyMetersPerSecond * speeds.vyMetersPerSecond) < threshold;
+  }
+
   public Command AutoAlign(Pose2d[] targetList) {
     return new RunCommand(() -> {
       Pose2d targetPose;
@@ -632,7 +637,7 @@ public class DriveSubsystem extends SubsystemBase {
                         .rotateBy(targetPose.getRotation().plus(new Rotation2d(Math.PI)))),
             targetPose.getRotation());
         driveToPose(newPose);
-        if (arePosesSimilar(getPose(), targetPose)) {
+        if (arePosesSimilar(getPose(), targetPose) && isStopped(getCurrentSpeeds(), DriveConstants.velocityThreshold)) {
           LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAlignReadyPattern);
         } else {
           LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern);
