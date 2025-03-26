@@ -556,7 +556,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public boolean arePosesSimilar(Pose2d pose1, Pose2d pose2) {
     return getDistanceToPose(pose1, pose2) <= DriveConstants.poseDistanceTolerance
-        && getAngleBetweenPoses(pose1, pose2) <= DriveConstants.poseAngleTolerance;
+        && Math.abs(pose1.getRotation().minus(pose2.getRotation()).getRadians()) <= DriveConstants.poseAngleTolerance;
   }
 
   public double getDistanceToPose(Pose2d robot, Pose2d fieldPose) {
@@ -635,7 +635,7 @@ public class DriveSubsystem extends SubsystemBase {
                         .rotateBy(targetPose.getRotation().plus(new Rotation2d(Math.PI)))),
             targetPose.getRotation());
         driveToPose(newPose);
-        if (arePosesSimilar(getPose(), newPose)) {
+        if (arePosesSimilar(getPose(), targetPose)) {
           LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAlignReadyPattern);
         } else {
           LEDSubsystem.trySetSidePattern(m_ledSubsystem, LEDConstants.autoAligningPattern);
