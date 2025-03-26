@@ -107,6 +107,10 @@ public class LimelightSubsystem extends SubsystemBase {
     m_rightTable.getEntry("throttle_set").setDouble(throttle);
   }
 
+  public void setLEDs(int LEDMode) {
+    NetworkTableInstance.getDefault().getTable("limelight-delight").getEntry("ledMode").setNumber(LEDMode);
+  }
+
   public static Pose2d[] getFieldTags(AprilTagFieldLayout field) {
     Pose2d[] output = new Pose2d[field.getTags().size() + 1];
     for (int i = 0; i <= field.getTags().size(); i++) {

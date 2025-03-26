@@ -83,6 +83,10 @@ public class Robot extends TimedRobot {
     if (SubsystemConstants.useLimelight) {
       m_robotContainer.m_limelightSubsystem.setThrottle(LimelightConstants.disabledThrottle);
     }
+
+    if (SubsystemConstants.useLimelight) {
+      m_robotContainer.m_limelightSubsystem.setLEDs(1);
+    }
   }
 
   @Override
@@ -111,6 +115,10 @@ public class Robot extends TimedRobot {
     }
     m_robotContainer.m_inNOutSubsystem.m_state = "empty";
 
+    if (SubsystemConstants.useLimelight) {
+      m_robotContainer.m_limelightSubsystem.setLEDs(1);
+    }
+
   }
 
   /** This function is called periodically during autonomous. */
@@ -133,6 +141,10 @@ public class Robot extends TimedRobot {
     // this line or comment it out.
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
+    }
+
+    if (SubsystemConstants.useLimelight) {
+      m_robotContainer.m_limelightSubsystem.setLEDs(1);
     }
   }
 

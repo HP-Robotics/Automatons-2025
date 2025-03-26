@@ -523,7 +523,8 @@ public class RobotContainer {
               .and(ControllerConstants.opTripleKeyIntakeFoldTrigger)
               .and(ControllerConstants.opIntakeFold))
           .onTrue(new IntakeFoldCommand(m_inNOutSubsystem).withTimeout(ClimberConstants.foldRunTime)
-              .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "folded")));
+              .andThen(new InstantCommand(() -> m_inNOutSubsystem.m_state = "folded")))
+          .onTrue(new InstantCommand(() -> m_limelightSubsystem.setLEDs(0)));
 
     }
     if (SubsystemConstants.useClimber) {
