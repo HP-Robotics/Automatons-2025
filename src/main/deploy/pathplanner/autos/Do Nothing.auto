@@ -5,15 +5,34 @@
     "data": {
       "commands": [
         {
-          "type": "wait",
+          "type": "deadline",
           "data": {
-            "waitTime": 1.0
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Dealginate"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Do Nothing"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Drive Forward, Do Nothing",
+  "folder": null,
   "choreoAuto": false
 }

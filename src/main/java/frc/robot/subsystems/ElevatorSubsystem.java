@@ -20,6 +20,7 @@ import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
@@ -48,6 +49,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     final DoubleSubscriber kASub;
     final DoubleSubscriber kSSub;
     final DoubleSubscriber kVSub;
+    TalonFX m_dealginator = new TalonFX(IDConstants.dealginatorMotorID);
 
     public ElevatorSubsystem(LEDSubsystem ledSubsystem) {
         m_table = NetworkTableInstance.getDefault().getTable("ElevatorSubsystem");
@@ -285,6 +287,14 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     @SuppressWarnings("unused")
+    public Command Dealginate() {
+        if (SubsystemConstants.useDealginator) {
+            return new StartEndCommand(() -> m_dealginator.set(1), () -> m_dealginator.set(0));
+        } else {
+            return new WaitCommand(0);
+        }
+    }
+
     @Override
     public void periodic() {
         // m_table.putValue("state", NetworkTableValue.makeString(elevatorPreset));

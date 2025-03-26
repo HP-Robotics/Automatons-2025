@@ -40,9 +40,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -160,6 +162,10 @@ public class RobotContainer {
       NamedCommands.registerCommand("ElevatorWiggle",
           m_elevatorSubsystem.ElevatorWiggle().until(m_inNOutSubsystem::isLoaded));
     }
+
+    if (SubsystemConstants.useElevator && SubsystemConstants.useDealginator) {
+      NamedCommands.registerCommand("Dealginate", m_elevatorSubsystem.Dealginate());
+    }
     if (SubsystemConstants.useDrive && SubsystemConstants.useElevator && SubsystemConstants.useOuttake) {
       NamedCommands.registerCommand("Score", new SequentialCommandGroup(
           m_driveSubsystem.StayStillCommand(),
@@ -192,6 +198,9 @@ public class RobotContainer {
     if (SubsystemConstants.useIntake) {
       new EventTrigger("WaitForIntake").onTrue(new WaitUntilCommand(m_inNOutSubsystem::isLoaded));
     }
+    if (SubsystemConstants.useDealginator) {
+      new EventTrigger("Dealginate").onTrue(m_elevatorSubsystem.Dealginate());
+    }
     if (SubsystemConstants.useDrive && SubsystemConstants.useElevator && SubsystemConstants.useOuttake) {
       new EventTrigger("Score").onTrue(new SequentialCommandGroup(
           m_driveSubsystem.StayStillCommand(),
@@ -206,15 +215,17 @@ public class RobotContainer {
   public Command InitializeElevator() {
     if (SubsystemConstants.useElevator && SubsystemConstants.useIntake) {
 
-      return new SequentialCommandGroup(
-          new InstantCommand(() -> m_elevatorSubsystem.m_elevatorMotor1.set(-0.2),
-              m_elevatorSubsystem),
-          new WaitUntilCommand(m_elevatorSubsystem::atBottom),
-          new InstantCommand(m_elevatorSubsystem::goToElevatorTravel,
-              m_elevatorSubsystem),
-          new WaitUntilCommand(m_elevatorSubsystem::atPosition),
-          m_inNOutSubsystem.IntakeCoral(),
-          new WaitUntilCommand(m_inNOutSubsystem::isLoaded));
+      return new ParallelDeadlineGroup(
+          new SequentialCommandGroup(
+              new InstantCommand(() -> m_elevatorSubsystem.m_elevatorMotor1.set(-0.2),
+                  m_elevatorSubsystem),
+              new WaitUntilCommand(m_elevatorSubsystem::atBottom),
+              new InstantCommand(m_elevatorSubsystem::goToElevatorTravel,
+                  m_elevatorSubsystem),
+              new WaitUntilCommand(m_elevatorSubsystem::atPosition),
+              m_inNOutSubsystem.IntakeCoral(),
+              new WaitUntilCommand(m_inNOutSubsystem::isLoaded)),
+          m_elevatorSubsystem.Dealginate().withTimeout(1));
     } else {
       return new WaitCommand(0);
     }
@@ -257,7 +268,6 @@ public class RobotContainer {
     if (SubsystemConstants.useIntake) {
       // SETTING STATES
       // Set state to intaking if intake or elevator beam break are broken
-      ControllerConstants.m_opJoystick.povUp().whileTrue(m_inNOutSubsystem.Dealginate());
 
       new Trigger(m_inNOutSubsystem::intakeHasCoral).and(new Trigger(() -> m_inNOutSubsystem.m_state == "empty"))
           .onTrue(new InstantCommand(() -> {
@@ -496,6 +506,14 @@ public class RobotContainer {
       // .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L2ButtonIsPressed()));
       // ControllerConstants.m_opJoystick.button(13)
       // .onTrue(new InstantCommand(() -> m_elevatorSubsystem.L1ButtonIsPressed()));
+    }
+
+    if (SubsystemConstants.useElevator && SubsystemConstants.useDealginator) {
+      ControllerConstants.dealginateButton.whileTrue(m_elevatorSubsystem.Dealginate());
+      new Trigger(() -> (m_elevatorMotor1.getRotorPosition().getValueAsDouble() < m_elevatorSubsystem.m_targetRotation)
+          && !m_elevatorSubsystem.atPosition()
+          && m_elevatorSubsystem.m_targetRotation > ElevatorConstants.dealginatePosition)
+          .whileTrue(m_elevatorSubsystem.Dealginate());
     }
 
     if (SubsystemConstants.useClimber && SubsystemConstants.useIntake) {
