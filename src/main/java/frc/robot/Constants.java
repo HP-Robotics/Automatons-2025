@@ -41,7 +41,7 @@ public final class Constants {
     public static final boolean useLED = true;
     public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
-    public static final boolean useDealginator = true;
+    public static final boolean useDealginator = false;
   }
 
   public static class RobotConfigConstants {
