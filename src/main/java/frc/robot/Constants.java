@@ -278,7 +278,7 @@ public final class Constants {
     public static final Translation2d blueReefCenter = new Translation2d(4.490323, 4.02);
     public static final Translation2d redReefCenter = new Translation2d(13.059902, 4.02);
     public static final Translation2d leftC2 = new Translation2d(1.2716 + 0.03, -0.165 - 0.005); // + 0.04 untested
-    public static final Translation2d rightC2 = new Translation2d(1.2716 + 0.03, 0.165);
+    public static final Translation2d rightC2 = new Translation2d(1.2716 + 0.03, 0.165 + 0.0025);
     public static final Translation2d redUpperFeederCenter = new Translation2d(); // TODO: find these numbers
     public static final Translation2d redLowerFeederCenter = new Translation2d();
     public static final Translation2d blueUpperFeederCenter = new Translation2d();
