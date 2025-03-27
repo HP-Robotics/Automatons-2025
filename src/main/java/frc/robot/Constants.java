@@ -419,7 +419,7 @@ public final class Constants {
   }
 
   public static class OuttakeConstants {
-    public static final double outtakeSpeed = -0.6;
+    public static final double outtakeSpeed = -0.5;
     public static final double loadSpeed = -0.5;
     public static final double scoreDelay = 0.2;
   }
