@@ -107,7 +107,7 @@ public final class Constants {
 
   public static class ElevatorConstants {
     public static final double inchesToRotations = 5 / (Math.PI * 1.504);
-    public static final double L4Position = (71.82 + 3.5 + 0.5) * inchesToRotations; // 42.5 if low ceiling
+    public static final double L4Position = (71.82 + 3.5 + 0.75) * inchesToRotations; // 42.5 if low ceiling
     public static final double L3Position = (48.6670401153 + 3) * inchesToRotations; // 37.7 if low ceiling
     public static final double L2Position = (34.02 + 1) * inchesToRotations;
     public static final double L1Position = (18.9 + 5) * inchesToRotations;
