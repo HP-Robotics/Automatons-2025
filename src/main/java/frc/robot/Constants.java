@@ -427,8 +427,8 @@ public final class Constants {
   public static class LEDConstants {
     public static final int port = 0;
     public static final int length = 60;
-    public static final int middleFirstIndex = 10;
-    public static final int middleLastIndex = 49;
+    public static final int middleFirstIndex = 12;
+    public static final int middleLastIndex = 42;
     public static final Time blinkInterval = Seconds.of(0.5);
 
     public static final LEDPattern noCoralPattern = LEDPattern.solid(Color.kRed);
@@ -438,7 +438,7 @@ public final class Constants {
     public static final LEDPattern cagePattern = LEDPattern.solid(Color.kBlue);
     public static final LEDPattern elevatorMovingPattern = LEDPattern.solid(Color.kRed).blink(blinkInterval);
     public static final LEDPattern autoAlignReadyPattern = LEDPattern.solid(Color.kGreen);
-    public static final LEDPattern autoAligningPattern = LEDPattern.solid(new Color(255, 32, 0)).blink(blinkInterval);
+    public static final LEDPattern autoAligningPattern = LEDPattern.solid(new Color(255, 0, 255)).blink(blinkInterval);
     public static final LEDPattern noAutoAlignPattern = LEDPattern.solid(Color.kBlack);
     public static final LEDPattern defaultSidePattern = LEDPattern.solid(Color.kRed).blink(blinkInterval);
     public static final LEDPattern defaultMiddlePattern = noCoralPattern;
