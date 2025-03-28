@@ -44,6 +44,7 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -99,7 +100,12 @@ public class RobotContainer {
       m_driveSubsystem.setDefaultCommand(
           new RunCommand(
               () -> {
-                m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
+                if (SubsystemConstants.useClimber && SubsystemConstants.useIntake
+                    && m_inNOutSubsystem.m_state == "folded") {
+                    m_driveSubsystem.slowDriveWithJoystick(ControllerConstants.m_driveJoystick);
+                } else {
+                  m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
+                }
               },
               m_driveSubsystem));
 
