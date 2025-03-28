@@ -133,6 +133,25 @@ public class DriveSubsystem extends SubsystemBase {
         * -1
         * DriveConstants.kMaxAngularSpeed;
   };
+
+  DoubleSupplier m_slowJoystickForward = () -> {
+    return Math.signum(ControllerConstants.m_driveJoystick.getRawAxis(1))
+        * Math.pow(MathUtil.applyDeadband(ControllerConstants.m_driveJoystick.getRawAxis(1),
+            ControllerConstants.driveJoystickDeadband), ControllerConstants.driveJoystickExponent)
+        * -1 * DriveConstants.kSlowSpeed;
+  };
+  DoubleSupplier m_slowJoystickSideways = () -> {
+    return Math.signum(ControllerConstants.m_driveJoystick.getRawAxis(0))
+        * Math.pow(MathUtil.applyDeadband(ControllerConstants.m_driveJoystick.getRawAxis(0),
+            ControllerConstants.driveJoystickDeadband), ControllerConstants.driveJoystickExponent)
+        * -1 * DriveConstants.kSlowSpeed;
+  };
+  DoubleSupplier m_slowJoystickRotation = () -> {
+    return MathUtil.applyDeadband(ControllerConstants.m_driveJoystick.getRawAxis(4),
+        ControllerConstants.driveJoystickDeadband)
+        * -1
+        * DriveConstants.kSlowAngularSpeed;
+  };
   Function<Double, Double> m_pidX = (Double target) -> {
     return -MathUtil.clamp(m_xController.calculate(m_poseEstimator.getPose().getX(),
         target), -1, 1);
@@ -363,6 +382,14 @@ public class DriveSubsystem extends SubsystemBase {
         m_joystickForward.getAsDouble(),
         m_joystickSideways.getAsDouble(),
         m_joystickRotation.getAsDouble(),
+        m_fieldRelative);
+  }
+
+  public void slowDriveWithJoystick(CommandJoystick joystick) {
+    drive(
+        m_slowJoystickForward.getAsDouble(),
+        m_slowJoystickSideways.getAsDouble(),
+        m_slowJoystickRotation.getAsDouble(),
         m_fieldRelative);
   }
 

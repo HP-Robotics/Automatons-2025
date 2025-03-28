@@ -199,7 +199,7 @@ public final class Constants {
     public static final double kMaxAngularSpeed = Math.PI * 1.3; // 1/2 rotation per second //auto is 540
     public static final double kModuleMaxAngularSpeed = 10; // TODO: Is right?
     public static final double kSlowSpeed = 2.0;
-    public static final double kSlowAngularspeed = Math.PI / 2; // 1/4 rotation per second
+    public static final double kSlowAngularSpeed = Math.PI / 2; // 1/4 rotation per second
 
     public static final double kWheelRadius = 0.0508 * (218.5 / 225.6); // This is a fudge factor
     public static final double kEncoderResolution = 1.0;
