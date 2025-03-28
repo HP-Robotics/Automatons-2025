@@ -316,6 +316,8 @@ public class DriveSubsystem extends SubsystemBase {
             m_backRight.m_absEncoder.get() != 0
             && m_frontLeft.m_absEncoder.get() != 0 && m_frontRight.m_absEncoder.get() != 0));
 
+    m_driveTrainTable.putValue("Gyro Angle", NetworkTableValue.makeDouble(getYaw()));
+
     // TODO investigate why this takes so long
     m_frontLeft.updateShuffleboard();
     m_frontRight.updateShuffleboard();
