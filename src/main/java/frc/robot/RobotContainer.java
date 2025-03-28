@@ -102,7 +102,7 @@ public class RobotContainer {
               () -> {
                 if (SubsystemConstants.useClimber && SubsystemConstants.useIntake
                     && m_inNOutSubsystem.m_state == "folded") {
-                  m_driveSubsystem.slowDriveWithJoystick(null);
+                    m_driveSubsystem.slowDriveWithJoystick(ControllerConstants.m_driveJoystick);
                 } else {
                   m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
                 }
