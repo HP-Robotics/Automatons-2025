@@ -102,7 +102,7 @@ public class RobotContainer {
               () -> {
                 if (SubsystemConstants.useClimber && SubsystemConstants.useIntake
                     && m_inNOutSubsystem.m_state == "folded") {
-                    m_driveSubsystem.slowDriveWithJoystick(ControllerConstants.m_driveJoystick);
+                  m_driveSubsystem.slowDriveWithJoystick(ControllerConstants.m_driveJoystick);
                 } else {
                   m_driveSubsystem.driveWithJoystick(ControllerConstants.m_driveJoystick);
                 }
@@ -328,7 +328,12 @@ public class RobotContainer {
 
       // Shoot if outtaking and stop when done
       new Trigger(() -> m_inNOutSubsystem.m_state == "outtaking")
+          .and(new Trigger(() -> m_elevatorSubsystem.m_targetRotation != ElevatorConstants.L2Position))
           .whileTrue(new StartEndCommand(m_inNOutSubsystem::runOuttake, m_inNOutSubsystem::stopOuttake));
+
+      new Trigger(() -> m_inNOutSubsystem.m_state == "outtaking")
+          .and(new Trigger(() -> m_elevatorSubsystem.m_targetRotation == ElevatorConstants.L2Position))
+          .whileTrue(new StartEndCommand(m_inNOutSubsystem::runL2Outtake, m_inNOutSubsystem::stopOuttake));
 
       // Manual override button
       ControllerConstants.overrideButton
