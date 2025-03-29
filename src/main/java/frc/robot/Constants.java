@@ -109,7 +109,7 @@ public final class Constants {
     public static final double inchesToRotations = 5 / (Math.PI * 1.504);
     public static final double L4Position = (71.82 + 3.5 + 0.75) * inchesToRotations; // 42.5 if low ceiling
     public static final double L3Position = (48.6670401153 + 3) * inchesToRotations; // 37.7 if low ceiling
-    public static final double L2Position = (34.02 + 1) * inchesToRotations;
+    public static final double L2Position = (34.02 + 1.25) * inchesToRotations;
     public static final double L1Position = (18.9 + 5) * inchesToRotations;
     public static final double elevatorDownPosition = (2.95) * inchesToRotations; // testing
     public static final double elevatorTravelPosition = 4.457 * inchesToRotations;
@@ -420,6 +420,7 @@ public final class Constants {
 
   public static class OuttakeConstants {
     public static final double outtakeSpeed = -0.5;
+    public static final double L2OuttakeSpeed = -0.4;
     public static final double loadSpeed = -0.5;
     public static final double scoreDelay = 0.2;
   }

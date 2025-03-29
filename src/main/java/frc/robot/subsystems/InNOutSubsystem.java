@@ -43,6 +43,10 @@ public class InNOutSubsystem extends SubsystemBase {
         m_outtakeMotor.set(OuttakeConstants.outtakeSpeed);
     }
 
+    public void runL2Outtake() {
+        m_outtakeMotor.set(OuttakeConstants.L2OuttakeSpeed);
+    }
+
     public void loadOuttake() {
         m_outtakeMotor.set(OuttakeConstants.loadSpeed);
     }
@@ -91,6 +95,10 @@ public class InNOutSubsystem extends SubsystemBase {
 
     public Command OuttakeCoral() {
         return new StartEndCommand(this::runOuttake, this::stopOuttake);
+    }
+
+    public Command OuttakeL2Coral() {
+        return new StartEndCommand(this::runL2Outtake, this::stopOuttake);
     }
 
 }
