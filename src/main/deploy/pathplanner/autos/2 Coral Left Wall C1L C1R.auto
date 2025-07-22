@@ -91,31 +91,6 @@
               }
             ]
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "C1R to Upper Feeder"
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitForIntake"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "ElevatorWiggle"
-                }
-              }
-            ]
-          }
         }
       ]
     }

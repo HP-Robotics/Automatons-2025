@@ -17,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Left Center Cage to C2L"
+                  "pathName": "Left Wall Cage to C1L"
                 }
               }
             ]
@@ -45,7 +45,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C2L to Lower Feeder"
+            "pathName": "C1L to Upper Feeder"
           }
         },
         {
@@ -70,7 +70,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Lower Feeder to F3L"
+            "pathName": "Upper Feeder to C1R"
           }
         },
         {
@@ -87,6 +87,31 @@
                 "type": "named",
                 "data": {
                   "name": "Dealginate"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "C1R to Upper Feeder"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitForIntake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ElevatorWiggle"
                 }
               }
             ]
