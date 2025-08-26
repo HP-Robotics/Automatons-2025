@@ -37,8 +37,8 @@ public final class Constants {
     public static final boolean useOuttake = true;
     public static final boolean useDataManager = true;
     public static final boolean useLimelight = true;
-    public static final boolean useClimber = true;
-    public static final boolean useLED = true;
+    public static final boolean useClimber = false;
+    public static final boolean useLED = false;
     public static final boolean usePoseEstimator = true;
     public static final boolean useElevator = true;
     public static final boolean useDealginator = false;
@@ -416,6 +416,7 @@ public final class Constants {
     public static final Pose2d aprilTagList[] = LimelightSubsystem.getFieldTags(field);
     public static final int disabledThrottle = 200;
     public static final double imuAssist = 0.005;
+    public static final double targetForgetTime = 0.5;
   }
 
   public static class OuttakeConstants {

@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.PhotonVisionSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -35,6 +36,7 @@ import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PS5Controller.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -81,6 +83,7 @@ public class RobotContainer {
   final ClimberSubsystem m_climberSubsystem = SubsystemConstants.useClimber ? new ClimberSubsystem() : null;
   final ElevatorSubsystem m_elevatorSubsystem = SubsystemConstants.useElevator ? new ElevatorSubsystem(m_ledSubsystem)
       : null;
+  final PhotonVisionSubsystem m_photonVisionSubsystem = new PhotonVisionSubsystem();
 
   BeamBreak m_intakeBeamBreak = new BeamBreak(0);
   TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
@@ -266,6 +269,11 @@ public class RobotContainer {
               },
               m_elevatorSubsystem));
     }
+
+    ControllerConstants.closePinnerTrigger.whileTrue(new RunCommand(() -> {
+      m_driveSubsystem.drivePointedTowardsAngle(ControllerConstants.m_driveJoystick,
+          m_poseEstimatorSubsystem.getPose().getRotation().minus(Rotation2d.fromDegrees(m_photonVisionSubsystem.yaw)));
+    }));
     /*
      * PRODUCTION CODE
      */
