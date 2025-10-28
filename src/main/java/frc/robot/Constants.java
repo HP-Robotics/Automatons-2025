@@ -11,6 +11,8 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
+import static edu.wpi.first.units.Units.Centimeters;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Optional;
@@ -28,6 +30,9 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.LimelightSubsystem;
+import com.therekrab.autopilot.APConstraints;
+import com.therekrab.autopilot.APProfile;
+import com.therekrab.autopilot.Autopilot;
 
 public final class Constants {
 
@@ -416,6 +421,19 @@ public final class Constants {
     public static final Pose2d aprilTagList[] = LimelightSubsystem.getFieldTags(field);
     public static final int disabledThrottle = 200;
     public static final double imuAssist = 0.005;
+
+    /* Autopilot code */
+
+    private static final APConstraints kConstraints = new APConstraints()
+        .withAcceleration(5.0)
+        .withJerk(2.0);
+
+    private static final APProfile kProfile = new APProfile(kConstraints)
+        .withErrorXY(Centimeters.of(2))
+        .withErrorTheta(Degrees.of(0.5))
+        .withBeelineRadius(Centimeters.of(8));
+
+    public static final Autopilot kAutopilot = new Autopilot(kProfile);
   }
 
   public static class OuttakeConstants {

@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Function;
@@ -16,6 +18,8 @@ import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+import com.therekrab.autopilot.APTarget;
+import com.therekrab.autopilot.Autopilot.APResult;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -91,10 +95,10 @@ public class DriveSubsystem extends SubsystemBase {
    * private StatusSignal<Angle> m_pGyroYaw = m_pGyro.getYaw();
    * private StatusSignal<Angle> m_pGyroRoll = m_pGyro.getRoll();
    */
-  private final TrapezoidProfile m_xProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
-      DriveConstants.kMaxSpeed / 2.0, AutoConstants.kMaxAccelerationMetersPerSecondSquared / 2.0));
-  private final TrapezoidProfile m_yProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
-      DriveConstants.kMaxSpeed / 2.0, AutoConstants.kMaxAccelerationMetersPerSecondSquared / 2.0));
+  // private final TrapezoidProfile m_xProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
+  //     DriveConstants.kMaxSpeed / 2.0, AutoConstants.kMaxAccelerationMetersPerSecondSquared / 2.0));
+  // private final TrapezoidProfile m_yProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
+  //     DriveConstants.kMaxSpeed / 2.0, AutoConstants.kMaxAccelerationMetersPerSecondSquared / 2.0));
 
   PIDController m_rotationController;
   PIDController m_xController;
@@ -416,39 +420,48 @@ public class DriveSubsystem extends SubsystemBase {
         NetworkTableValue.makeDouble(m_rotationController.getSetpoint()));
   }
 
-  public void driveToPose(Pose2d target) {
+  public void driveToPose(Pose2d targetPose) {
     int allianceVelocityMultiplier = DriverStation.getAlliance().isPresent()
         && DriverStation.getAlliance().get() == Alliance.Red ? -1 : 1;
     // Alliance velocity multiplier: if it's 1 or -1 based if you're red/blue
 
-    TrapezoidProfile.State m_targetX = m_xProfile.calculate(TimedRobot.kDefaultPeriod,
-        new TrapezoidProfile.State(m_poseEstimator.getPose().getX(),
-            allianceVelocityMultiplier * getFieldRelativeSpeeds().vxMetersPerSecond),
-        new TrapezoidProfile.State(target.getX(), 0.0));
+    // TrapezoidProfile.State m_targetX =
+    // m_xProfile.calculate(TimedRobot.kDefaultPeriod,
+    // new TrapezoidProfile.State(m_poseEstimator.getPose().getX(),
+    // allianceVelocityMultiplier * getFieldRelativeSpeeds().vxMetersPerSecond),
+    // new TrapezoidProfile.State(targetPose.getX(), 0.0));
 
-    TrapezoidProfile.State m_targetY = m_yProfile.calculate(TimedRobot.kDefaultPeriod,
-        new TrapezoidProfile.State(m_poseEstimator.getPose().getY(),
-            allianceVelocityMultiplier * getFieldRelativeSpeeds().vyMetersPerSecond),
-        new TrapezoidProfile.State(target.getY(), 0.0));
+    // TrapezoidProfile.State m_targetY =
+    // m_yProfile.calculate(TimedRobot.kDefaultPeriod,
+    // new TrapezoidProfile.State(m_poseEstimator.getPose().getY(),
+    // allianceVelocityMultiplier * getFieldRelativeSpeeds().vyMetersPerSecond),
+    // new TrapezoidProfile.State(targetPose.getY(), 0.0));
 
-    m_driveTrainTable.putValue("Real X Error",
-        NetworkTableValue.makeDouble(m_poseEstimator.getPose().getX() - m_xController.getSetpoint()));
-    m_driveTrainTable.putValue("Real Y Error",
-        NetworkTableValue.makeDouble(m_poseEstimator.getPose().getY() - m_yController.getSetpoint()));
+    // m_driveTrainTable.putValue("Real X Error",
+    // NetworkTableValue.makeDouble(m_poseEstimator.getPose().getX() -
+    // m_xController.getSetpoint()));
+    // m_driveTrainTable.putValue("Real Y Error",
+    // NetworkTableValue.makeDouble(m_poseEstimator.getPose().getY() -
+    // m_yController.getSetpoint()));
 
-    double rot = m_pidRotation.apply(target.getRotation());
+    // double rot = m_pidRotation.apply(targetPose.getRotation());
     // double x = m_pidX.apply(m_targetX.position);
     // double y = m_pidY.apply(m_targetY.position);
 
+    // New autopilot stuff
+    APTarget target = new APTarget(targetPose).withEntryAngle(getPose().getRotation());
+    APResult result = LimelightConstants.kAutopilot.calculate(getPose(), getCurrentSpeeds(), target);
+    double rot = m_pidRotation.apply(result.targetAngle());
+    double vx = result.vx().in(MetersPerSecond);
+    double vy = result.vy().in(MetersPerSecond);
+
     drive(
-        allianceVelocityMultiplier * m_targetX.velocity, // x * 1 *
-        // DriveConstants.kMaxSpeed,
-        allianceVelocityMultiplier * m_targetY.velocity, // y * 1 *
-        // DriveConstants.kMaxSpeed,
+        allianceVelocityMultiplier * vx, // x * 1 * DriveConstants.kMaxSpeed,
+        allianceVelocityMultiplier * vy, // y * 1 * DriveConstants.kMaxSpeed,
         rot * DriveConstants.kMaxAngularSpeed,
         true);
 
-    m_autoAlignPublisher.set(target);
+    m_autoAlignPublisher.set(targetPose);
     m_driveTrainTable.putValue("X Error", NetworkTableValue.makeDouble(m_xController.getError()));
     m_driveTrainTable.putValue("X P Contribution",
         NetworkTableValue.makeDouble(m_xController.getError() * m_xController.getP()));
