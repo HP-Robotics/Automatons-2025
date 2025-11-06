@@ -449,7 +449,7 @@ public class DriveSubsystem extends SubsystemBase {
     // double y = m_pidY.apply(m_targetY.position);
 
     // New autopilot stuff
-    APTarget target = new APTarget(targetPose).withEntryAngle(getPose().getRotation());
+    APTarget target = new APTarget(targetPose);
     APResult result = LimelightConstants.kAutopilot.calculate(getPose(), getCurrentSpeeds(), target);
     double rot = m_pidRotation.apply(result.targetAngle());
     double vx = result.vx().in(MetersPerSecond);

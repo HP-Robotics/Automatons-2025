@@ -429,11 +429,12 @@ public final class Constants {
         .withJerk(2.0);
 
     private static final APProfile kProfile = new APProfile(kConstraints)
-        .withErrorXY(Centimeters.of(2))
+        .withErrorXY(Centimeters.of(1))
         .withErrorTheta(Degrees.of(0.5))
         .withBeelineRadius(Centimeters.of(8));
 
     public static final Autopilot kAutopilot = new Autopilot(kProfile);
+    // you just lost the game
   }
 
   public static class OuttakeConstants {
