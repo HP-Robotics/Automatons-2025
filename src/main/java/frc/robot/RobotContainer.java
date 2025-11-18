@@ -25,20 +25,28 @@ import frc.robot.subsystems.InNOutSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
-
+import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -61,9 +69,11 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 
+@SuppressWarnings("unused")
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   SendableChooser<String> m_autoChooser;
+  SendableChooser<String> m_pathChooser;
   final PoseEstimatorSubsystem m_poseEstimatorSubsystem = SubsystemConstants.usePoseEstimator
       ? new PoseEstimatorSubsystem()
       : null;
@@ -84,7 +94,7 @@ public class RobotContainer {
 
   BeamBreak m_intakeBeamBreak = new BeamBreak(0);
   TalonFX m_elevatorMotor1 = new TalonFX(IDConstants.ElevatorMotor1ID);
-
+  
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -95,6 +105,10 @@ public class RobotContainer {
     if (SubsystemConstants.useDrive) {
       m_driveSubsystem.configureAutoBuilder();
     }
+    /* TODO: Uncomment this when the pathchooser works
+    if (SubsystemConstants.useDrive) {
+      m_driveSubsystem.configurePathChooser();
+    }*/
 
     if (SubsystemConstants.useDrive) {
       m_driveSubsystem.setDefaultCommand(
@@ -118,6 +132,13 @@ public class RobotContainer {
       // 0.0, new Rotation2d(0))),
       // m_driveSubsystem));
 
+      //Build a path chooser- very similar to the autochooser below
+      m_pathChooser = new SendableChooser<String>();
+      for (String pathName : getAllPathNames()) {
+        m_pathChooser.addOption(pathName, pathName);
+      }
+      SmartDashboard.putData("Path Chooser", m_pathChooser);
+
       // Build an auto chooser. This will use Commands.none() as the default option.
       m_autoChooser = new SendableChooser<String>();
       for (String autoName : AutoBuilder.getAllAutoNames()) {
@@ -139,7 +160,6 @@ public class RobotContainer {
     }
   }
 
-  @SuppressWarnings("unused")
   private void configureNamedCommands() {
     if (SubsystemConstants.useElevator && SubsystemConstants.useIntake) {
       NamedCommands.registerCommand("Intake",
@@ -560,4 +580,26 @@ public class RobotContainer {
     return (PathPlannerAuto) AutoBuilder.buildAuto(m_autoChooser.getSelected());
   }
 
+  public Command FollowSinglePathFromChooser(SendableChooser<String> pathChooser) {
+    try {
+      return AutoBuilder.followPath(PathPlannerPath.fromPathFile(m_pathChooser.getSelected()));
+  } catch (Exception e) {
+      DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
+      return Commands.none();
+    }
+  }
+
+  public static List<String> getAllPathNames() {
+    File[] pathFiles = new File(Filesystem.getDeployDirectory(), "pathplanner/paths").listFiles();
+    
+    if (pathFiles == null) {
+      return new ArrayList<>();
+    }
+    return Stream.of(pathFiles)
+        .filter(file -> !file.isDirectory())
+        .map(File::getName)
+        .filter(name -> name.endsWith(".path"))
+        .map(name -> name.substring(0, name.lastIndexOf(".")))
+        .collect(Collectors.toList());
+  }
 }

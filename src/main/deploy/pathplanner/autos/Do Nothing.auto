@@ -33,6 +33,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Drive Forward, Do Nothing",
   "choreoAuto": false
 }
