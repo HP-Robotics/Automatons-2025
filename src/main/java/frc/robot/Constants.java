@@ -381,7 +381,7 @@ public final class Constants {
     public static final double degreesToRelativeRotations = climberGearRatio / 360;
     public static final double climberStartAbsolute = 0.8;
     public static final double climberUpRelative = 0.0;
-    public static final double climberDownRelative = 118.0 * degreesToRelativeRotations; // TEMP TEMP 137.78 *
+    public static final double climberDownRelative = 1440.0 * degreesToRelativeRotations; // TEMP TEMP 137.78 *
                                                                                          // degreesToRelativeRotations;
 
     public static final double offsetErrorThreshold = 5;

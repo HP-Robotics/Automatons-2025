@@ -87,14 +87,16 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public Optional<Double> getAbsEncoder() {
-        var encoderAbs = m_absEncoder.get();
-        if (Math.abs(encoderAbs) == 0 || Math.abs(encoderAbs) == 1) {
-            return Optional.empty();
-        } else {
-            return Optional.of(MathUtil.inputModulus(encoderAbs,
-                    ClimberConstants.climberStartAbsolute - 1 + ClimberConstants.encoderModulusTolerance,
-                    ClimberConstants.climberStartAbsolute + ClimberConstants.encoderModulusTolerance));
-        }
+
+        return Optional.empty();
+        // var encoderAbs = m_absEncoder.get();
+        // if (Math.abs(encoderAbs) == 0 || Math.abs(encoderAbs) == 1) {
+        //     return Optional.empty();
+        // } else {
+        //     return Optional.of(MathUtil.inputModulus(encoderAbs,
+        //             ClimberConstants.climberStartAbsolute - 1 + ClimberConstants.encoderModulusTolerance,
+        //             ClimberConstants.climberStartAbsolute + ClimberConstants.encoderModulusTolerance));
+        // }
     }
 
     @Override
@@ -112,7 +114,7 @@ public class ClimberSubsystem extends SubsystemBase {
          */
         if (m_timer.hasElapsed(5)) {
             var encoderAbs = getAbsEncoder();
-            if (encoderAbs.isPresent()) {
+            if (encoderAbs.isPresent()) 
                 if (m_offset == 0
                         || Math.abs(ClimberConstants.climberDownRelative + m_offset - m_climbMotor.getRotorPosition()
                                 .getValueAsDouble()) > ClimberConstants.offsetErrorThreshold) {
@@ -131,7 +133,7 @@ public class ClimberSubsystem extends SubsystemBase {
                              */
                             + m_climbMotor.getRotorPosition().getValueAsDouble();
                 }
-            }
+            
 
             m_table.putValue("AbsEncoder", NetworkTableValue.makeDouble(m_absEncoder.get()));
             m_table.putValue("Relative encoder",
