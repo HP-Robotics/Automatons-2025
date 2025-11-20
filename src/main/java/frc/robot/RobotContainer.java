@@ -543,8 +543,11 @@ public class RobotContainer {
           .onFalse(m_climberSubsystem.StopClimb());
       ControllerConstants.m_driveJoystick.button(ControllerConstants.intakeFoldDualKeyButton)
           .or(ControllerConstants.opIntakeFold)
-          .onTrue(m_climberSubsystem.ResetClimber())
+          .onTrue(m_climberSubsystem.RaiseClimber())
           .onFalse(m_climberSubsystem.StopClimb());
+      ControllerConstants.resetClimberOverrideTrigger
+        .onTrue(m_climberSubsystem.ResetClimber())
+        .onFalse(m_climberSubsystem.StopClimb());
     }
   }
 
