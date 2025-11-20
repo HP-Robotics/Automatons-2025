@@ -165,6 +165,7 @@ public final class Constants {
     public static final int intakeFoldDualKeyButton = 8;
     public static final Trigger closePinnerTrigger = m_driveJoystick.axisGreaterThan(3, 0.2);
     public static final Trigger resetYawTrigger = m_driveJoystick.povDownRight();
+    public static final Trigger resetClimberOverrideTrigger = m_driveJoystick.povUpLeft();
 
     // OPERATOR BUTTONS
     // public static final Trigger elevatorL3Trigger = m_opJoystick.button(3);
@@ -380,8 +381,9 @@ public final class Constants {
     public static final double encoderModulusTolerance = 0.2;
     public static final double degreesToRelativeRotations = climberGearRatio / 360;
     public static final double climberStartAbsolute = 0.8;
-    public static final double climberUpRelative = 0.0;
-    public static final double climberDownRelative = 118.0 * degreesToRelativeRotations; // TEMP TEMP 137.78 *
+    public static final double climberOut = 500.0; //* degreesToRelativeRotations;
+    public static final double climberIn = 0.0 ; // TEMP TEMP 137.78 *
+    public static final double climberReset = -1000;
                                                                                          // degreesToRelativeRotations;
 
     public static final double offsetErrorThreshold = 5;

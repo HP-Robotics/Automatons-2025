@@ -65,8 +65,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void setClimbMotorConfigs() {
         var climberSoftLimits = new SoftwareLimitSwitchConfigs();
-        climberSoftLimits.ForwardSoftLimitThreshold = ClimberConstants.climberDownRelative + m_offset;
-        climberSoftLimits.ReverseSoftLimitThreshold = ClimberConstants.climberUpRelative + m_offset;
+        climberSoftLimits.ForwardSoftLimitThreshold = ClimberConstants.climberIn + m_offset;
+        climberSoftLimits.ReverseSoftLimitThreshold = ClimberConstants.climberOut + m_offset;
         climberSoftLimits.ForwardSoftLimitEnable = true;
         climberSoftLimits.ReverseSoftLimitEnable = true;
         m_climbMotor.getConfigurator().apply(climberSoftLimits);
@@ -74,27 +74,36 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public Command Climb() {
         return new RunCommand(
-                () -> m_climbMotor.setControl(new PositionDutyCycle(ClimberConstants.climberDownRelative + m_offset)));
+                () -> m_climbMotor.setControl(new PositionDutyCycle(ClimberConstants.climberIn + m_offset)));
     }
 
     public Command StopClimb() {
         return new InstantCommand(() -> m_climbMotor.setControl(new NeutralOut()));
     }
 
-    public Command ResetClimber() {
+    public Command RaiseClimber() {
         return new InstantCommand(
-                () -> m_climbMotor.setControl(new PositionDutyCycle(ClimberConstants.climberUpRelative + m_offset)));
+                () -> m_climbMotor.setControl(new PositionDutyCycle(ClimberConstants.climberOut + m_offset)));
     }
 
+    public Command ResetClimber() {
+        return new InstantCommand(
+                () -> m_climbMotor.setControl(new PositionDutyCycle(ClimberConstants.climberReset + m_offset)));
+    }
+
+
+
     public Optional<Double> getAbsEncoder() {
-        var encoderAbs = m_absEncoder.get();
-        if (Math.abs(encoderAbs) == 0 || Math.abs(encoderAbs) == 1) {
-            return Optional.empty();
-        } else {
-            return Optional.of(MathUtil.inputModulus(encoderAbs,
-                    ClimberConstants.climberStartAbsolute - 1 + ClimberConstants.encoderModulusTolerance,
-                    ClimberConstants.climberStartAbsolute + ClimberConstants.encoderModulusTolerance));
-        }
+
+        return Optional.empty();
+        // var encoderAbs = m_absEncoder.get();
+        // if (Math.abs(encoderAbs) == 0 || Math.abs(encoderAbs) == 1) {
+        //     return Optional.empty();
+        // } else {
+        //     return Optional.of(MathUtil.inputModulus(encoderAbs,
+        //             ClimberConstants.climberStartAbsolute - 1 + ClimberConstants.encoderModulusTolerance,
+        //             ClimberConstants.climberStartAbsolute + ClimberConstants.encoderModulusTolerance));
+        // }
     }
 
     @Override
@@ -112,9 +121,9 @@ public class ClimberSubsystem extends SubsystemBase {
          */
         if (m_timer.hasElapsed(5)) {
             var encoderAbs = getAbsEncoder();
-            if (encoderAbs.isPresent()) {
+            if (encoderAbs.isPresent()) 
                 if (m_offset == 0
-                        || Math.abs(ClimberConstants.climberDownRelative + m_offset - m_climbMotor.getRotorPosition()
+                        || Math.abs(ClimberConstants.climberIn + m_offset - m_climbMotor.getRotorPosition()
                                 .getValueAsDouble()) > ClimberConstants.offsetErrorThreshold) {
                     m_offset = (encoderAbs.get() - ClimberConstants.climberStartAbsolute)
                             * ClimberConstants.climberGearRatio
@@ -131,16 +140,16 @@ public class ClimberSubsystem extends SubsystemBase {
                              */
                             + m_climbMotor.getRotorPosition().getValueAsDouble();
                 }
+            
             }
-
-            m_table.putValue("AbsEncoder", NetworkTableValue.makeDouble(m_absEncoder.get()));
+           // m_table.putValue("AbsEncoder", NetworkTableValue.makeDouble(m_absEncoder.get()));
             m_table.putValue("Relative encoder",
                     NetworkTableValue.makeDouble(m_climbMotor.getRotorPosition().getValueAsDouble()));
-            m_table.putValue("Offset", NetworkTableValue.makeDouble(m_offset));
-            m_table.putValue("Error",
-                    NetworkTableValue.makeDouble(m_climbMotor.getClosedLoopError().getValueAsDouble()));
+           // m_table.putValue("Offset", NetworkTableValue.makeDouble(m_offset));
+           // m_table.putValue("Error",
+                   // NetworkTableValue.makeDouble(m_climbMotor.getClosedLoopError().getValueAsDouble()));
             m_table.putValue("Down Setpoint",
-                    NetworkTableValue.makeDouble(ClimberConstants.climberDownRelative + m_offset));
-        }
+                    NetworkTableValue.makeDouble(ClimberConstants.climberIn + m_offset));
+        
     }
 }
