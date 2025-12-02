@@ -8,6 +8,7 @@ import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.PoseEstimatorSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.networktables.NetworkTableValue;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.ControllerConstants;
@@ -18,6 +19,7 @@ import frc.robot.Constants.LEDConstants;
 import frc.robot.Constants.OuttakeConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SubsystemConstants;
+import frc.robot.commands.DriveToRelativeTargetCommand;
 import frc.robot.commands.IntakeFoldCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -266,6 +268,10 @@ public class RobotContainer {
               },
               m_elevatorSubsystem));
     }
+
+    ControllerConstants.m_driveJoystick.button(2)
+        .whileTrue(new DriveToRelativeTargetCommand(m_driveSubsystem, m_poseEstimatorSubsystem,
+            new Transform2d(-1, 0, new Rotation2d())));
     /*
      * PRODUCTION CODE
      */

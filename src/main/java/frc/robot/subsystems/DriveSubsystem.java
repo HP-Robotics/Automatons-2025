@@ -100,7 +100,7 @@ public class DriveSubsystem extends SubsystemBase {
   // private final TrapezoidProfile m_yProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
   //     DriveConstants.kMaxSpeed / 2.0, AutoConstants.kMaxAccelerationMetersPerSecondSquared / 2.0));
 
-  PIDController m_rotationController;
+  public PIDController m_rotationController;
   PIDController m_xController;
   PIDController m_yController;
   PoseEstimatorSubsystem m_poseEstimator;
