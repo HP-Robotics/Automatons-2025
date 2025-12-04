@@ -381,10 +381,10 @@ public final class Constants {
     public static final double encoderModulusTolerance = 0.2;
     public static final double degreesToRelativeRotations = climberGearRatio / 360;
     public static final double climberStartAbsolute = 0.8;
-    public static final double climberOut = 500.0; //* degreesToRelativeRotations;
-    public static final double climberIn = 0.0 ; // TEMP TEMP 137.78 *
-    public static final double climberReset = -1000;
-                                                                                         // degreesToRelativeRotations;
+    public static final double climberOut = 500.0; // * degreesToRelativeRotations;
+    public static final double climberIn = 0.0; // TEMP TEMP 137.78 *
+    public static final double climberReset = -500;
+    // degreesToRelativeRotations;
 
     public static final double offsetErrorThreshold = 5;
   }
